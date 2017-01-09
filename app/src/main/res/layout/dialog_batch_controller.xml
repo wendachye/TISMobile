@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/dialog_outline">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dialog_outline_width"
+        android:layout_marginRight="@dimen/dialog_outline_width"
+        android:layout_marginTop="@dimen/dialog_outline_width"
+        android:background="@drawable/dialog_header_bg"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvCheckInTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingBottom="@dimen/dialog_header_title_text_spacing"
+            android:paddingTop="@dimen/dialog_header_title_text_spacing"
+            android:text="BATCH CONTROLLER INPUT"
+            android:textStyle="bold"
+            android:textSize="@dimen/header_title_text" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/dialog_content_bg">
+
+        <TextView
+            android:id="@+id/tvMetricTon"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_margin="@dimen/big_spacing"
+            android:text="@string/prompt_metric_ton"
+            android:textSize="17dp"
+            android:textAlignment="center"
+            android:padding="@dimen/summary_spacing"
+            android:background="@drawable/dialog_outline"
+            android:maxLines="1"/>
+
+        <EditText
+            android:id="@+id/etLitre"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:hint="@string/prompt_litre"
+            android:textAlignment="center"
+            android:inputType="numberDecimal"
+            android:maxLines="1"
+            android:layout_margin="@dimen/big_spacing"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="@dimen/dialog_content_left_right_spacing"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="OK"
+                android:textSize="@dimen/default_app_text" />
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textSize="@dimen/default_app_text" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

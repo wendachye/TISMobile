@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvDetailsVerificationTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:text="DETAILS VERIFICATION"
+        android:textSize="@dimen/header_title_text"
+        android:textStyle="bold"/>
+
+    <Button
+        android:id="@+id/btnScanOperatorId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginTop="@dimen/dialog_content_left_right_spacing"
+        android:text="OPERATOR ID"
+        android:textSize="@dimen/default_app_text" />
+
+    <TextView
+        android:id="@+id/tvOperatorId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnScanOperatorId"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:textSize="@dimen/default_app_text" />
+
+    <Button
+        android:id="@+id/btnScanDriverId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:text="DRIVER ID"
+        android:textSize="@dimen/default_app_text" />
+
+    <TextView
+        android:id="@+id/tvDriverId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnScanDriverId"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:textSize="@dimen/default_app_text" />
+
+    <Button
+        android:id="@+id/btnScanWorkInstruction"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:text="WORK INSTRUCTION"
+        android:textSize="@dimen/default_app_text" />
+
+</LinearLayout>

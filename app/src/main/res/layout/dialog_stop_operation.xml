@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+        <TextView
+            android:id="@+id/tvStopOperationTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center_horizontal"
+            android:text="STOP OPERATION VERIFICATION"
+            android:textStyle="bold"
+            android:textSize="@dimen/header_title_text" />
+
+        <Button
+            android:id="@+id/btnPumpStop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+            android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+            android:layout_marginTop="@dimen/dialog_content_left_right_spacing"
+            android:text="PUMP STOP"
+            android:textSize="@dimen/default_app_text" />
+
+        <TextView
+            android:id="@+id/tvPumpStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnPumpStop"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:textSize="@dimen/default_app_text" />
+
+        <Button
+            android:id="@+id/btnScanSeal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+            android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+            android:text="SCAN SEAL"
+            android:textSize="@dimen/default_app_text" />
+
+        <TextView
+            android:id="@+id/tvScanSeal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/btnScanSeal"
+            android:layout_centerHorizontal="true"
+            android:layout_gravity="center_horizontal"
+            android:textSize="@dimen/default_app_text" />
+
+        <Button
+            android:id="@+id/btnDeparture"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+            android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+            android:text="Departure"
+            android:textSize="@dimen/default_app_text" />
+
+</LinearLayout>

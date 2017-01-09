@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvDriverSafetyCheckTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:text="DRIVER AND SAFETY CHECKS"
+        android:textStyle="bold"
+        android:textSize="@dimen/header_title_text" />
+
+    <Button
+        android:id="@+id/btnScanPPE"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginTop="@dimen/dialog_content_left_right_spacing"
+        android:text="PPE"
+        android:textSize="@dimen/default_app_text" />
+
+    <Button
+        android:id="@+id/btnSDS"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginTop="@dimen/dialog_content_top_bottom_spacing2"
+        android:text="SDS"
+        android:textSize="@dimen/default_app_text" />
+
+    <Button
+        android:id="@+id/btnScanDetails"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginTop="@dimen/dialog_content_top_bottom_spacing2"
+        android:text="SCAN DETAILS"
+        android:textSize="@dimen/default_app_text" />
+
+    <Button
+        android:id="@+id/btnSafetyCheck"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginTop="@dimen/dialog_content_top_bottom_spacing2"
+        android:text="SAFETY CHECKS"
+        android:textSize="@dimen/default_app_text" />
+
+</LinearLayout>

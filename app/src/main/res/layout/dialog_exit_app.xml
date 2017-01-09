@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/dialog_outline"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dialog_outline_width"
+        android:layout_marginRight="@dimen/dialog_outline_width"
+        android:layout_marginTop="@dimen/dialog_outline_width"
+        android:background="@drawable/dialog_header_bg"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvExitAppTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:paddingBottom="@dimen/dialog_header_title_text_spacing"
+            android:paddingTop="@dimen/dialog_header_title_text_spacing"
+            android:text="QUIT APPLICATION"
+            android:textStyle="bold"
+            android:textSize="@dimen/header_title_text" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dialog_outline_width"
+        android:layout_marginLeft="@dimen/dialog_outline_width"
+        android:layout_marginRight="@dimen/dialog_outline_width"
+        android:background="@drawable/dialog_content_bg"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvMsg"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/dialog_header_content_spacing"
+            android:text="Are you sure you want to exit?"
+            android:textSize="@dimen/default_app_text" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="@dimen/dialog_content_left_right_spacing"
+            android:layout_marginTop="@dimen/dialog_content_left_right_spacing"
+            android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+            android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="OK"
+                android:textSize="@dimen/default_app_text" />
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="@dimen/dialog_header_content_spacing"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textSize="@dimen/default_app_text" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

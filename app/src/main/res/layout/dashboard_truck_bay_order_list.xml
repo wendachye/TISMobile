@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorBlack">
+
+        <TextView
+            android:id="@+id/tvLoadingBayTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/header_title_text_spacing"
+            android:text="Loading Bay"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/header_title_text" />
+
+    </LinearLayout>
+
+    <!--<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/list_view_header_color"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/tvLoadingBayOrderId"
+            android:layout_width="@dimen/no_width"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/list_item_spacing"
+            android:layout_marginRight="@dimen/list_item_spacing"
+            android:layout_weight="0.15"
+            android:padding="@dimen/list_item_padding"
+            android:text="Order"
+            android:textColor="@color/colorBlack"
+            android:textSize="@dimen/default_app_text" />
+
+        <TextView
+            android:id="@+id/separator1"
+            android:layout_width="@dimen/separator_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@color/colorBlack" />
+
+        <TextView
+            android:id="@+id/tvLoadingBayCustomer"
+            android:layout_width="@dimen/no_width"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/list_item_spacing"
+            android:layout_marginRight="@dimen/list_item_spacing"
+            android:layout_weight="0.35"
+            android:padding="@dimen/list_item_padding"
+            android:text="Customer"
+            android:textColor="@color/colorBlack"
+            android:textSize="@dimen/default_app_text" />
+
+        <TextView
+            android:id="@+id/separator2"
+            android:layout_width="@dimen/separator_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@color/colorBlack" />
+
+        <TextView
+            android:id="@+id/tvLoadingBayProduct"
+            android:layout_width="@dimen/no_width"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/list_item_spacing"
+            android:layout_marginRight="@dimen/list_item_spacing"
+            android:layout_weight="0.35"
+            android:padding="@dimen/list_item_padding"
+            android:text="Product"
+            android:textColor="@color/colorBlack"
+            android:textSize="@dimen/default_app_text" />
+
+        <TextView
+            android:id="@+id/separator3"
+            android:layout_width="@dimen/separator_width"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@color/colorBlack" />
+
+        <TextView
+            android:id="@+id/tvLoadingBayTankNo"
+            android:layout_width="@dimen/no_width"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/list_item_spacing"
+            android:layout_marginRight="@dimen/list_item_spacing"
+            android:layout_weight="0.15"
+            android:padding="@dimen/list_item_padding"
+            android:text="Tank No"
+            android:textColor="@color/colorBlack"
+            android:textSize="@dimen/default_app_text" />
+
+    </LinearLayout>-->
+
+    <LinearLayout
+        android:id="@+id/lvTruckBayOrder"
+        android:layout_width="match_parent"
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
+    </LinearLayout>
+
+</LinearLayout>

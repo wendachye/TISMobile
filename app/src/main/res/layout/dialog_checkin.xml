@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvCheckInTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/header_title_text_spacing"
+        android:layout_marginTop="@dimen/header_title_text_spacing"
+        android:gravity="center_horizontal"
+        android:text="CHECK-IN"
+        android:textSize="@dimen/header_title_text" />
+
+    <TextView
+        android:id="@+id/hDivider1"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/separator_width"
+        android:background="@color/colorBlack" />
+
+    <Button
+        android:id="@+id/btnScanTechnician"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginTop="@dimen/dialog_header_content_spacing"
+        android:text="Press to scan ID of Technician"
+        android:textSize="@dimen/default_app_text" />
+
+    <TextView
+        android:id="@+id/tvTechnicianId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnScanTechnician"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/dialog_content_left_right_spacing"
+        android:textSize="@dimen/default_app_text" />
+
+    <Button
+        android:id="@+id/btnScanTruckBay"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
+        android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
+        android:text="Press to scan Truck Loading Bay"
+        android:textSize="@dimen/default_app_text" />
+
+    <TextView
+        android:id="@+id/tvTruckBayId"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnScanTruckBay"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="@dimen/dialog_header_content_spacing"
+        android:textSize="@dimen/default_app_text" />
+</LinearLayout>

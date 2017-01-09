@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/header_menu"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/headerMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/header_title_text_spacing"
+        android:layout_marginRight="@dimen/header_title_text_spacing"
+        android:layout_marginTop="@dimen/header_title_text_spacing"
+        android:text="WELCOME MR X. YOU ARE LOGGED IN. PLEASE ENSURE YOU CHECK-IN TO YOUR TRUCK LOADING BAY"
+        android:textSize="@dimen/header_menu_text" />
+
+    <TextView
+        android:id="@+id/hDivider1"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/separator_width"
+        android:background="@color/colorBlack" />
+
+    <TextView
+        android:id="@+id/greenSeparator1"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/header_green_bar_height"
+        android:background="@color/colorGreen" />
+
+    <TextView
+        android:id="@+id/hDivider2"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/separator_width"
+        android:background="@color/colorBlack" />
+</LinearLayout>
