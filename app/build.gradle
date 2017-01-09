@@ -38,6 +38,7 @@ dependencies {
     compile 'com.android.support:gridlayout-v7:25.1.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
+    compile 'com.scottyab:aescrypt:0.0.1'
     testCompile 'junit:junit:4.12'
 }
 
