@@ -1,8 +1,14 @@
 package com.bizconnectivity.tismobile.Classes;
 
-/**
- * Created by BCPL-Programmer on 3/1/2017.
- */
-
 public class PPE {
+
+	String ppePictureURL;
+
+	public void setPpePictureURL(String ppePictureURL) {
+		this.ppePictureURL = ppePictureURL;
+	}
+
+	public String getPpePictureURL() {
+		return ppePictureURL;
+	}
 }
