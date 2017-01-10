@@ -12,59 +12,54 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-public class CheckSealWS {
+public class TechnicianIDWS {
 
-	public static boolean invokeCheckSeal(int timeslotId, String sealNo) {
+	public static boolean invokeTechnicianIDWS(String nric)
+	{
+		boolean result = false;
 
-		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CHECK_SEAL);
+		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_CHECK_TECHNICIAN_NRIC);
 
-		// Property which holds input parameters
-		PropertyInfo propertyInfoTSID = new PropertyInfo();
+		PropertyInfo nricPI = new PropertyInfo();
 		// Set Name
-		propertyInfoTSID.setName("timeslotId");
+		nricPI.setName("nric");
 		// Set Value
-		propertyInfoTSID.setValue(timeslotId);
+		nricPI.setValue(nric);
 		// Set dataType
-		propertyInfoTSID.setType(int.class);
+		nricPI.setType(String.class);
 		// Add the property to request object
-		request.addProperty(propertyInfoTSID);
-
-		// Property which holds input parameters
-		PropertyInfo propertyInfoSN = new PropertyInfo();
-		// Set Name
-		propertyInfoSN.setName("sealNo");
-		// Set Value
-		propertyInfoSN.setValue(sealNo);
-		// Set dataType
-		propertyInfoSN.setType(String.class);
-		// Add the property to request object
-		request.addProperty(propertyInfoSN);
+		request.addProperty(nricPI);
 
 		// Create envelope
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
 		envelope.dotNet = true;
-
 		// Set output SOAP object
 		envelope.setOutputSoapObject(request);
 		// Create HTTP call object
 		HttpTransportSE androidHttpTransport = new HttpTransportSE(ConstantWS.URL);
 
 		try {
-			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_CHECK_SEAL, envelope);
+			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_CHECK_TECHNICIAN_NRIC, envelope);
 
-			if (envelope.bodyIn instanceof SoapFault) {
-				SoapFault response = (SoapFault) envelope.bodyIn;
+			if(envelope.bodyIn instanceof SoapFault)
+			{
+				SoapFault response = (SoapFault)envelope.bodyIn;
 				Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
-			} else {
+			}
+			else
+			{
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
 
-				String result = responseProperty.toString();
+				String responseWS = responseProperty.toString();
 
-				if (result.equals("true")) {
-					return true;
+				if (responseWS.equals("true")) {
+
+					result = true;
+
 				} else {
-					return false;
+
+					result = false;
 				}
 			}
 		} catch (Exception e) {
@@ -72,6 +67,6 @@ public class CheckSealWS {
 			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
-		return false;
+		return result;
 	}
 }

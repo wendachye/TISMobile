@@ -23,6 +23,7 @@ import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.WebServices.CheckInWSAsync;
 import com.bizconnectivity.tismobile.WebServices.ConstantWS;
+import com.bizconnectivity.tismobile.WebServices.TechnicianIDWSAsync;
 import com.bizconnectivity.tismobile.WebServices.UserWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
@@ -32,23 +33,12 @@ import java.util.Set;
 
 public class CheckInActivity extends AppCompatActivity {
 
-    //region Header and Footer
     Context context;
-
-    //footer buttons
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-
-    //TextViews
     TextView headerMessage;
-
-    //Dialog boxes
     Dialog exitDialog;
-    //endregion
-
-    //Buttons
     Button btnScanTechnician, btnScanTruckBay;
 
-    public boolean isTruckBayValid;
     public TextView tvTruckBayId, tvTechnicianId;
     public SharedPreferences sharedPref;
 
@@ -90,14 +80,14 @@ public class CheckInActivity extends AppCompatActivity {
             }
         });
 
-        String technicianId = sharedPref.getString(Constant.SHARED_PREF_TECHNICIAN_ID, "");
+        String technicianID = sharedPref.getString(Constant.SHARED_PREF_TECHNICIAN_ID, "");
         Set<String> truckLoadingBayList = sharedPref.getStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, null);
 
-        if (!technicianId.isEmpty() && truckLoadingBayList != null){
+        if (!technicianID.isEmpty() && truckLoadingBayList != null){
 
             btnScanTechnician.setTextColor(getResources().getColor(R.color.colorWhite));
             btnScanTechnician.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            tvTechnicianId.setText(technicianId);
+            tvTechnicianId.setText(technicianID);
 
             String trunkBayString = "";
             for (String truckBayID : truckLoadingBayList) {
@@ -113,11 +103,12 @@ public class CheckInActivity extends AppCompatActivity {
             btnScanTruckBay.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             btnScanTruckBay.setEnabled(true);
 
-        } else if (!technicianId.isEmpty()) {
+        } else if (!technicianID.isEmpty()) {
 
             btnScanTechnician.setTextColor(getResources().getColor(R.color.colorWhite));
             btnScanTechnician.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            tvTechnicianId.setText(technicianId);
+            tvTechnicianId.setText(technicianID);
+
             btnScanTruckBay.setEnabled(true);
 
         }
@@ -166,13 +157,8 @@ public class CheckInActivity extends AppCompatActivity {
 
                 if (returnScanValue.equals(Constant.SCAN_VALUE_TECHNICIAN_ID)) {
 
-                    editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, scanContent);
-                    editor.commit();
-
-                    tvTechnicianId.setText(scanContent);
-                    btnScanTechnician.setTextColor(getResources().getColor(R.color.colorWhite));
-                    btnScanTechnician.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-                    btnScanTruckBay.setEnabled(true);
+                    TechnicianIDWSAsync task = new TechnicianIDWSAsync(this, scanContent);
+                    task.execute();
 
                 } else if (returnScanValue.equals(Constant.SCAN_VALUE_TRUCK_LOADING_BAY)) {
 

@@ -19,6 +19,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Adapters.CustomOrderAdapter;
+import com.bizconnectivity.tismobile.Classes.JobDetail;
 import com.bizconnectivity.tismobile.Classes.Order;
 import com.bizconnectivity.tismobile.Classes.TruckBayOrderList;
 import com.bizconnectivity.tismobile.Common;
@@ -26,6 +27,7 @@ import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.WebServices.ConstantWS;
 import com.bizconnectivity.tismobile.WebServices.DashboardWSAsync;
+import com.bizconnectivity.tismobile.WebServices.JobDetailWSAsync;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,18 +36,10 @@ import java.util.Set;
 
 public class DashboardActivity extends AppCompatActivity {
 
-    //region Header and Footer
     Context context;
-
-    //footer buttons
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-
-    //TextViews
     TextView headerMessage;
-
-    //Dialog boxes
     Dialog exitDialog;
-    //endregion
 
     public boolean isBayClicked;
     public SharedPreferences sharedPref;
@@ -68,6 +62,13 @@ public class DashboardActivity extends AppCompatActivity {
         /*-------- Footer Buttons --------*/
         setFooterMenu();
         //endregion
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2016, Calendar.MARCH, 22, 8, 0, 0);
+        String truckNo = "01";
+
+//        JobDetailWSAsync task = new JobDetailWSAsync(this, calendar.getTime(), truckNo);
+//        task.execute();
 
         setCheckedInTruckLoadingBayDetails();
     }
@@ -277,16 +278,6 @@ public class DashboardActivity extends AppCompatActivity {
         exitDialog.show();
     }
     //endregion
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onPause();
-    }
 
     //Confirmation dialog before exiting the application
     @Override

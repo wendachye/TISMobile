@@ -76,49 +76,8 @@ public class UserWS {
             e.printStackTrace();
             Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
         }
+
         return success;
     }
 
-    public static boolean invokeCheckTruckRackExistsWS(String rackNo)
-    {
-        boolean success = false;
-        SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_CHECK_TRUCK_RACK_EXISTS);
-
-        PropertyInfo rackPI = new PropertyInfo();
-        // Set Name
-        rackPI.setName("rackNo");
-        // Set Value
-        rackPI.setValue(rackNo);
-        // Set dataType
-        rackPI.setType(String.class);
-        // Add the property to request object
-        request.addProperty(rackPI);
-
-        // Create envelope
-        SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
-        envelope.dotNet = true;
-        // Set output SOAP object
-        envelope.setOutputSoapObject(request);
-        // Create HTTP call object
-        HttpTransportSE androidHttpTransport = new HttpTransportSE(ConstantWS.URL);
-
-        try {
-            androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_CHECK_TRUCK_RACK_EXISTS, envelope);
-
-            if(envelope.bodyIn instanceof SoapFault)
-            {
-                SoapFault response = (SoapFault)envelope.bodyIn;
-                Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
-            }
-            else
-            {
-                SoapObject response = (SoapObject) envelope.bodyIn;
-                success = getElementsFromSuccessSOAP(response);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
-        }
-        return success;
-    }
 }

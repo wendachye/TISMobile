@@ -18,9 +18,13 @@ public class ConstantWS {
     public static String WSTYPE_CHECKTRUCKRACK = "CheckTruckRack";
 
     public static String WS_VALIDATE_AD_USER = "Mobile_ValidateADUser";
+    public static String WS_CHECK_TECHNICIAN_NRIC = "Mobile_CheckTechnicianNRIC";
     public static String WS_CHECK_TRUCK_RACK_EXISTS = "Mobile_CheckTruckRackExists";
 
     /*-------- Dashboard WS--------*/
+
+    public static String WS_GET_ALL_JOB_DETAILS = "Mobile_GetAllJobDetails";
+
     public static String WSTYPE_ALL_COUNT = "AllCount";
     public static String WSTYPE_LATE_COUNT = "LateCount";
     public static String WSTYPE_TODAY_COUNT = "TodayCount";

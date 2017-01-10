@@ -13,12 +13,18 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.bizconnectivity.tismobile.Classes.UserDetail;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.UserDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.WebServices.ConstantWS;
+import com.bizconnectivity.tismobile.WebServices.DashboardWS;
+import com.bizconnectivity.tismobile.WebServices.JobDetailWS;
 import com.bizconnectivity.tismobile.WebServices.UserWSAsync;
+import com.scottyab.aescrypt.AESCrypt;
 
+import java.security.GeneralSecurityException;
 import java.sql.Time;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -34,6 +40,8 @@ public class LoginActivity extends AppCompatActivity  {
     // UI references.
     private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;
+
+    UserDetail userDetail = new UserDetail();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,15 +117,45 @@ public class LoginActivity extends AppCompatActivity  {
         } else {
             if (Common.isNetworkAvailable(this)) {
                 if (username.equals(Constant.TEST_USERNAME) && password.equals(Constant.TEST_PASSWORD)) {
+
+                    //navigate to dashboard
                     Intent intent = new Intent(this, DashboardActivity.class);
+                    finish();
                     startActivity(intent);
+
                 } else {
-                    UserWSAsync task = new UserWSAsync(this, ConstantWS.WSTYPE_LOGIN, username, password);
+
+                    //check with webservice
+                    UserWSAsync task = new UserWSAsync(this, username, password);
                     task.execute();
+
                 }
             }
             else {
-                Common.shortToast(this, "Network Not Available");
+                if (username.equals(Constant.TEST_USERNAME) && password.equals(Constant.TEST_PASSWORD)) {
+
+                    //navigate to dashboard
+                    Intent intent = new Intent(this, DashboardActivity.class);
+                    finish();
+                    startActivity(intent);
+
+                } else {
+
+                    //check user login offline
+                    try {
+
+                        //encrypt password
+                        String encryptedPassword = AESCrypt.encrypt(password, Constant.KEY_ENCRYPT);
+                        userDetail.setUsername(username);
+                        userDetail.setPassword(encryptedPassword);
+
+                        checkUserLogin(userDetail);
+
+                    } catch (GeneralSecurityException e) {
+                        e.printStackTrace();
+                    }
+
+                }
             }
         }
     }
@@ -134,6 +172,43 @@ public class LoginActivity extends AppCompatActivity  {
 
         focusView = mUsernameView;
         focusView.requestFocus();
+    }
+
+    private void checkUserLogin(UserDetail userDetail) {
+
+        // Reset errors.
+        mUsernameView.setError(null);
+        mPasswordView.setError(null);
+        View focusView = null;
+
+        UserDetailDataSource userDetailDataSource = new UserDetailDataSource(this);
+        userDetailDataSource.open();
+
+        String message = userDetailDataSource.retrieveUserDetails(userDetail);
+
+        userDetailDataSource.close();
+
+        if (message == Constant.MSG_LOGIN_CORRECT) {
+
+            //navigate to dashboard
+            Intent intent = new Intent(this, DashboardActivity.class);
+            finish();
+            startActivity(intent);
+
+        } else if (message == Constant.ERR_MSG_INCORRECT_USERNAME) {
+
+            mUsernameView.setError(Constant.ERR_MSG_INCORRECT_USERNAME);
+            focusView = mUsernameView;
+            focusView.requestFocus();
+
+        } else {
+
+            mPasswordView.setError(Constant.ERR_MSG_INCORRECT_PASSWORD);
+            focusView = mPasswordView;
+            focusView.requestFocus();
+
+        }
+
     }
 }
 

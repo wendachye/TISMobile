@@ -45,13 +45,15 @@ public class GHSWS {
 			//invole web service
 			androidHTTPTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_GET_PRODUCT_GHS, envelope);
 
-			if(envelope.bodyIn instanceof SoapFault)
-			{
+			if(envelope.bodyIn instanceof SoapFault) {
+
 				ghsArrayList.clear();
 
 			} else {
+
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				ghsArrayList = getElementFromGHS(response);
+
 			}
 
 		} catch (Exception e) {

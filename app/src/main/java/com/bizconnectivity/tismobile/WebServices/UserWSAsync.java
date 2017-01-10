@@ -1,75 +1,84 @@
 package com.bizconnectivity.tismobile.WebServices;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.CheckInActivity;
+import com.bizconnectivity.tismobile.Classes.UserDetail;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.Activities.DashboardActivity;
+import com.bizconnectivity.tismobile.Database.DataSources.UserDetailDataSource;
+import com.scottyab.aescrypt.AESCrypt;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.security.GeneralSecurityException;
 
 public class UserWSAsync extends AsyncTask<String, Void, Void> {
 
     Context appContext;
-
-    String type;
-    String username;
-    String password;
-    String rackNo;
+    String Username;
+    String Password;
 
     boolean success;
 
+    UserDetail userDetail = new UserDetail();
+
     ProgressDialog progressDialog;
 
-    public UserWSAsync(Context context, String tType, String name, String pw) {
+    public UserWSAsync(Context context, String username, String password) {
         appContext = context;
-        type = tType;
-        username = name;
-        password = pw;
-    }
-
-    public UserWSAsync(Context context, String tType, String rack) {
-        appContext = context;
-        type = tType;
-        rackNo = rack;
+        Username = username;
+        Password = password;
     }
 
     @Override
     protected Void doInBackground(String... params) {
-        if (type.equals(ConstantWS.WSTYPE_LOGIN))
-            success = UserWS.invokeLoginWS(username, password);
-        else if (type.equals(ConstantWS.WSTYPE_CHECKTRUCKRACK))
-            success = UserWS.invokeCheckTruckRackExistsWS(rackNo);
+
+        success = UserWS.invokeLoginWS(Username, Password);
+
         return null;
+
     }
 
     @Override
     protected void onPostExecute(Void result) {
-        if (type.equals(ConstantWS.WSTYPE_LOGIN)) {
 
-            if (success) {
-                //end progress dialog
-                progressDialog.dismiss();
-                //set username
-                Constant.LOGIN_LOGINNAME = username;
-                //navigate to dashboard activity
-                Intent intent = new Intent(appContext, DashboardActivity.class);
-                appContext.startActivity(intent);
-            } else {
-                //end progress dialog
-                progressDialog.dismiss();
 
-                Common.shortToast(appContext, Constant.ERR_MSG_LOGIN_INCORRECT);
+        if (success) {
+
+            //set username
+            Constant.LOGIN_LOGINNAME = Username;
+
+            //store user details to sqlitedatabase
+            try {
+
+                //encrypt password
+                String encryptedPassword = AESCrypt.encrypt(Password, Constant.KEY_ENCRYPT);
+                userDetail.setUsername(Username);
+                userDetail.setPassword(encryptedPassword);
+
+                insertOrUpdateUserDetails(userDetail);
+
+            } catch (GeneralSecurityException e) {
+                e.printStackTrace();
             }
-        }
 
+            //end progress dialog
+            progressDialog.dismiss();
+
+            //navigate to dashboard activity
+            Intent intent = new Intent(appContext, DashboardActivity.class);
+            appContext.startActivity(intent);
+
+        } else {
+
+            //end progress dialog
+            progressDialog.dismiss();
+            //prompt error message
+            Common.shortToast(appContext, Constant.ERR_MSG_LOGIN_INCORRECT);
+
+        }
     }
 
     @Override
@@ -82,4 +91,16 @@ public class UserWSAsync extends AsyncTask<String, Void, Void> {
     protected void onProgressUpdate(Void... values) {
 
     }
+
+    private void insertOrUpdateUserDetails(UserDetail userDetail) {
+
+        UserDetailDataSource userDetailDataSource = new UserDetailDataSource(appContext);
+        userDetailDataSource.open();
+
+        userDetailDataSource.insertOrUpdateUserDetails(userDetail);
+
+        userDetailDataSource.close();
+    }
+
+
 }

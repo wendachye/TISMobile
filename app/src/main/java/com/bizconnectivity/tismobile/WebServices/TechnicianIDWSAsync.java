@@ -1,0 +1,81 @@
+package com.bizconnectivity.tismobile.WebServices;
+
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
+
+import com.bizconnectivity.tismobile.Activities.CheckInActivity;
+import com.bizconnectivity.tismobile.Common;
+import com.bizconnectivity.tismobile.Constant;
+
+public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
+
+	Context appContext;
+	String NRIC;
+
+	boolean response;
+
+	ProgressDialog progressDialog;
+
+	public TechnicianIDWSAsync(Context context, String nric) {
+		appContext = context;
+		NRIC = nric;
+	}
+
+	@Override
+	protected Void doInBackground(String... params) {
+
+		response = TechnicianIDWS.invokeTechnicianIDWS(NRIC);
+		return null;
+
+	}
+
+	@Override
+	protected void onPostExecute(Void result) {
+
+		SharedPreferences sharedPref = appContext.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+		SharedPreferences.Editor editor = sharedPref.edit();
+
+		if (response) {
+
+			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, NRIC);
+			editor.commit();
+
+			//end progress dialog
+			progressDialog.dismiss();
+
+			Intent intent = new Intent(appContext, CheckInActivity.class);
+			((CheckInActivity)appContext).finish();
+			appContext.startActivity(intent);
+
+		} else {
+
+			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, "");
+			editor.commit();
+
+			//end progress dialog
+			progressDialog.dismiss();
+
+			Common.shortToast(appContext, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
+
+			Intent intent = new Intent(appContext, CheckInActivity.class);
+			((CheckInActivity) appContext).finish();
+			appContext.startActivity(intent);
+
+		}
+
+	}
+
+	@Override
+	protected void onPreExecute() {
+		//start progress dialog
+		progressDialog = ProgressDialog.show(appContext, "Please wait..", "Loading...", true);
+	}
+
+	@Override
+	protected void onProgressUpdate(Void... values) {
+
+	}
+}

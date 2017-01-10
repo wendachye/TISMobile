@@ -2,11 +2,11 @@ package com.bizconnectivity.tismobile.Database.Contracts;
 
 import android.provider.BaseColumns;
 
-public class SealDetailsContract {
+public class SealDetailContract {
 
 	// To prevent someone from accidentally instantiating the contract class,
 	// make the constructor private.
-	private SealDetailsContract() {
+	private SealDetailContract() {
 
 	}
 

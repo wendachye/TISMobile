@@ -1,6 +1,7 @@
 package com.bizconnectivity.tismobile;
 
 public class Constant {
+    public static String KEY_ENCRYPT = "TISMOBILE";
     public static String SHARED_PREF_NAME = "SP_NAME";
     public static String SHARED_PREF_LOGINNAME = "SP_LOGINNAME";
     public static String SHARED_PREF_SCAN_VALUE = "SP_SCAN_VALUE";
@@ -57,15 +58,20 @@ public class Constant {
     public static String ERR_MSG_LOGIN_INCORRECT = "Incorrect username/password.";
     public static String ERR_MSG_USERNAME_REQUIRED = "Username is required.";
     public static String ERR_MSG_PASSWORD_REQUIRED = "Password is required.";
+    public static String ERR_MSG_INCORRECT_USERNAME = "Incorrect Username.";
+    public static String ERR_MSG_INCORRECT_PASSWORD = "Incorrect Password.";
+    public static String MSG_LOGIN_CORRECT = "Password is required.";
+
 
     //CheckIn
     public static String ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN = "Truck loading bay was already checked in before.";
-    public static String ERR_MSG_INVALID_TRUCK_BAY = "Invalid truck loading bay.";
+    public static String ERR_MSG_INVALID_TRUCK_BAY = "Invalid Truck Loading Bay";
     public static String ERR_MSG_NO_ORDER_FOR_TRUCK_BAY = "Current there is no order for the checked-in bay.";
+    public static String ERR_MSG_INVALID_TECHNICIAN_NRIC = "Invalid Technician NRIC";
+
 
     //Check Out
     public static String ERR_MSG_NO_TRUCK_BAY_CHECKED_IN = "You have not check-in to any Truck Loading Bay.";
-
 	public static String ERR_MSG_INVALID_LOADING_ARM = "Invalid Truck Rack Arm.";
 	public static String ERR_MSG_INVALID_SEAL_NO = "Invalid Seal Number.";
 

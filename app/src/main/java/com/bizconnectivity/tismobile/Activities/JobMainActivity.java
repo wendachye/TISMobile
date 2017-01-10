@@ -408,9 +408,14 @@ public class JobMainActivity extends AppCompatActivity {
 
 	    for (int j=0; j<ghsArrayList.size(); j++) {
 
+            Picasso.with(this).setIndicatorsEnabled(true);
+
 		    ImageView image = new ImageView(this);
 		    String ghsPictureUrl = Constant.GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
-		    Picasso.with(this).load(ghsPictureUrl).resize(100, 100).into(image);
+		    Picasso.with(this)
+                    .load(ghsPictureUrl)
+                    .resize(100, 100)
+                    .into(image);
 
 		    linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
 
@@ -438,7 +443,10 @@ public class JobMainActivity extends AppCompatActivity {
 
             ImageView image = new ImageView(this);
             String ppePictureUrl = Constant.PPE_FILE_LOCATION + ppeArrayList.get(j).getPpePictureURL();
-            Picasso.with(this).load(ppePictureUrl).resize(100, 100).into(image);
+            Picasso.with(this)
+                    .load(ppePictureUrl)
+                    .resize(100, 100)
+                    .into(image);
 
             linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
 
