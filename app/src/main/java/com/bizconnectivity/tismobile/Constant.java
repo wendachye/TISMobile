@@ -60,7 +60,9 @@ public class Constant {
     public static String ERR_MSG_PASSWORD_REQUIRED = "Password is required.";
     public static String ERR_MSG_INCORRECT_USERNAME = "Incorrect Username.";
     public static String ERR_MSG_INCORRECT_PASSWORD = "Incorrect Password.";
-    public static String MSG_LOGIN_CORRECT = "Password is required.";
+    public static String MSG_LOGIN_CORRECT = "Success Login";
+    public static String MSG_CORRECT_TECHNICIAN_NRIC = "Technician Verified";
+    public static String MSG_CORRECT_LOADING_BAY_NO = "Truck Loading Bay Verified";
 
 
     //CheckIn
@@ -68,7 +70,6 @@ public class Constant {
     public static String ERR_MSG_INVALID_TRUCK_BAY = "Invalid Truck Loading Bay";
     public static String ERR_MSG_NO_ORDER_FOR_TRUCK_BAY = "Current there is no order for the checked-in bay.";
     public static String ERR_MSG_INVALID_TECHNICIAN_NRIC = "Invalid Technician NRIC";
-
 
     //Check Out
     public static String ERR_MSG_NO_TRUCK_BAY_CHECKED_IN = "You have not check-in to any Truck Loading Bay.";

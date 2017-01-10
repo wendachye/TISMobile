@@ -11,7 +11,7 @@ public class LoadingBayDetailContract {
 	}
 
 	/* Inner class that defines the table contents */
-	public static class LoadingBayDetail implements BaseColumns {
+	public static class LoadingBayDetails implements BaseColumns {
 
 		public static final String TABLE_NAME = "LoadingBayDetails";
 		public static final String COLUMN_LOADING_BAY_NO = "LoadingBayNo";

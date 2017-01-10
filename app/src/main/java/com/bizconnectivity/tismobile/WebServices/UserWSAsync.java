@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
+import com.bizconnectivity.tismobile.Activities.LoginActivity;
 import com.bizconnectivity.tismobile.Classes.UserDetail;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
@@ -19,11 +20,10 @@ public class UserWSAsync extends AsyncTask<String, Void, Void> {
     Context appContext;
     String Username;
     String Password;
-
     boolean success;
 
     UserDetail userDetail = new UserDetail();
-
+    UserDetailDataSource userDetailDataSource;
     ProgressDialog progressDialog;
 
     public UserWSAsync(Context context, String username, String password) {
@@ -50,7 +50,7 @@ public class UserWSAsync extends AsyncTask<String, Void, Void> {
             //set username
             Constant.LOGIN_LOGINNAME = Username;
 
-            //store user details to sqlitedatabase
+            //insert into sqlite database
             try {
 
                 //encrypt password
@@ -69,6 +69,7 @@ public class UserWSAsync extends AsyncTask<String, Void, Void> {
 
             //navigate to dashboard activity
             Intent intent = new Intent(appContext, DashboardActivity.class);
+            ((LoginActivity)appContext).finish();
             appContext.startActivity(intent);
 
         } else {
@@ -94,7 +95,7 @@ public class UserWSAsync extends AsyncTask<String, Void, Void> {
 
     private void insertOrUpdateUserDetails(UserDetail userDetail) {
 
-        UserDetailDataSource userDetailDataSource = new UserDetailDataSource(appContext);
+        userDetailDataSource = new UserDetailDataSource(appContext);
         userDetailDataSource.open();
 
         userDetailDataSource.insertOrUpdateUserDetails(userDetail);

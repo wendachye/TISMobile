@@ -63,14 +63,7 @@ public class DashboardActivity extends AppCompatActivity {
         setFooterMenu();
         //endregion
 
-        Calendar calendar = Calendar.getInstance();
-        calendar.set(2016, Calendar.MARCH, 22, 8, 0, 0);
-        String truckNo = "01";
-
-//        JobDetailWSAsync task = new JobDetailWSAsync(this, calendar.getTime(), truckNo);
-//        task.execute();
-
-        setCheckedInTruckLoadingBayDetails();
+        //setCheckedInTruckLoadingBayDetails();
     }
 
     public void setCheckedInTruckLoadingBayDetails() {

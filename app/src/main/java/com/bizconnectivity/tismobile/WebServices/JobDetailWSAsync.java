@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.bizconnectivity.tismobile.Classes.JobDetail;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,7 +17,10 @@ public class JobDetailWSAsync extends AsyncTask<String, Void, Void> {
 	Context appContext;
 	String TruckRackNo;
 	Date BookingDate;
-	ArrayList<JobDetail> jobDetailArrayList;
+
+	ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
+	JobDetailDataSource jobDetailDataSource;
+	JobDetail jobDetail;
 
 	public JobDetailWSAsync(Context context, Date bookingDate, String truckRackNo) {
 		appContext = context;
@@ -41,10 +45,15 @@ public class JobDetailWSAsync extends AsyncTask<String, Void, Void> {
 
 		if (jobDetailArrayList.size() > 0) {
 
-			Log.d("ooo", "aaa");
+			for (int i=0; i<jobDetailArrayList.size(); i++) {
 
-		} else {
+				jobDetailDataSource = new JobDetailDataSource(appContext);
+				jobDetailDataSource.open();
 
+				jobDetailDataSource.insertOrUpdateJobDetails(jobDetailArrayList.get(i));
+
+				jobDetailDataSource.close();
+			}
 
 		}
 

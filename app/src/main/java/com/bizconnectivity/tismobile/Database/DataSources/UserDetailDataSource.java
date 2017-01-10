@@ -34,9 +34,6 @@ public class UserDetailDataSource {
 
 	public void insertOrUpdateUserDetails(UserDetail userDetail) {
 
-		// Gets the data repository in write mode
-		database = sqlHelper.getWritableDatabase();
-
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
 		String[] projection = { UserDetails.COLUMN_USERNAME };

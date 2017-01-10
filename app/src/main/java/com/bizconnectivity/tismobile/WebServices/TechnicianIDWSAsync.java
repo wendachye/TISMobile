@@ -7,15 +7,19 @@ import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
 import com.bizconnectivity.tismobile.Activities.CheckInActivity;
+import com.bizconnectivity.tismobile.Classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.TechnicianDetailDataSource;
 
 public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 
 	Context appContext;
 	String NRIC;
-
 	boolean response;
+
+	TechnicianDetailDataSource technicianDetailDataSource;
+	CheckIn checkIn;
 
 	ProgressDialog progressDialog;
 
@@ -42,6 +46,14 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 
 			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, NRIC);
 			editor.commit();
+
+			//insert into sqlite database
+			checkIn = new CheckIn();
+			checkIn.setTechnicianNRIC(NRIC);
+			technicianDetailDataSource = new TechnicianDetailDataSource(appContext);
+			technicianDetailDataSource.open();
+			technicianDetailDataSource.insertTechnicianNRIC(checkIn);
+			technicianDetailDataSource.close();
 
 			//end progress dialog
 			progressDialog.dismiss();

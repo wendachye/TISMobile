@@ -17,6 +17,7 @@ public class JobDetailContract implements BaseColumns{
 		public static final String COLUMN_JOB_ID = "JobID";
 		public static final String COLUMN_CUSTOMER_NAME = "CustomerName";
 		public static final String COLUMN_PRODUCT_NAME = "ProductName";
+		public static final String COLUMN_TANK_NO = "TankNo";
 		public static final String COLUMN_TRUCK_LOADING_BAY_NO = "TruckLoadingBayNo";
 		public static final String COLUMN_LOADING_ARM_NO = "LoadingArmNo";
 		public static final String COLUMN_SDS_FILE_PATH = "SDSFilePath";

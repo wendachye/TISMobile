@@ -18,8 +18,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bizconnectivity.tismobile.Classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.Contracts.TechnicianDetailContract;
+import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.Database.DataSources.TechnicianDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.WebServices.CheckInWSAsync;
 import com.bizconnectivity.tismobile.WebServices.ConstantWS;
@@ -41,6 +45,10 @@ public class CheckInActivity extends AppCompatActivity {
 
     public TextView tvTruckBayId, tvTechnicianId;
     public SharedPreferences sharedPref;
+
+    TechnicianDetailDataSource technicianDetailDataSource;
+    LoadingBayDetailDataSource loadingBayDetailDataSource;
+    CheckIn checkIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -157,13 +165,37 @@ public class CheckInActivity extends AppCompatActivity {
 
                 if (returnScanValue.equals(Constant.SCAN_VALUE_TECHNICIAN_ID)) {
 
-                    TechnicianIDWSAsync task = new TechnicianIDWSAsync(this, scanContent);
-                    task.execute();
+                    if (Common.isNetworkAvailable(this)) {
+
+                        TechnicianIDWSAsync task = new TechnicianIDWSAsync(this, scanContent);
+                        task.execute();
+
+                    } else {
+
+                        //check sqlite database
+                        checkIn = new CheckIn();
+                        checkIn.setTechnicianNRIC(scanContent);
+
+                        checkTechnicialNRIC(checkIn);
+
+                    }
 
                 } else if (returnScanValue.equals(Constant.SCAN_VALUE_TRUCK_LOADING_BAY)) {
 
-                    CheckInWSAsync task = new CheckInWSAsync(this, scanContent);
-                    task.execute();
+                    if (Common.isNetworkAvailable(this)) {
+
+                        CheckInWSAsync task = new CheckInWSAsync(this, scanContent);
+                        task.execute();
+
+                    } else {
+
+                        //check sqlite database
+                        checkIn = new CheckIn();
+                        checkIn.setLoadingBayNo(scanContent);
+
+                        checkLoadingBayNo(checkIn);
+
+                    }
 
                 } else {
                     Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
@@ -178,6 +210,49 @@ public class CheckInActivity extends AppCompatActivity {
         }
     }
     //endregion
+
+    public void checkTechnicialNRIC(CheckIn checkIn) {
+
+        technicianDetailDataSource = new TechnicianDetailDataSource(this);
+        technicianDetailDataSource.open();
+
+        String message = technicianDetailDataSource.retrieveTechnicianNRIC(checkIn);
+
+        technicianDetailDataSource.close();
+
+        if (message.equals(Constant.MSG_CORRECT_TECHNICIAN_NRIC)) {
+
+            Intent intent = new Intent(this, CheckInActivity.class);
+            finish();
+            startActivity(intent);
+
+        } else {
+
+            Common.shortToast(this, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
+        }
+    }
+
+    public void checkLoadingBayNo(CheckIn checkIn) {
+
+        loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
+        loadingBayDetailDataSource.open();
+
+        String message = loadingBayDetailDataSource.retrieveLoadingBayNo(checkIn);
+
+        loadingBayDetailDataSource.close();
+
+        if (message.equals(Constant.MSG_CORRECT_LOADING_BAY_NO)) {
+
+            Intent intent = new Intent(this, CheckInActivity.class);
+            finish();
+            startActivity(intent);
+
+        } else {
+
+            Common.shortToast(this, Constant.ERR_MSG_INVALID_TRUCK_BAY);
+
+        }
+    }
 
     //region Header
     /*-------- Set User Login Details --------*/

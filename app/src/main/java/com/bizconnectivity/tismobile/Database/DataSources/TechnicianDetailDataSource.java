@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.bizconnectivity.tismobile.Classes.CheckIn;
+import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.Database.Contracts.TechnicianDetailContract.TechnicianDetails;
 import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
 
@@ -29,10 +30,7 @@ public class TechnicianDetailDataSource {
 		sqlHelper.close();
 	}
 
-	public void insertTechnicianDetail(CheckIn checkIn) {
-
-		// Gets the data repository in write mode
-		database = sqlHelper.getWritableDatabase();
+	public void insertTechnicianNRIC (CheckIn checkIn) {
 
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
@@ -65,5 +63,40 @@ public class TechnicianDetailDataSource {
 		cursor.close();
 	}
 
+	public String retrieveTechnicianNRIC (CheckIn checkIn) {
+
+		// Define a projection that specifies which columns from the database
+		// you will actually use after this query.
+		String[] projection = { TechnicianDetails.COLUMN_TECHNICIAN_ID };
+
+		// Filter results WHERE
+		String selection= TechnicianDetails.COLUMN_TECHNICIAN_ID + " = ?";
+		String[] selectionArgs = { checkIn.getTechnicianNRIC() };
+
+		Cursor cursor = database.query(
+				TechnicianDetails.TABLE_NAME,             // The table to query
+				projection,                               // The columns to return
+				selection,                                // The columns for the WHERE clause
+				selectionArgs,                            // The values for the WHERE clause
+				null,                                     // Group the rows
+				null,                                     // Filter by row groups
+				null                                      // The sort order
+		);
+
+		if (cursor.moveToFirst()) {
+
+			cursor.close();
+
+			return Constant.MSG_CORRECT_TECHNICIAN_NRIC;
+
+		} else {
+
+			cursor.close();
+
+			return Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC;
+
+		}
+
+	}
 
 }

@@ -41,7 +41,8 @@ public class LoginActivity extends AppCompatActivity  {
     private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;
 
-    UserDetail userDetail = new UserDetail();
+    UserDetail userDetail;
+    UserDetailDataSource userDetailDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -141,11 +142,12 @@ public class LoginActivity extends AppCompatActivity  {
 
                 } else {
 
-                    //check user login offline
+                    //check sqlite database
                     try {
 
                         //encrypt password
                         String encryptedPassword = AESCrypt.encrypt(password, Constant.KEY_ENCRYPT);
+                        userDetail = new UserDetail();
                         userDetail.setUsername(username);
                         userDetail.setPassword(encryptedPassword);
 
@@ -181,21 +183,21 @@ public class LoginActivity extends AppCompatActivity  {
         mPasswordView.setError(null);
         View focusView = null;
 
-        UserDetailDataSource userDetailDataSource = new UserDetailDataSource(this);
+        userDetailDataSource = new UserDetailDataSource(this);
         userDetailDataSource.open();
 
         String message = userDetailDataSource.retrieveUserDetails(userDetail);
 
         userDetailDataSource.close();
 
-        if (message == Constant.MSG_LOGIN_CORRECT) {
+        if (message.equals(Constant.MSG_LOGIN_CORRECT)) {
 
             //navigate to dashboard
             Intent intent = new Intent(this, DashboardActivity.class);
             finish();
             startActivity(intent);
 
-        } else if (message == Constant.ERR_MSG_INCORRECT_USERNAME) {
+        } else if (message.equals(Constant.ERR_MSG_INCORRECT_USERNAME)) {
 
             mUsernameView.setError(Constant.ERR_MSG_INCORRECT_USERNAME);
             focusView = mUsernameView;

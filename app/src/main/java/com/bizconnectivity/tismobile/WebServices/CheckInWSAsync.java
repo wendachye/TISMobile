@@ -10,8 +10,10 @@ import android.util.Log;
 
 import com.bizconnectivity.tismobile.Activities.CheckInActivity;
 import com.bizconnectivity.tismobile.Activities.DashboardActivity;
+import com.bizconnectivity.tismobile.Classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
 
 import java.util.Calendar;
 import java.util.HashSet;
@@ -22,6 +24,9 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 	Context appContext;
 	String rackNo;
 	boolean response;
+
+	LoadingBayDetailDataSource loadingBayDetailDataSource;
+	CheckIn checkIn;
 
 	ProgressDialog progressDialog;
 
@@ -68,13 +73,29 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 
 			}
 
-			//end progress dialog
-			progressDialog.dismiss();
-
 			//save truck loading bay ID
 			SharedPreferences.Editor editor = sharedPref.edit();
 			editor.putStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, checkedInTruckBay);
 			editor.commit();
+
+			//insert into sqlite database
+			checkIn = new CheckIn();
+			checkIn.setLoadingBayNo(rackNo);
+			loadingBayDetailDataSource = new LoadingBayDetailDataSource(appContext);
+			loadingBayDetailDataSource.open();
+			loadingBayDetailDataSource.insertLoadingBayNo(checkIn);
+			loadingBayDetailDataSource.close();
+
+			Calendar calendar = Calendar.getInstance();
+			calendar.set(2016, Calendar.MARCH, 22, 8, 0, 0);
+			String truckNo = "01";
+
+			//get all the job details from rack no
+			JobDetailWSAsync task = new JobDetailWSAsync(appContext, calendar.getTime(), truckNo);
+        	task.execute();
+
+			//end progress dialog
+			progressDialog.dismiss();
 
 			//navigate back to checkIn Activity
 			Intent intent = new Intent(appContext, CheckInActivity.class);
