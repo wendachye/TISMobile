@@ -97,8 +97,6 @@ public class JobDetailDataSource {
 
 	public ArrayList<JobDetail> retrieveAllJobDetails(TruckLoadingBayList truckLoadingBayList) {
 
-		Log.d("aa", truckLoadingBayList.getGroupTitle());
-
 		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
 
 		// Define a projection that specifies which columns from the database
@@ -121,7 +119,7 @@ public class JobDetailDataSource {
 
 		if (cursor.getCount() > 0) {
 
-			for (int i=0; i<cursor.getCount(); i++) {
+			while(cursor.moveToNext()) {
 
 				JobDetail jobDetail = new JobDetail();
 
