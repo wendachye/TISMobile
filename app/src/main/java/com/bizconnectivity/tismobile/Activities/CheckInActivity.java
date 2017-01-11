@@ -35,15 +35,15 @@ public class CheckInActivity extends AppCompatActivity {
 
     Context context;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage;
+    TextView headerMessage, tvTruckBayId, tvTechnicianId;
     Dialog exitDialog;
     Button btnScanTechnician, btnScanTruckBay;
 
-    public TextView tvTruckBayId, tvTechnicianId;
-    public SharedPreferences sharedPref;
+    SharedPreferences sharedPref;
 
     TechnicianDetailDataSource technicianDetailDataSource;
     LoadingBayDetailDataSource loadingBayDetailDataSource;
+
     CheckIn checkIn;
 
     @Override
@@ -66,21 +66,22 @@ public class CheckInActivity extends AppCompatActivity {
         //endregion
 
         tvTechnicianId = (TextView) findViewById(R.id.tvTechnicianId);
+        tvTruckBayId = (TextView) findViewById(R.id.tvTruckBayId);
+
         btnScanTechnician = (Button) findViewById(R.id.btnScanTechnician);
         btnScanTechnician.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnScanTechnicianClicked(view);
+                btnScanTechnicianClicked();
             }
         });
 
-        tvTruckBayId = (TextView) findViewById(R.id.tvTruckBayId);
         btnScanTruckBay = (Button) findViewById(R.id.btnScanTruckBay);
         btnScanTruckBay.setEnabled(false);
         btnScanTruckBay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnScanTruckBayClicked(view);
+                btnScanTruckBayClicked();
             }
         });
 
@@ -114,12 +115,12 @@ public class CheckInActivity extends AppCompatActivity {
             tvTechnicianId.setText(technicianID);
 
             btnScanTruckBay.setEnabled(true);
-
         }
 
     }
 
-    public void btnScanTechnicianClicked(View view) {
+    public void btnScanTechnicianClicked() {
+
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_TECHNICIAN_ID);
         editor.commit();
@@ -131,7 +132,8 @@ public class CheckInActivity extends AppCompatActivity {
         integrator.initiateScan();
     }
 
-    public void btnScanTruckBayClicked(View view) {
+    public void btnScanTruckBayClicked() {
+
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_TRUCK_LOADING_BAY);
         editor.commit();
@@ -146,6 +148,7 @@ public class CheckInActivity extends AppCompatActivity {
     //region Barcode Scanner
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         IntentResult scanningIntentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
 
         if (scanningIntentResult != null) {
@@ -154,6 +157,7 @@ public class CheckInActivity extends AppCompatActivity {
             String scanContent = scanningIntentResult.getContents();
 
             if (scanContent != null) {
+
                 String returnScanValue = sharedPref.getString(Constant.SHARED_PREF_SCAN_VALUE, "");
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.remove(Constant.SHARED_PREF_SCAN_VALUE);
@@ -163,40 +167,42 @@ public class CheckInActivity extends AppCompatActivity {
 
                     if (Common.isNetworkAvailable(this)) {
 
+                        //check technician nric with web service
                         TechnicianIDWSAsync task = new TechnicianIDWSAsync(this, scanContent);
                         task.execute();
 
                     } else {
 
-                        //check sqlite database
+                        //check technician nric with sqlite database
                         checkIn = new CheckIn();
                         checkIn.setTechnicianNRIC(scanContent);
 
                         checkTechnicialNRIC(checkIn);
-
                     }
 
                 } else if (returnScanValue.equals(Constant.SCAN_VALUE_TRUCK_LOADING_BAY)) {
 
                     if (Common.isNetworkAvailable(this)) {
 
+                        //check loading bay no with web service
                         CheckInWSAsync task = new CheckInWSAsync(this, scanContent);
                         task.execute();
 
                     } else {
 
-                        //check sqlite database
+                        //check loading bay no with sqlite database
                         checkIn = new CheckIn();
                         checkIn.setLoadingBayNo(scanContent);
 
                         checkLoadingBayNo(checkIn);
-
                     }
 
                 } else {
+                    //invalid scan type
                     Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
                 }
             } else {
+                //no data received
                 Common.shortToast(this, Constant.SCAN_MSG_NO_DATA_RECEIVED);
             }
         } else {
@@ -210,10 +216,11 @@ public class CheckInActivity extends AppCompatActivity {
     public void checkTechnicialNRIC(CheckIn checkIn) {
 
         technicianDetailDataSource = new TechnicianDetailDataSource(this);
+        //open database
         technicianDetailDataSource.open();
-
+        //retrieve technician nric
         String message = technicianDetailDataSource.retrieveTechnicianNRIC(checkIn);
-
+        //close database
         technicianDetailDataSource.close();
 
         if (message.equals(Constant.MSG_CORRECT_TECHNICIAN_NRIC)) {
@@ -231,10 +238,11 @@ public class CheckInActivity extends AppCompatActivity {
     public void checkLoadingBayNo(CheckIn checkIn) {
 
         loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
+        //open database
         loadingBayDetailDataSource.open();
-
+        //retrieve loading bay no
         String message = loadingBayDetailDataSource.retrieveLoadingBay(checkIn);
-
+        //close database
         loadingBayDetailDataSource.close();
 
         if (message.equals(Constant.MSG_CORRECT_LOADING_BAY_NO)) {
@@ -253,21 +261,22 @@ public class CheckInActivity extends AppCompatActivity {
     //region Header
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
+
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-
         headerMessage.setText(Common.formatWelcomeMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
     }
     //endregion
 
     //region Footer
     public void setFooterMenu() {
+
         RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnHomeClicked(view);
+                btnHomeClicked();
             }
         });
 
@@ -275,7 +284,7 @@ public class CheckInActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSearchClicked(view);
+                btnSearchClicked();
             }
         });
 
@@ -283,7 +292,7 @@ public class CheckInActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSwitchClicked(view);
+                btnSwitchClicked();
             }
         });
 
@@ -296,46 +305,56 @@ public class CheckInActivity extends AppCompatActivity {
         });
     }
 
-    public void btnHomeClicked(View view) {
-        Intent intentHome = new Intent(context, DashboardActivity.class);
+    public void btnHomeClicked() {
+
+        Intent intent = new Intent(context, DashboardActivity.class);
         finish();
-        startActivity(intentHome);
+        startActivity(intent);
     }
 
-    public void btnSearchClicked(View view) {
-        Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
+    public void btnSearchClicked() {
+
+        Intent intent = new Intent(context, SearchJobActivity.class);
         finish();
-        startActivity(intentSearchJob);
+        startActivity(intent);
     }
 
-    public void btnSwitchClicked(View view) {
-        Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
+    public void btnSwitchClicked() {
+
+        Intent intent = new Intent(context, SwitchTruckBayActivity.class);
         finish();
-        startActivity(intentSwitchTruckBay);
+        startActivity(intent);
     }
 
     public void btnSettingsClicked(View view) {
+
         settingsMenuOptions(view);
     }
 
     public void settingsMenuOptions(View view) {
+
         PopupMenu popup = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+
                 switch (item.getItemId()) {
+
                     case R.id.settingsMenuCheckIn:
                         return true;
+
                     case R.id.settingsMenuExitApp:
                         exitApplication();
                         return true;
+
                     case R.id.settingsMenuCheckOut:
-                        Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
+                        Intent intent = new Intent(context, CheckOutActivity.class);
                         finish();
-                        startActivity(intentCheckOut);
+                        startActivity(intent);
                         return true;
+
                     default:
                         return false;
                 }
@@ -346,6 +365,7 @@ public class CheckInActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
+
         if (exitDialog != null && exitDialog.isShowing())
             return;
 
@@ -358,7 +378,9 @@ public class CheckInActivity extends AppCompatActivity {
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 exitDialog.dismiss();
+
                 SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.clear();
@@ -367,10 +389,6 @@ public class CheckInActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                //v.getContext().finish();
-
-                /*((Activity) context).finish();*/
-                System.exit(0);
             }
         });
 
@@ -379,6 +397,7 @@ public class CheckInActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 exitDialog.dismiss();
             }
         });

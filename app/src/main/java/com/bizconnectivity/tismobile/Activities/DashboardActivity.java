@@ -86,7 +86,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         customExpandableListAdapter = new CustomExpandableListAdapter(this, truckLoadingBayArrayList);
         expandableListView.setAdapter(customExpandableListAdapter);
-
     }
 
     public ArrayList<TruckLoadingBayList> retrieveAllLoadingBay() {
@@ -196,25 +195,26 @@ public class DashboardActivity extends AppCompatActivity {
     //region Header
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
+
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(Constant.SHARED_PREF_LOGINNAME, Constant.LOGIN_LOGINNAME);
         editor.commit();
 
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-
         headerMessage.setText(Common.formatWelcomeMsg(Constant.LOGIN_LOGINNAME));
     }
     //endregion
 
     //region Footer
     public void setFooterMenu() {
+
         RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnHomeClicked(view);
+
             }
         });
 
@@ -222,7 +222,7 @@ public class DashboardActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSearchClicked(view);
+                btnSearchClicked();
             }
         });
 
@@ -230,7 +230,7 @@ public class DashboardActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSwitchClicked(view);
+                btnSwitchClicked();
             }
         });
 
@@ -243,43 +243,52 @@ public class DashboardActivity extends AppCompatActivity {
         });
     }
 
-    public void btnHomeClicked(View view) {
+    public void btnSearchClicked() {
 
+        Intent intent = new Intent(context, SearchJobActivity.class);
+        finish();
+        startActivity(intent);
     }
 
-    public void btnSearchClicked(View view) {
-        Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
-        startActivity(intentSearchJob);
-    }
+    public void btnSwitchClicked() {
 
-    public void btnSwitchClicked(View view) {
-        Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
-        startActivity(intentSwitchTruckBay);
+        Intent intent = new Intent(context, SwitchTruckBayActivity.class);
+        finish();
+        startActivity(intent);
     }
 
     public void btnSettingsClicked(View view) {
+
         settingsMenuOptions(view);
     }
 
     public void settingsMenuOptions(View view) {
+
         PopupMenu popup = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+
                 switch (item.getItemId()) {
+
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(context, CheckInActivity.class);
+                        finish();
                         startActivity(intentCheckIn);
                         return true;
+
                     case R.id.settingsMenuExitApp:
                         exitApplication();
                         return true;
+
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
+                        finish();
                         startActivity(intentCheckOut);
                         return true;
+
                     default:
                         return false;
                 }
@@ -290,6 +299,7 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
+
         if (exitDialog != null && exitDialog.isShowing())
             return;
 
@@ -302,6 +312,7 @@ public class DashboardActivity extends AppCompatActivity {
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 exitDialog.dismiss();
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.clear();
@@ -310,10 +321,7 @@ public class DashboardActivity extends AppCompatActivity {
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
                 intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intentLogin);
-                //v.getContext().finish();
 
-                /*((Activity) context).finish();*/
-                System.exit(0);
             }
         });
 
@@ -338,7 +346,6 @@ public class DashboardActivity extends AppCompatActivity {
     }
     //endregion
 
-    //Confirmation dialog before exiting the application
     @Override
     public void onBackPressed() {
         exitApplication();

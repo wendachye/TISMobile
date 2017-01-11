@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
@@ -18,26 +17,13 @@ import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.Database.DataSources.UserDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.WebServices.ConstantWS;
-import com.bizconnectivity.tismobile.WebServices.DashboardWS;
-import com.bizconnectivity.tismobile.WebServices.JobDetailWS;
 import com.bizconnectivity.tismobile.WebServices.UserWSAsync;
 import com.scottyab.aescrypt.AESCrypt;
 
 import java.security.GeneralSecurityException;
-import java.sql.Time;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 
-/**
- * A login screen that offers login via email/password.
- */
 public class LoginActivity extends AppCompatActivity  {
 
-    // UI references.
     private AutoCompleteTextView mUsernameView;
     private EditText mPasswordView;
 
@@ -49,7 +35,6 @@ public class LoginActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        // Set up the login form.
         mUsernameView = (AutoCompleteTextView) findViewById(R.id.tbUsername);
         mPasswordView = (EditText) findViewById(R.id.tbPassword);
 
@@ -79,44 +64,33 @@ public class LoginActivity extends AppCompatActivity  {
         editor.commit();
     }
 
-    /**
-     * Attempts to sign in or register the account specified by the login form.
-     * If there are form errors (invalid email, missing fields, etc.), the
-     * errors are presented and no actual login attempt is made.
-     */
     private void attemptLogin() {
+
         // Reset errors.
         mUsernameView.setError(null);
         mPasswordView.setError(null);
+        View focusView = null;
 
         // Store values at the time of the login attempt.
         String username = mUsernameView.getText().toString();
         String password = mPasswordView.getText().toString();
 
-        boolean cancel = false;
-        View focusView = null;
+        if(TextUtils.isEmpty(username)) {
 
-        // Check if username is entered.
-        if(TextUtils.isEmpty(username))
-        {
             mUsernameView.setError(Constant.ERR_MSG_USERNAME_REQUIRED);
             focusView = mUsernameView;
-            cancel = true;
-        }
-        // Check if password is entered.
-        else if(TextUtils.isEmpty(password))
-        {
+            focusView.requestFocus();
+
+        } else if(TextUtils.isEmpty(password)) {
+
             mPasswordView.setError(Constant.ERR_MSG_PASSWORD_REQUIRED);
             focusView = mPasswordView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
             focusView.requestFocus();
+
         } else {
+
             if (Common.isNetworkAvailable(this)) {
+
                 if (username.equals(Constant.TEST_USERNAME) && password.equals(Constant.TEST_PASSWORD)) {
 
                     //navigate to dashboard
@@ -129,10 +103,10 @@ public class LoginActivity extends AppCompatActivity  {
                     //check with webservice
                     UserWSAsync task = new UserWSAsync(this, username, password);
                     task.execute();
-
                 }
-            }
-            else {
+
+            } else {
+
                 if (username.equals(Constant.TEST_USERNAME) && password.equals(Constant.TEST_PASSWORD)) {
 
                     //navigate to dashboard
@@ -162,8 +136,8 @@ public class LoginActivity extends AppCompatActivity  {
         }
     }
 
-    private void cancelLogin()
-    {
+    private void cancelLogin() {
+
         View focusView = null;
 
         // Reset errors and clear value.
@@ -184,10 +158,11 @@ public class LoginActivity extends AppCompatActivity  {
         View focusView = null;
 
         userDetailDataSource = new UserDetailDataSource(this);
+        //open database
         userDetailDataSource.open();
-
+        //retrieve user details
         String message = userDetailDataSource.retrieveUserDetails(userDetail);
-
+        //close databse
         userDetailDataSource.close();
 
         if (message.equals(Constant.MSG_LOGIN_CORRECT)) {
@@ -208,9 +183,8 @@ public class LoginActivity extends AppCompatActivity  {
             mPasswordView.setError(Constant.ERR_MSG_INCORRECT_PASSWORD);
             focusView = mPasswordView;
             focusView.requestFocus();
-
         }
-
     }
+
 }
 

@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 
 import com.bizconnectivity.tismobile.Classes.UserDetail;
 import com.bizconnectivity.tismobile.Constant;
@@ -20,7 +21,7 @@ public class UserDetailDataSource {
 		sqlHelper = new DatabaseSQLHelper(context);
 	}
 
-	public void open() {
+	public void open() throws SQLiteException {
 
 		database = sqlHelper.getWritableDatabase();
 	}
@@ -71,11 +72,9 @@ public class UserDetailDataSource {
 
 			// Insert the new row, returning the primary key value of the new row
 			database.insert(UserDetails.TABLE_NAME, null, values);
-
 		}
 
 		cursor.close();
-
 	}
 
 	public String retrieveUserDetails(UserDetail userDetail) {
@@ -113,7 +112,6 @@ public class UserDetailDataSource {
 				cursor.close();
 
 				return Constant.ERR_MSG_INCORRECT_PASSWORD;
-
 			}
 
 		} else {
@@ -124,4 +122,5 @@ public class UserDetailDataSource {
 		}
 
 	}
+
 }

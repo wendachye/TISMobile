@@ -2,12 +2,14 @@ package com.bizconnectivity.tismobile.WebServices;
 
 import android.util.Log;
 
+import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
+import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
@@ -26,9 +28,10 @@ public class UserWS {
         return success;
     }
 
-    public static boolean invokeLoginWS(String username,String password)
-    {
-        boolean success = false;
+    public static boolean invokeLoginWS (String username,String password) {
+
+        boolean result = false;
+
         SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_VALIDATE_AD_USER);
 
         PropertyInfo usernamePI = new PropertyInfo();
@@ -62,22 +65,31 @@ public class UserWS {
         try {
             androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_VALIDATE_AD_USER, envelope);
 
-            if(envelope.bodyIn instanceof SoapFault)
-            {
+            if(envelope.bodyIn instanceof SoapFault) {
+
                 SoapFault response = (SoapFault)envelope.bodyIn;
-                Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
-            }
-            else
-            {
+
+            } else {
+
                 SoapObject response = (SoapObject) envelope.bodyIn;
-                success = getElementsFromSuccessSOAP(response);
+                SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
+
+                if (responseProperty.equals(true)) {
+
+                    result = true;
+
+                } else {
+
+                    result = false;
+                }
+//                success = getElementsFromSuccessSOAP(response);
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
         }
 
-        return success;
+        return result;
     }
 
 }

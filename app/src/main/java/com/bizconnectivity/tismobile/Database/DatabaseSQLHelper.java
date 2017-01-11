@@ -18,29 +18,36 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 	public static final String DATABASE_NAME = "TISMobile.db";
 
 	private static final String SQL_CREATE_USER_DETAILS =
-			"CREATE TABLE " + UserDetails.TABLE_NAME + " (" +
+			"CREATE TABLE " +
+					UserDetails.TABLE_NAME + " (" +
 					UserDetails.COLUMN_USERNAME + " TEXT PRIMARY KEY, " +
 					UserDetails.COLUMN_PASSWORD + " TEXT)";
 
 	private static final String SQL_DELETE_USER_DETAILS =
-			"DROP TABLE IF EXISTS " + UserDetails.TABLE_NAME;
+			"DROP TABLE IF EXISTS " +
+					UserDetails.TABLE_NAME;
 
 	private static final String SQL_CREATE_TECHNICIAN_DETAILS =
-			"CREATE TABLE " + TechnicianDetails.TABLE_NAME + " (" +
+			"CREATE TABLE " +
+					TechnicianDetails.TABLE_NAME + " (" +
 					TechnicianDetails.COLUMN_TECHNICIAN_ID + " TEXT PRIMARY KEY)";
 
 	private static final String SQL_DELETE_TECHNICIAN_DETAILS =
-			"DROP TABLE IF EXISTS " + TechnicianDetails.TABLE_NAME;
+			"DROP TABLE IF EXISTS " +
+					TechnicianDetails.TABLE_NAME;
 
 	private static final String SQL_CREATE_LOADING_BAY_DETAILS =
-			"CREATE TABLE " + LoadingBayDetails.TABLE_NAME + " (" +
+			"CREATE TABLE " +
+					LoadingBayDetails.TABLE_NAME + " (" +
 					LoadingBayDetails.COLUMN_LOADING_BAY_NO + " TEXT PRIMARY KEY)";
 
 	private static final String SQL_DELETE_LOADING_BAY_DETAILS =
-			"DROP TABLE IF EXISTS " + LoadingBayDetails.TABLE_NAME;
+			"DROP TABLE IF EXISTS " +
+					LoadingBayDetails.TABLE_NAME;
 
 	private static final  String SQL_CREATE_JOB_DETAILS =
-			"CREATE TABLE " + JobDetails.TABLE_NAME + " (" +
+			"CREATE TABLE " +
+					JobDetails.TABLE_NAME + " (" +
 					JobDetails.COLUMN_JOB_ID + " TEXT PRIMARY KEY, " +
 					JobDetails.COLUMN_CUSTOMER_NAME + " TEXT, " +
 					JobDetails.COLUMN_PRODUCT_NAME + " TEXT, " +
@@ -64,34 +71,42 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 					JobDetails.COLUMN_JOB_DATE + " TEXT)";
 
 	private static final String SQL_DELETE_JOB_DETAILS =
-			"DROP TABLE IF EXISTS " + JobDetails.TABLE_NAME;
+			"DROP TABLE IF EXISTS " +
+					JobDetails.TABLE_NAME;
 
 	private static final String SQL_CREATE_SEAL_DETAILS =
-			"CREATE TABLE " + SealDetails.TABLE_NAME + " (" +
+			"CREATE TABLE " +
+					SealDetails.TABLE_NAME + " (" +
 					SealDetails.COLUMN_JOB_ID + " INTEGER PRIMARY KEY, " +
 					SealDetails.COLUMN_SEAL_NO + " TEXT)";
 
 	private static final String SQL_DELETE_SEAL_DETAILS =
-			"DROP TABLE IF EXISTS " + SealDetails.TABLE_NAME;
+			"DROP TABLE IF EXISTS " +
+					SealDetails.TABLE_NAME;
 
 	private static final String SQL_CREATE_PPE_DETAILS =
-			"CREATE TABLE " + PPEDetails.TABLE_NAME + " (" +
+			"CREATE TABLE " +
+					PPEDetails.TABLE_NAME + " (" +
 					PPEDetails.COLUMN_JOB_ID + " INTEGER PRIMARY KEY, " +
 					PPEDetails.COLUMN_PPE_IMAGE_NAME + " TEXT)";
 
 	private static final String SQL_DELETE_PPE_DETAILS =
-			"DROP TABLE IF EXISTS " + PPEDetails.TABLE_NAME;
+			"DROP TABLE IF EXISTS " +
+					PPEDetails.TABLE_NAME;
 
 	private static final String SQL_CREATE_GHS_DETAILS =
-			"CREATE TABLE " + GHSDetails.TABLE_NAME + " (" +
+			"CREATE TABLE " +
+					GHSDetails.TABLE_NAME + " (" +
 					GHSDetails.COLUMN_JOB_ID + " INTEGER PRIMARY KEY, " +
 					GHSDetails.COLUMN_GHS_IMAGE_NAME + " TEXT)";
 
 	private static final String SQL_DELETE_GHS_DETAILS =
-			"DROP TABLE IF EXISTS " + GHSDetails.TABLE_NAME;
+			"DROP TABLE IF EXISTS " +
+					GHSDetails.TABLE_NAME;
 
 
 	public DatabaseSQLHelper(Context context) {
+
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 	}
 
@@ -105,7 +120,6 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 		db.execSQL(SQL_CREATE_SEAL_DETAILS);
 		db.execSQL(SQL_CREATE_PPE_DETAILS);
 		db.execSQL(SQL_CREATE_GHS_DETAILS);
-
 	}
 
 	@Override
@@ -113,13 +127,13 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 
 		// This database is only a cache for online data, so its upgrade policy is
 		// to simply to discard the data and start over
-		db.execSQL(SQL_DELETE_USER_DETAILS);
-		db.execSQL(SQL_DELETE_TECHNICIAN_DETAILS);
-		db.execSQL(SQL_DELETE_LOADING_BAY_DETAILS);
-		db.execSQL(SQL_DELETE_JOB_DETAILS);
-		db.execSQL(SQL_DELETE_SEAL_DETAILS);
-		db.execSQL(SQL_DELETE_PPE_DETAILS);
-		db.execSQL(SQL_DELETE_GHS_DETAILS);
-		onCreate(db);
+//		db.execSQL(SQL_DELETE_USER_DETAILS);
+//		db.execSQL(SQL_DELETE_TECHNICIAN_DETAILS);
+//		db.execSQL(SQL_DELETE_LOADING_BAY_DETAILS);
+//		db.execSQL(SQL_DELETE_JOB_DETAILS);
+//		db.execSQL(SQL_DELETE_SEAL_DETAILS);
+//		db.execSQL(SQL_DELETE_PPE_DETAILS);
+//		db.execSQL(SQL_DELETE_GHS_DETAILS);
+//		onCreate(db);
 	}
 }

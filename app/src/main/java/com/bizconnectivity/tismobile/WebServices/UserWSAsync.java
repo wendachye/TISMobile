@@ -17,45 +17,46 @@ import java.security.GeneralSecurityException;
 
 public class UserWSAsync extends AsyncTask<String, Void, Void> {
 
-    Context appContext;
-    String Username;
-    String Password;
-    boolean success;
+    Context context;
+    String username;
+    String password;
+    boolean response;
 
-    UserDetail userDetail = new UserDetail();
-    UserDetailDataSource userDetailDataSource;
     ProgressDialog progressDialog;
 
+    UserDetail userDetail;
+    UserDetailDataSource userDetailDataSource;
+
     public UserWSAsync(Context context, String username, String password) {
-        appContext = context;
-        Username = username;
-        Password = password;
+
+        this.context = context;
+        this.username = username;
+        this.password = password;
     }
 
     @Override
     protected Void doInBackground(String... params) {
 
-        success = UserWS.invokeLoginWS(Username, Password);
+        response = UserWS.invokeLoginWS(username, password);
 
         return null;
-
     }
 
     @Override
     protected void onPostExecute(Void result) {
 
-
-        if (success) {
+        if (response) {
 
             //set username
-            Constant.LOGIN_LOGINNAME = Username;
+            Constant.LOGIN_LOGINNAME = username;
 
             //insert into sqlite database
             try {
 
                 //encrypt password
-                String encryptedPassword = AESCrypt.encrypt(Password, Constant.KEY_ENCRYPT);
-                userDetail.setUsername(Username);
+                String encryptedPassword = AESCrypt.encrypt(password, Constant.KEY_ENCRYPT);
+                userDetail = new UserDetail();
+                userDetail.setUsername(username);
                 userDetail.setPassword(encryptedPassword);
 
                 insertOrUpdateUserDetails(userDetail);
@@ -68,24 +69,25 @@ public class UserWSAsync extends AsyncTask<String, Void, Void> {
             progressDialog.dismiss();
 
             //navigate to dashboard activity
-            Intent intent = new Intent(appContext, DashboardActivity.class);
-            ((LoginActivity)appContext).finish();
-            appContext.startActivity(intent);
+            Intent intent = new Intent(context, DashboardActivity.class);
+            ((LoginActivity)context).finish();
+            context.startActivity(intent);
 
         } else {
 
             //end progress dialog
             progressDialog.dismiss();
-            //prompt error message
-            Common.shortToast(appContext, Constant.ERR_MSG_LOGIN_INCORRECT);
 
+            //prompt error message
+            Common.shortToast(context, Constant.ERR_MSG_LOGIN_INCORRECT);
         }
     }
 
     @Override
     protected void onPreExecute() {
+
         //start progress dialog
-        progressDialog = ProgressDialog.show(appContext, "Please wait..", "Loading...", true);
+        progressDialog = ProgressDialog.show(context, "Please wait..", "Loading...", true);
     }
 
     @Override
@@ -93,13 +95,15 @@ public class UserWSAsync extends AsyncTask<String, Void, Void> {
 
     }
 
+    //insert or update sqlite database
     private void insertOrUpdateUserDetails(UserDetail userDetail) {
 
-        userDetailDataSource = new UserDetailDataSource(appContext);
+        userDetailDataSource = new UserDetailDataSource(context);
+        //open database
         userDetailDataSource.open();
-
+        //insert or update to database
         userDetailDataSource.insertOrUpdateUserDetails(userDetail);
-
+        //close database
         userDetailDataSource.close();
     }
 
