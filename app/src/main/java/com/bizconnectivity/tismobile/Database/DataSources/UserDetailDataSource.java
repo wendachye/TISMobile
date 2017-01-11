@@ -4,10 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import com.bizconnectivity.tismobile.Classes.UserDetail;
-import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.Database.Contracts.UserDetailContract.UserDetails;
 import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
@@ -52,7 +50,7 @@ public class UserDetailDataSource {
 				null                                      // The sort order
 		);
 
-		if (cursor.moveToFirst()) {
+		if (cursor.getCount() > 0) {
 
 			// New value for one column
 			ContentValues values = new ContentValues();
@@ -100,7 +98,7 @@ public class UserDetailDataSource {
 				null                                      // The sort order
 		);
 
-		if (cursor.moveToFirst()) {
+		if (cursor.getCount() > 0) {
 
 			String password = cursor.getString(cursor.getColumnIndex(UserDetails.COLUMN_PASSWORD));
 

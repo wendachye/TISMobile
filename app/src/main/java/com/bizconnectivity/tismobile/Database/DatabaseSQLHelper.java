@@ -43,7 +43,8 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 			"CREATE TABLE " + JobDetails.TABLE_NAME + " (" +
 					JobDetails.COLUMN_JOB_ID + " TEXT PRIMARY KEY, " +
 					JobDetails.COLUMN_CUSTOMER_NAME + " TEXT, " +
-					JobDetails.COLUMN_PRODUCT_NAME + " TEXT," +
+					JobDetails.COLUMN_PRODUCT_NAME + " TEXT, " +
+					JobDetails.COLUMN_TANK_NO + " TEXT, " +
 					JobDetails.COLUMN_TRUCK_LOADING_BAY_NO + " TEXT, " +
 					JobDetails.COLUMN_LOADING_ARM_NO + " TEXT, " +
 					JobDetails.COLUMN_SDS_FILE_PATH + " TEXT, " +
@@ -59,7 +60,8 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 					JobDetails.COLUMN_SAFETY_CHECKS_STATUS + " TEXT, " +
 					JobDetails.COLUMN_SCAN_LOADING_ARM_STATUS + " TEXT, " +
 					JobDetails.COLUMN_BATCH_CONTROLLER_STATUS + " TEXT, " +
-					JobDetails.COLUMN_SCAN_SEAL_STATUS + " TEXT)";
+					JobDetails.COLUMN_SCAN_SEAL_STATUS + " TEXT, " +
+					JobDetails.COLUMN_JOB_DATE + " TEXT)";
 
 	private static final String SQL_DELETE_JOB_DETAILS =
 			"DROP TABLE IF EXISTS " + JobDetails.TABLE_NAME;
@@ -100,9 +102,9 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 		db.execSQL(SQL_CREATE_TECHNICIAN_DETAILS);
 		db.execSQL(SQL_CREATE_LOADING_BAY_DETAILS);
 		db.execSQL(SQL_CREATE_JOB_DETAILS);
-//		db.execSQL(SQL_CREATE_SEAL_DETAILS);
-//		db.execSQL(SQL_CREATE_PPE_DETAILS);
-//		db.execSQL(SQL_CREATE_GHS_DETAILS);
+		db.execSQL(SQL_CREATE_SEAL_DETAILS);
+		db.execSQL(SQL_CREATE_PPE_DETAILS);
+		db.execSQL(SQL_CREATE_GHS_DETAILS);
 
 	}
 
@@ -118,6 +120,6 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 		db.execSQL(SQL_DELETE_SEAL_DETAILS);
 		db.execSQL(SQL_DELETE_PPE_DETAILS);
 		db.execSQL(SQL_DELETE_GHS_DETAILS);
-
+		onCreate(db);
 	}
 }

@@ -1,5 +1,8 @@
 package com.bizconnectivity.tismobile;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 public class Constant {
     public static String KEY_ENCRYPT = "TISMOBILE";
     public static String SHARED_PREF_NAME = "SP_NAME";
@@ -112,4 +115,9 @@ public class Constant {
     public static String SCAN_MSG_PROMPT_WORK_INSTRUCTION = "Please scan Work Instruction";
     public static String SCAN_MSG_PROMPT_SCAN_LOADING_ARM = "Please scan Loading Arm";
     public static String SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL = "Please scan Bottom Seal";
+
+
+    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static Calendar calendar = Calendar.getInstance();
+    public static String CURRENT_DATE = simpleDateFormat.format(calendar.getTime());
 }

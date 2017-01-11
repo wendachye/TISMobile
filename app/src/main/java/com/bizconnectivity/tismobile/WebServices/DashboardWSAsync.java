@@ -80,13 +80,13 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
             if (appContext instanceof DashboardActivity) {
                 LinearLayout tvTruckBayListHeader = (LinearLayout) ((DashboardActivity) appContext).findViewById(R.id.tvTruckBayListHeader);
 
-                if (orderList.size() > 0) {
-                    ((DashboardActivity) appContext).showTruckLoadingBayDetails(orderList);
-                    tvTruckBayListHeader.setVisibility(LinearLayout.VISIBLE);
-                } else {
-                    tvTruckBayListHeader.setVisibility(LinearLayout.INVISIBLE);
-                    Toast.makeText(appContext, Constant.ERR_MSG_NO_ORDER_FOR_TRUCK_BAY, Toast.LENGTH_SHORT).show();
-                }
+//                if (orderList.size() > 0) {
+//                    ((DashboardActivity) appContext).showTruckLoadingBayDetails(orderList);
+//                    tvTruckBayListHeader.setVisibility(LinearLayout.VISIBLE);
+//                } else {
+//                    tvTruckBayListHeader.setVisibility(LinearLayout.INVISIBLE);
+//                    Toast.makeText(appContext, Constant.ERR_MSG_NO_ORDER_FOR_TRUCK_BAY, Toast.LENGTH_SHORT).show();
+//                }
             }
         }
 

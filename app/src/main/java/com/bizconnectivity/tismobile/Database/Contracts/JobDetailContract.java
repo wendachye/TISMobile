@@ -35,6 +35,7 @@ public class JobDetailContract implements BaseColumns{
 		public static final String COLUMN_SCAN_LOADING_ARM_STATUS = "ScanLoadingArmStatus";
 		public static final String COLUMN_BATCH_CONTROLLER_STATUS = "BatchControllerStatus";
 		public static final String COLUMN_SCAN_SEAL_STATUS = "ScanSealStatus";
+		public static final String COLUMN_JOB_DATE = "JobDate";
 
 	}
 }

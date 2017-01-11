@@ -4,11 +4,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.bizconnectivity.tismobile.Classes.CheckIn;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.Database.Contracts.LoadingBayDetailContract.LoadingBayDetails;
 import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
+
+import java.util.ArrayList;
 
 public class LoadingBayDetailDataSource {
 
@@ -50,11 +53,14 @@ public class LoadingBayDetailDataSource {
 				null                                      // The sort order
 		);
 
-		if (cursor.moveToFirst()) {
+		if (cursor.getCount() > 0) {
+
+
+		} else {
 
 			// Create a new map of values, where column names are the keys
 			ContentValues values = new ContentValues();
-			values.put(LoadingBayDetails.COLUMN_LOADING_BAY_NO, checkIn.getTechnicianNRIC());
+			values.put(LoadingBayDetails.COLUMN_LOADING_BAY_NO, checkIn.getLoadingBayNo());
 
 			// Insert the new row, returning the primary key value of the new row
 			database.insert(LoadingBayDetails.TABLE_NAME, null, values);
@@ -63,7 +69,7 @@ public class LoadingBayDetailDataSource {
 		cursor.close();
 	}
 
-	public String retrieveLoadingBayNo (CheckIn checkIn) {
+	public String retrieveLoadingBay (CheckIn checkIn) {
 
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
@@ -83,7 +89,7 @@ public class LoadingBayDetailDataSource {
 				null                                      // The sort order
 		);
 
-		if (cursor.moveToFirst()) {
+		if (cursor.getCount() > 0) {
 
 			cursor.close();
 
@@ -97,4 +103,41 @@ public class LoadingBayDetailDataSource {
 
 		}
 	}
+
+	public ArrayList<String> retrieveAllLoadingBay () {
+
+		ArrayList<String> loadingBayArrayList = new ArrayList<>();
+
+		// Define a projection that specifies which columns from the database
+		// you will actually use after this query.
+		String[] projection = { LoadingBayDetails.COLUMN_LOADING_BAY_NO };
+
+		Cursor cursor = database.query(
+				LoadingBayDetails.TABLE_NAME,             // The table to query
+				projection,                               // The columns to return
+				null,                                     // The columns for the WHERE clause
+				null,                                     // The values for the WHERE clause
+				null,                                     // Group the rows
+				null,                                     // Filter by row groups
+				null                                      // The sort order
+		);
+
+		if (cursor.getCount() > 0) {
+
+			while (cursor.moveToNext()) {
+
+				String truckLoadingBay = cursor.getString(cursor.getColumnIndex(LoadingBayDetails.COLUMN_LOADING_BAY_NO));
+
+				loadingBayArrayList.add(truckLoadingBay);
+
+			}
+
+			return loadingBayArrayList;
+
+		} else {
+
+			return loadingBayArrayList;
+		}
+	}
+
 }

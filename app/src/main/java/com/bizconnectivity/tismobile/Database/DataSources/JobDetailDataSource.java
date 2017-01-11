@@ -4,10 +4,16 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.bizconnectivity.tismobile.Classes.JobDetail;
+import com.bizconnectivity.tismobile.Classes.TruckLoadingBayList;
 import com.bizconnectivity.tismobile.Database.Contracts.JobDetailContract.JobDetails;
 import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
+
+import java.util.ArrayList;
+
+import static com.bizconnectivity.tismobile.Constant.CURRENT_DATE;
 
 public class JobDetailDataSource {
 
@@ -61,6 +67,7 @@ public class JobDetailDataSource {
 			values.put(JobDetails.COLUMN_SDS_FILE_PATH, jobDetail.getSdsFile());
 			values.put(JobDetails.COLUMN_OPERATOR_ID, jobDetail.getOperatorID());
 			values.put(JobDetails.COLUMN_DRIVER_ID, jobDetail.getDriverID());
+			values.put(JobDetails.COLUMN_JOB_DATE, jobDetail.getJobDate());
 
 			// Which row to update, based on the title
 			String selectionUpdate = JobDetails.COLUMN_JOB_ID + " = ?";
@@ -81,10 +88,61 @@ public class JobDetailDataSource {
 			values.put(JobDetails.COLUMN_SDS_FILE_PATH, jobDetail.getSdsFile());
 			values.put(JobDetails.COLUMN_OPERATOR_ID, jobDetail.getOperatorID());
 			values.put(JobDetails.COLUMN_DRIVER_ID, jobDetail.getDriverID());
+			values.put(JobDetails.COLUMN_JOB_DATE, jobDetail.getJobDate());
 
 			// Insert the new row, returning the primary key value of the new row
 			database.insert(JobDetails.TABLE_NAME, null, values);
 		}
+	}
+
+	public ArrayList<JobDetail> retrieveAllJobDetails(TruckLoadingBayList truckLoadingBayList) {
+
+		Log.d("aa", truckLoadingBayList.getGroupTitle());
+
+		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
+
+		// Define a projection that specifies which columns from the database
+		// you will actually use after this query.
+		String[] projection = { JobDetails.COLUMN_JOB_ID, JobDetails.COLUMN_CUSTOMER_NAME, JobDetails.COLUMN_PRODUCT_NAME, JobDetails.COLUMN_TANK_NO };
+
+		// Filter results WHERE
+		String selectionRetrieve = JobDetails.COLUMN_TRUCK_LOADING_BAY_NO + " = ?";
+		String[] selectionArgsRetrieve = { truckLoadingBayList.getGroupTitle() };
+
+		Cursor cursor = database.query(
+				JobDetails.TABLE_NAME,                    // The table to query
+				projection,                               // The columns to return
+				selectionRetrieve,                        // The columns for the WHERE clause
+				selectionArgsRetrieve,                    // The values for the WHERE clause
+				null,                                     // Group the rows
+				null,                                     // Filter by row groups
+				null                                      // The sort order
+		);
+
+		if (cursor.getCount() > 0) {
+
+			for (int i=0; i<cursor.getCount(); i++) {
+
+				JobDetail jobDetail = new JobDetail();
+
+				String jobID = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_ID));
+				jobDetail.setJobID(jobID);
+
+				String customerName = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_CUSTOMER_NAME));
+				jobDetail.setJobID(customerName);
+
+				String productName = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PRODUCT_NAME));
+				jobDetail.setJobID(productName);
+
+				String tankNo = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TANK_NO));
+				jobDetail.setJobID(tankNo);
+
+				jobDetailArrayList.add(jobDetail);
+			}
+
+		}
+
+		return jobDetailArrayList;
 	}
 
 }

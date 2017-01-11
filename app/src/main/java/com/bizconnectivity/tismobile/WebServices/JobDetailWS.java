@@ -13,8 +13,12 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+
+import static com.bizconnectivity.tismobile.Constant.simpleDateFormat;
 
 public class JobDetailWS {
 
@@ -156,6 +160,23 @@ public class JobDetailWS {
 				jobDetail.setOperatorID(table.getProperty("OperatorID").toString());
 			} else {
 				jobDetail.setOperatorID("");
+			}
+
+			if (!table.getProperty("BookingDate").toString().equals("anyType{}")) {
+
+				try {
+
+					Date date = simpleDateFormat.parse(table.getProperty("BookingDate").toString());
+					String bookingDate = simpleDateFormat.format(date);
+
+					jobDetail.setJobDate(bookingDate);
+
+				} catch (ParseException e) {
+					e.printStackTrace();
+				}
+
+			} else {
+				jobDetail.setJobDate("");
 			}
 
 			jobDetailArrayList.add(jobDetail);

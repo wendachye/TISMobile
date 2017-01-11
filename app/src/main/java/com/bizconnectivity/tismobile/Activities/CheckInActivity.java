@@ -8,7 +8,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -21,14 +20,11 @@ import android.widget.TextView;
 import com.bizconnectivity.tismobile.Classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.Contracts.TechnicianDetailContract;
 import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.Database.DataSources.TechnicianDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.WebServices.CheckInWSAsync;
-import com.bizconnectivity.tismobile.WebServices.ConstantWS;
 import com.bizconnectivity.tismobile.WebServices.TechnicianIDWSAsync;
-import com.bizconnectivity.tismobile.WebServices.UserWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -237,7 +233,7 @@ public class CheckInActivity extends AppCompatActivity {
         loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
         loadingBayDetailDataSource.open();
 
-        String message = loadingBayDetailDataSource.retrieveLoadingBayNo(checkIn);
+        String message = loadingBayDetailDataSource.retrieveLoadingBay(checkIn);
 
         loadingBayDetailDataSource.close();
 

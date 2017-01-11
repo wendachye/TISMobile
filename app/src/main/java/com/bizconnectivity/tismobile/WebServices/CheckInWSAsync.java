@@ -16,6 +16,7 @@ import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -86,12 +87,9 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 			loadingBayDetailDataSource.insertLoadingBayNo(checkIn);
 			loadingBayDetailDataSource.close();
 
-			Calendar calendar = Calendar.getInstance();
-			calendar.set(2016, Calendar.MARCH, 22, 8, 0, 0);
-			String truckNo = "01";
 
 			//get all the job details from rack no
-			JobDetailWSAsync task = new JobDetailWSAsync(appContext, calendar.getTime(), truckNo);
+			JobDetailWSAsync task = new JobDetailWSAsync(appContext, Constant.calendar.getTime(), rackNo);
         	task.execute();
 
 			//end progress dialog

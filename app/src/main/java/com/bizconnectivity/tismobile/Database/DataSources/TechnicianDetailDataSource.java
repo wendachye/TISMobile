@@ -50,7 +50,7 @@ public class TechnicianDetailDataSource {
 				null                                      // The sort order
 		);
 
-		if (cursor.moveToFirst()) {
+		if (cursor.getCount() > 0) {
 
 			// Create a new map of values, where column names are the keys
 			ContentValues values = new ContentValues();
@@ -83,7 +83,7 @@ public class TechnicianDetailDataSource {
 				null                                      // The sort order
 		);
 
-		if (cursor.moveToFirst()) {
+		if (cursor.getCount() > 0) {
 
 			cursor.close();
 

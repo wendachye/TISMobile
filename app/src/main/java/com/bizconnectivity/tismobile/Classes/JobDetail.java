@@ -11,6 +11,7 @@ public class JobDetail {
 	String sdsFile;
 	String driverID;
 	String operatorID;
+	String jobDate;
 
 	public String getJobID() {
 		return jobID;
@@ -82,5 +83,13 @@ public class JobDetail {
 
 	public void setOperatorID(String operatorID) {
 		this.operatorID = operatorID;
+	}
+
+	public String getJobDate() {
+		return jobDate;
+	}
+
+	public void setJobDate(String jobDate) {
+		this.jobDate = jobDate;
 	}
 }
