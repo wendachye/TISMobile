@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Classes.GHS;
@@ -46,6 +47,19 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
+
+import static com.bizconnectivity.tismobile.Constant.KEY_STATUS_JOB_DETAILS;
+import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
+import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
+import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PPE;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
+import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
 public class JobMainActivity extends AppCompatActivity {
 
@@ -75,6 +89,61 @@ public class JobMainActivity extends AppCompatActivity {
         /*-------- footer buttons --------*/
         setFooterMenu();
         //endregion
+
+        String jobStatus = getIntent().getExtras().getString(KEY_STATUS_JOB_DETAILS);
+
+        switch (jobStatus) {
+
+            case STATUS_PPE:
+
+                break;
+
+            case STATUS_SDS:
+
+                break;
+
+            case STATUS_OPERATOR_ID:
+
+                break;
+
+            case STATUS_DRIVER_ID:
+
+                break;
+
+            case STATUS_WORK_INSTRUCTION:
+
+                break;
+
+            case STATUS_SAFETY_CHECKS :
+
+                break;
+
+            case STATUS_SCAN_LOADING_ARM:
+
+                break;
+
+            case STATUS_BATCH_CONTROLLER:
+
+                break;
+
+            case STATUS_PUMP_START:
+
+                break;
+
+            case STATUS_PUMP_STOP:
+
+                break;
+
+            case STATUS_SCAN_SEAL:
+
+                break;
+
+            default:
+
+                break;
+        }
+
+
 
         btnPPE = (Button) findViewById(R.id.btnScanPPE);
         btnPPE.setOnClickListener(new View.OnClickListener() {
@@ -350,7 +419,6 @@ public class JobMainActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                System.exit(0);
             }
         });
 

@@ -169,10 +169,39 @@ public class JobDetailDataSource {
 			jobDetail.setCustomerName(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_CUSTOMER_NAME)));
 			jobDetail.setLoadingBayNo(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TRUCK_LOADING_BAY_NO)));
 			jobDetail.setLoadingArm(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_LOADING_ARM_NO)));
-
 		}
 
 		return jobDetail;
+	}
+
+	public String retrieveStatusWithJobID(String jobID) {
+
+		String jobStatus = "";
+
+		// Define a projection that specifies which columns from the database
+		// you will actually use after this query.
+		String[] projection = { JobDetails.COLUMN_STATUS };
+
+		// Filter results WHERE
+		String selectionRetrieve = JobDetails.COLUMN_JOB_ID + " = ?";
+		String[] selectionArgsRetrieve = { jobID };
+
+		Cursor cursor = database.query(
+				JobDetails.TABLE_NAME,                    // The table to query
+				projection,                               // The columns to return
+				selectionRetrieve,                        // The columns for the WHERE clause
+				selectionArgsRetrieve,                    // The values for the WHERE clause
+				null,                                     // Group the rows
+				null,                                     // Filter by row groups
+				null                                      // The sort order
+		);
+
+		if (cursor.moveToFirst()) {
+
+			jobStatus = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_STATUS));
+		}
+
+		return jobStatus;
 	}
 
 }

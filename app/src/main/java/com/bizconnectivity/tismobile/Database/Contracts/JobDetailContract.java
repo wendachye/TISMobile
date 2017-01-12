@@ -27,14 +27,7 @@ public class JobDetailContract implements BaseColumns{
 		public static final String COLUMN_PUMP_START_TIME = "PumpStartTime";
 		public static final String COLUMN_PUMP_STOP_TIME = "PumpStopTime";
 		public static final String COLUMN_RACK_OUT_TIME = "RackOutTime";
-
-		public static final String COLUMN_PPE_STATUS = "PPEStatus";
-		public static final String COLUMN_SDS_STATUS = "SDSStatus";
-		public static final String COLUMN_SCAN_DETAILS_STATUS = "ScanDetailsStatus";
-		public static final String COLUMN_SAFETY_CHECKS_STATUS = "SafetyChecksStatus";
-		public static final String COLUMN_SCAN_LOADING_ARM_STATUS = "ScanLoadingArmStatus";
-		public static final String COLUMN_BATCH_CONTROLLER_STATUS = "BatchControllerStatus";
-		public static final String COLUMN_SCAN_SEAL_STATUS = "ScanSealStatus";
+		public static final String COLUMN_STATUS = "Status";
 		public static final String COLUMN_JOB_DATE = "JobDate";
 
 	}

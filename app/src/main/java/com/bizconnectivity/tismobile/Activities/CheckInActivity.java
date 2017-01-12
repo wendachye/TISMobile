@@ -28,6 +28,7 @@ import com.bizconnectivity.tismobile.WebServices.TechnicianIDWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 
@@ -45,6 +46,8 @@ public class CheckInActivity extends AppCompatActivity {
     LoadingBayDetailDataSource loadingBayDetailDataSource;
 
     CheckIn checkIn;
+
+    ArrayList<String> loadingBayArrayList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,23 +88,42 @@ public class CheckInActivity extends AppCompatActivity {
             }
         });
 
-        String technicianID = sharedPref.getString(Constant.SHARED_PREF_TECHNICIAN_ID, "");
-        Set<String> truckLoadingBayList = sharedPref.getStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, null);
+        //region check loading bay no & technician nric
 
-        if (!technicianID.isEmpty() && truckLoadingBayList != null){
+        String technicianID = sharedPref.getString(Constant.SHARED_PREF_TECHNICIAN_ID, "");
+
+        loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
+        //open database
+        loadingBayDetailDataSource.open();
+        //retrieve all loading bay
+        loadingBayArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
+        //close database
+        loadingBayDetailDataSource.close();
+
+        String trunkBayString = "";
+
+        for (int i=0; i<loadingBayArrayList.size(); i++) {
+
+            if (trunkBayString.isEmpty()) {
+
+                trunkBayString = loadingBayArrayList.get(i);
+
+            } else {
+
+                trunkBayString = trunkBayString + ", " + loadingBayArrayList.get(i);
+            }
+
+        }
+
+        //endregion
+
+        //region status settings
+
+        if (!technicianID.isEmpty() && loadingBayArrayList.size() > 0){
 
             btnScanTechnician.setTextColor(getResources().getColor(R.color.colorWhite));
             btnScanTechnician.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             tvTechnicianId.setText(technicianID);
-
-            String trunkBayString = "";
-            for (String truckBayID : truckLoadingBayList) {
-                if (trunkBayString.isEmpty()) {
-                    trunkBayString = truckBayID;
-                } else {
-                    trunkBayString = trunkBayString + ", " + truckBayID;
-                }
-            }
 
             tvTruckBayId.setText(trunkBayString);
             btnScanTruckBay.setTextColor(getResources().getColor(R.color.colorWhite));
@@ -117,6 +139,7 @@ public class CheckInActivity extends AppCompatActivity {
             btnScanTruckBay.setEnabled(true);
         }
 
+        //endregion
     }
 
     public void btnScanTechnicianClicked() {

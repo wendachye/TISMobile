@@ -29,7 +29,7 @@ import com.google.zxing.integration.android.IntentResult;
 public class ScanDetailsActivity extends AppCompatActivity {
 
     Context context;
-    TextView headerMessage, tvOperatorId, tvDriverId;
+    TextView headerMessage, tvOperatorId, tvDriverId, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     Dialog exitDialog;
     Button btnScanOperatorId, btnScanDriverId, btnScanWorkInstruction;
@@ -131,23 +131,39 @@ public class ScanDetailsActivity extends AppCompatActivity {
     //region Header
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
+
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
+        tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
+        tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
+        tv_loadingBay = (TextView) headerLayout.findViewById(R.id.tvBay);
+        tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
 
+        //retrieve shared preferences
         sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+        String customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
+        String loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
+        String loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
 
-        headerMessage.setText(Common.formatWelcomeMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
+        headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
+        tv_jobID.setText(jobID);
+        tv_customerName.setText(customerName);
+        tv_loadingBay.setText(loadingArm);
+        tv_loadingArm.setText(loadingBay);
     }
     //endregion
 
     //region Footer
     public void setFooterMenu() {
+
         RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnHomeClicked(view);
+                btnHomeClicked();
             }
         });
 
@@ -155,7 +171,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSearchClicked(view);
+                btnSearchClicked();
             }
         });
 
@@ -163,7 +179,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSwitchClicked(view);
+                btnSwitchClicked();
             }
         });
 
@@ -176,30 +192,33 @@ public class ScanDetailsActivity extends AppCompatActivity {
         });
     }
 
-    public void btnHomeClicked(View view) {
+    public void btnHomeClicked() {
+
         Intent intentHome = new Intent(context, DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
-    public void btnSearchClicked(View view) {
+    public void btnSearchClicked() {
+
         Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
-    public void btnSwitchClicked(View view) {
+    public void btnSwitchClicked() {
+
         Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
 
     public void btnSettingsClicked(View view) {
+
         settingsMenuOptions(view);
     }
 
-    public void settingsMenuOptions(View view)
-    {
+    public void settingsMenuOptions(View view) {
         PopupMenu popup = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
@@ -212,14 +231,17 @@ public class ScanDetailsActivity extends AppCompatActivity {
                         finish();
                         startActivity(intentCheckIn);
                         return true;
+
                     case R.id.settingsMenuExitApp:
                         exitApplication();
                         return true;
+
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
                         finish();
                         startActivity(intentCheckOut);
                         return true;
+
                     default:
                         return false;
                 }
@@ -229,8 +251,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
         popup.show();
     }
 
-    public void exitApplication()
-    {
+    public void exitApplication() {
+
         if (exitDialog != null && exitDialog.isShowing())
             return;
 
@@ -252,7 +274,6 @@ public class ScanDetailsActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                System.exit(0);
             }
         });
 

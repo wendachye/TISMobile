@@ -54,7 +54,6 @@ public class Constant {
 
     /*--------Job Order--------*/
     public static String LOADING_BAY = "LOADING BAY ";
-
     public static String ORDER_ID = "ORDER_ID";
     public static String TIMESLOT_ID = "TIMESLOT_ID";
     public static String CUSTOMER_NAME = "CUSTOMER_NAME";
@@ -72,7 +71,6 @@ public class Constant {
     public static String MSG_LOGIN_CORRECT = "Success Login";
     public static String MSG_CORRECT_TECHNICIAN_NRIC = "Technician Verified";
     public static String MSG_CORRECT_LOADING_BAY_NO = "Truck Loading Bay Verified";
-
 
     //CheckIn
     public static String ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN = "Truck loading bay was already checked in before.";
@@ -95,6 +93,19 @@ public class Constant {
     //Check Out
     public static String TRUCK_BAY_CHECKED_OUT = "You have check-out from Truck Loading Bay: ";
 
+    //Job Status
+    public static String KEY_STATUS_JOB_DETAILS = "STATUS_OF_JOB_DETAILS";
+    public static final String STATUS_PPE = "PPE Completed";
+    public static final String STATUS_SDS = "SDS Completed ";
+    public static final String STATUS_OPERATOR_ID = "Operator ID Completed";
+    public static final String STATUS_DRIVER_ID = "Driver ID Completed";
+    public static final String STATUS_WORK_INSTRUCTION = "Work Instruction Completed";
+    public static final String STATUS_SAFETY_CHECKS = "Safety Checks Completed";
+    public static final String STATUS_SCAN_LOADING_ARM = "Scan Loading Bay Completed";
+    public static final String STATUS_BATCH_CONTROLLER = "Batch Controller Completed";
+    public static final String STATUS_PUMP_START = "Pump Start Completed";
+    public static final String STATUS_PUMP_STOP = "Pump Stop Completed";
+    public static final String STATUS_SCAN_SEAL = "Scan Seal Completed";
 
     /*--------Barcode Scanner--------*/
     public static String SCAN_MSG_CANCEL_SCANNING = "Scanning is cancelled";

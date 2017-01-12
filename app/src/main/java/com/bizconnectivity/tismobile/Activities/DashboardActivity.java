@@ -30,6 +30,19 @@ import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Constant.KEY_STATUS_JOB_DETAILS;
+import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
+import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
+import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PPE;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
+import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
+
 public class DashboardActivity extends AppCompatActivity {
 
     Context context;
@@ -58,6 +71,9 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
+        context = this;
+        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+
         expandableListView = (ExpandableListView) findViewById(R.id.expandable_list_view);
         truckLoadingBayArrayList = new ArrayList<>();
         truckLoadingBayArrayList = retrieveAllLoadingBay();
@@ -82,9 +98,8 @@ public class DashboardActivity extends AppCompatActivity {
                 //store shared preferences
                 storeSharedPreferences(jobID);
 
-                Intent intent = new Intent(context, JobMainActivity.class);
-                finish();
-                startActivity(intent);
+                //status of job for navigation
+                statusNavigation(jobID);
 
                 return true;
             }
@@ -113,9 +128,6 @@ public class DashboardActivity extends AppCompatActivity {
         //region Header and Footer
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-
-        context = this;
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         /*-------- Set User Login Details --------*/
         setUserLoginDetails();
@@ -190,6 +202,106 @@ public class DashboardActivity extends AppCompatActivity {
         editor.putString(Constant.SHARED_PREF_LOADING_ARM, jobDetail.getLoadingArm());
         editor.commit();
 
+    }
+
+    public void statusNavigation(String jobID) {
+
+        String jobStatus = "";
+
+        jobDetailDataSource = new JobDetailDataSource(context);
+        //open database
+        jobDetailDataSource.open();
+        //retrieve job status
+        jobStatus = jobDetailDataSource.retrieveStatusWithJobID(jobID);
+        //close database
+        jobDetailDataSource.close();
+
+        switch (jobStatus) {
+
+            case STATUS_PPE:
+                Intent intentPPE = new Intent(this, JobMainActivity.class);
+                intentPPE.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_PPE);
+                finish();
+                startActivity(intentPPE);
+                break;
+
+            case STATUS_SDS:
+                Intent intentSDS = new Intent(this, JobMainActivity.class);
+                intentSDS.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_SDS);
+                finish();
+                startActivity(intentSDS);
+                break;
+
+            case STATUS_OPERATOR_ID:
+                Intent intentSD = new Intent(this, ScanDetailsActivity.class);
+                intentSD.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_OPERATOR_ID);
+                finish();
+                startActivity(intentSD);
+                break;
+
+            case STATUS_DRIVER_ID:
+                Intent intentDI = new Intent(this, ScanDetailsActivity.class);
+                intentDI.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_DRIVER_ID);
+                finish();
+                startActivity(intentDI);
+                break;
+
+            case STATUS_WORK_INSTRUCTION:
+                Intent intentWI = new Intent(this, JobMainActivity.class);
+                intentWI.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_WORK_INSTRUCTION);
+                finish();
+                startActivity(intentWI);
+                break;
+
+            case STATUS_SAFETY_CHECKS :
+                Intent intentSC = new Intent(this, LoadingOperationActivity.class);
+                intentSC.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_SAFETY_CHECKS);
+                finish();
+                startActivity(intentSC);
+                break;
+
+            case STATUS_SCAN_LOADING_ARM:
+                Intent intentLA = new Intent(this, LoadingOperationActivity.class);
+                intentLA.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_SCAN_LOADING_ARM);
+                finish();
+                startActivity(intentLA);
+                break;
+
+            case STATUS_BATCH_CONTROLLER:
+                Intent intentBC = new Intent(this, LoadingOperationActivity.class);
+                intentBC.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_BATCH_CONTROLLER);
+                finish();
+                startActivity(intentBC);
+                break;
+
+            case STATUS_PUMP_START:
+                Intent intentPS = new Intent(this, StopOperationActivity.class);
+                intentPS.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_PUMP_START);
+                finish();
+                startActivity(intentPS);
+                break;
+
+            case STATUS_PUMP_STOP:
+                Intent intentPSTP = new Intent(this, StopOperationActivity.class);
+                intentPSTP.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_PUMP_STOP);
+                finish();
+                startActivity(intentPSTP);
+                break;
+
+            case STATUS_SCAN_SEAL:
+                Intent intentSS = new Intent(this, StopOperationActivity.class);
+                intentSS.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_SCAN_SEAL);
+                finish();
+                startActivity(intentSS);
+                break;
+
+            default:
+                Intent intent = new Intent(this, JobMainActivity.class);
+                intent.putExtra(KEY_STATUS_JOB_DETAILS, "");
+                finish();
+                startActivity(intent);
+                break;
+        }
     }
 
     //region Header

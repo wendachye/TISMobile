@@ -63,13 +63,7 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 					JobDetails.COLUMN_PUMP_START_TIME + " TEXT, " +
 					JobDetails.COLUMN_PUMP_STOP_TIME + " TEXT, " +
 					JobDetails.COLUMN_RACK_OUT_TIME + " TEXT, " +
-					JobDetails.COLUMN_PPE_STATUS + " TEXT, " +
-					JobDetails.COLUMN_SDS_STATUS + " TEXT, " +
-					JobDetails.COLUMN_SCAN_DETAILS_STATUS + " TEXT, " +
-					JobDetails.COLUMN_SAFETY_CHECKS_STATUS + " TEXT, " +
-					JobDetails.COLUMN_SCAN_LOADING_ARM_STATUS + " TEXT, " +
-					JobDetails.COLUMN_BATCH_CONTROLLER_STATUS + " TEXT, " +
-					JobDetails.COLUMN_SCAN_SEAL_STATUS + " TEXT, " +
+					JobDetails.COLUMN_STATUS + " TEXT, " +
 					JobDetails.COLUMN_JOB_DATE + " TEXT)";
 
 	private static final String SQL_DELETE_JOB_DETAILS =
@@ -300,7 +294,6 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 		db.execSQL(SQL_INSERT_PPE11);
 
 		//endregion
-
 		//region insert ghs
 
 		db.execSQL(SQL_INSERT_GHS1);
