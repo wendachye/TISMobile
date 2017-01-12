@@ -47,48 +47,21 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 	@Override
 	protected void onPostExecute(Void result) {
 
-		SharedPreferences sharedPref = appContext.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-
 		if (response) {
-
-			Set<String> checkedInTruckBay = sharedPref.getStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, null);
-
-			if (checkedInTruckBay == null) {
-
-				//add new rackNo
-				checkedInTruckBay = new HashSet<>();
-				checkedInTruckBay.add(rackNo);
-
-			} else {
-
-				if (checkedInTruckBay.contains(rackNo)) {
-
-					Common.shortToast(appContext, Constant.ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN);
-
-				} else {
-
-					//add new rackNo
-					checkedInTruckBay.add(rackNo);
-
-				}
-
-			}
-
-			//save truck loading bay ID
-			SharedPreferences.Editor editor = sharedPref.edit();
-			editor.putStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, checkedInTruckBay);
-			editor.commit();
 
 			//insert into sqlite database
 			checkIn = new CheckIn();
 			checkIn.setLoadingBayNo(rackNo);
+
 			loadingBayDetailDataSource = new LoadingBayDetailDataSource(appContext);
+			//open database
 			loadingBayDetailDataSource.open();
-			loadingBayDetailDataSource.insertLoadingBayNo(checkIn);
+			//insert loading bay no into sqlite
+			loadingBayDetailDataSource.insertLoadingBayNo(appContext, checkIn);
+			//close database
 			loadingBayDetailDataSource.close();
 
-
-			//get all the job details from rack no
+			//get all the job details from web service
 			JobDetailWSAsync task = new JobDetailWSAsync(appContext, Constant.calendar.getTime(), rackNo);
         	task.execute();
 
@@ -112,6 +85,7 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 
 	@Override
 	protected void onPreExecute() {
+
 		//start progress dialog
 		progressDialog = ProgressDialog.show(appContext, "Please wait..", "Loading...", true);
 	}

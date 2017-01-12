@@ -28,6 +28,7 @@
             android:layout_marginTop="@dimen/header_title_text_spacing"
             android:gravity="center_horizontal"
             android:text="TRUCK LOADING BAY"
+            android:textStyle="bold"
             android:textSize="@dimen/header_title_text" />
 
         <TextView

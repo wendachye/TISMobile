@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Classes.JobDetail;
 import com.bizconnectivity.tismobile.Classes.TruckLoadingBayList;
+import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;
@@ -60,11 +61,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 		TextView tvLoadingBayTitle = (TextView) convertView.findViewById(R.id.tvLoadingBayTitle);
 		tvLoadingBayTitle.setTypeface(null, Typeface.BOLD);
 
-		String title = "Loading Bay " + group.getGroupTitle();
-		tvLoadingBayTitle.setText(title);
-
-		ExpandableListView mExpandableListView = (ExpandableListView) parent;
-		mExpandableListView.expandGroup(groupPosition);
+		tvLoadingBayTitle.setText(Common.formatCheckedInTruckLoadingBay(group.getGroupTitle()));
 
 		return convertView;
 	}

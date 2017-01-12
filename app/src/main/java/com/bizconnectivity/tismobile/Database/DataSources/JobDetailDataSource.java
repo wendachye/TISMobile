@@ -13,8 +13,6 @@ import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
 
 import java.util.ArrayList;
 
-import static com.bizconnectivity.tismobile.Constant.CURRENT_DATE;
-
 public class JobDetailDataSource {
 
 	private SQLiteDatabase database;
@@ -127,13 +125,13 @@ public class JobDetailDataSource {
 				jobDetail.setJobID(jobID);
 
 				String customerName = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_CUSTOMER_NAME));
-				jobDetail.setJobID(customerName);
+				jobDetail.setCustomerName(customerName);
 
 				String productName = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PRODUCT_NAME));
-				jobDetail.setJobID(productName);
+				jobDetail.setProductName(productName);
 
 				String tankNo = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TANK_NO));
-				jobDetail.setJobID(tankNo);
+				jobDetail.setTankNo(tankNo);
 
 				jobDetailArrayList.add(jobDetail);
 			}
@@ -141,6 +139,40 @@ public class JobDetailDataSource {
 		}
 
 		return jobDetailArrayList;
+	}
+
+	public JobDetail retrieveJobDetailsWithJobID(String jobID) {
+
+		JobDetail jobDetail = new JobDetail();
+
+		// Define a projection that specifies which columns from the database
+		// you will actually use after this query.
+		String[] projection = { JobDetails.COLUMN_JOB_ID, JobDetails.COLUMN_CUSTOMER_NAME, JobDetails.COLUMN_TRUCK_LOADING_BAY_NO, JobDetails.COLUMN_LOADING_ARM_NO };
+
+		// Filter results WHERE
+		String selectionRetrieve = JobDetails.COLUMN_JOB_ID + " = ?";
+		String[] selectionArgsRetrieve = { jobID };
+
+		Cursor cursor = database.query(
+				JobDetails.TABLE_NAME,                    // The table to query
+				projection,                               // The columns to return
+				selectionRetrieve,                        // The columns for the WHERE clause
+				selectionArgsRetrieve,                    // The values for the WHERE clause
+				null,                                     // Group the rows
+				null,                                     // Filter by row groups
+				null                                      // The sort order
+		);
+
+		if (cursor.moveToFirst()) {
+
+			jobDetail.setJobID(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_ID)));
+			jobDetail.setCustomerName(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_CUSTOMER_NAME)));
+			jobDetail.setLoadingBayNo(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TRUCK_LOADING_BAY_NO)));
+			jobDetail.setLoadingArm(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_LOADING_ARM_NO)));
+
+		}
+
+		return jobDetail;
 	}
 
 }

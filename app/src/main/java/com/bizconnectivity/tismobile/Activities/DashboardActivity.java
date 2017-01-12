@@ -16,34 +16,25 @@ import android.widget.Button;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Adapters.CustomExpandableListAdapter;
-import com.bizconnectivity.tismobile.Adapters.CustomOrderAdapter;
 import com.bizconnectivity.tismobile.Classes.JobDetail;
-import com.bizconnectivity.tismobile.Classes.Order;
-import com.bizconnectivity.tismobile.Classes.TruckBayOrderList;
 import com.bizconnectivity.tismobile.Classes.TruckLoadingBayList;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.WebServices.ConstantWS;
-import com.bizconnectivity.tismobile.WebServices.DashboardWSAsync;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Set;
 
 public class DashboardActivity extends AppCompatActivity {
 
     Context context;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage;
+    TextView headerMessage, tvTruckBayTitle;
     Dialog exitDialog;
 
     public SharedPreferences sharedPref;
@@ -55,15 +46,69 @@ public class DashboardActivity extends AppCompatActivity {
     JobDetailDataSource jobDetailDataSource;
 
     TruckLoadingBayList truckLoadingBayLists;
+    JobDetail jobDetail;
 
     ArrayList<TruckLoadingBayList> truckLoadingBayArrayList;
-    ArrayList<JobDetail> jobDetailArrayList;
-    ArrayList<String> loadingBayArrayList;
+    ArrayList<JobDetail> childArrayList;
+    ArrayList<String> groupArrayList;
+    ArrayList<String> totalLoadingBay = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
+
+        expandableListView = (ExpandableListView) findViewById(R.id.expandable_list_view);
+        truckLoadingBayArrayList = new ArrayList<>();
+        truckLoadingBayArrayList = retrieveAllLoadingBay();
+
+        customExpandableListAdapter = new CustomExpandableListAdapter(this, truckLoadingBayArrayList);
+        expandableListView.setAdapter(customExpandableListAdapter);
+
+        //expand all the list view at the first time
+        for ( int i = 0; i < customExpandableListAdapter.getGroupCount(); i++ ) {
+
+            expandableListView.expandGroup(i);
+        }
+
+        //region child onclick
+        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
+
+                TextView tvLoadingBayOrderId = (TextView) v.findViewById(R.id.tvLoadingBayOrderId);
+                String jobID = tvLoadingBayOrderId.getText().toString();
+
+                //store shared preferences
+                storeSharedPreferences(jobID);
+
+                Intent intent = new Intent(context, JobMainActivity.class);
+                finish();
+                startActivity(intent);
+
+                return true;
+            }
+        });
+        //endregion
+
+        //region group onclick
+        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+            @Override
+            public boolean onGroupClick(ExpandableListView parent, View v, int groupPosition, long id) {
+
+                if (parent.isGroupExpanded(groupPosition)) {
+
+                    parent.collapseGroup(groupPosition);
+
+                } else {
+
+                    parent.expandGroup(groupPosition);
+                }
+
+                return true;
+            }
+        });
+        //endregion
 
         //region Header and Footer
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -74,56 +119,51 @@ public class DashboardActivity extends AppCompatActivity {
 
         /*-------- Set User Login Details --------*/
         setUserLoginDetails();
+        setLoadingBayNo();
 
         /*-------- Footer Buttons --------*/
         setFooterMenu();
         //endregion
 
-        expandableListView = (ExpandableListView) findViewById(R.id.expandable_list_view);
-
-        truckLoadingBayArrayList = new ArrayList<>();
-        truckLoadingBayArrayList = retrieveAllLoadingBay();
-
-        customExpandableListAdapter = new CustomExpandableListAdapter(this, truckLoadingBayArrayList);
-        expandableListView.setAdapter(customExpandableListAdapter);
     }
 
     public ArrayList<TruckLoadingBayList> retrieveAllLoadingBay() {
 
-        loadingBayArrayList = new ArrayList<>();
+        groupArrayList = new ArrayList<>();
         truckLoadingBayArrayList = new ArrayList<>();
 
         loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
+        //open database
         loadingBayDetailDataSource.open();
-
-        loadingBayArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
-
+        //retrieve all loading bay no
+        groupArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
+        //close database
         loadingBayDetailDataSource.close();
 
-        if (loadingBayArrayList.size() > 0) {
+        if (groupArrayList.size() > 0) {
 
-            for (int i=0; i<loadingBayArrayList.size(); i++) {
+            totalLoadingBay = groupArrayList;
 
-                String loadingBay = loadingBayArrayList.get(i);
+            for (int i = 0; i< groupArrayList.size(); i++) {
 
-                jobDetailArrayList = new ArrayList<>();
+                childArrayList = new ArrayList<>();
                 truckLoadingBayLists = new TruckLoadingBayList();
 
+                String loadingBay = groupArrayList.get(i);
+                //group title setter
                 truckLoadingBayLists.setGroupTitle(loadingBay);
 
                 jobDetailDataSource = new JobDetailDataSource(this);
+                //open database
                 jobDetailDataSource.open();
-
-                jobDetailArrayList = jobDetailDataSource.retrieveAllJobDetails(truckLoadingBayLists);
-
-                Log.d("Log", "Job Details Size: " + jobDetailArrayList.size());
-
+                //retrieve all the job details for the loading bay
+                childArrayList = jobDetailDataSource.retrieveAllJobDetails(truckLoadingBayLists);
+                //close database
                 jobDetailDataSource.close();
-
-                truckLoadingBayLists.setJobDetails(jobDetailArrayList);
+                //child job details setter
+                truckLoadingBayLists.setJobDetails(childArrayList);
 
                 truckLoadingBayArrayList.add(truckLoadingBayLists);
-
             }
 
         }
@@ -131,66 +171,26 @@ public class DashboardActivity extends AppCompatActivity {
         return truckLoadingBayArrayList;
     }
 
-//    public void setCheckedInTruckLoadingBayDetails() {
-//        Set<String> checkedInTruckLoadingBay = sharedPref.getStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, null);
-//
-//        if (checkedInTruckLoadingBay != null) {
-//
-//            String trunkBayString = "";
-//            for (String truckBayID : checkedInTruckLoadingBay) {
-//                if (trunkBayString.isEmpty())
-//                    trunkBayString = truckBayID;
-//                else
-//                    trunkBayString = trunkBayString + ", " + truckBayID;
-//            }
-//
-//            TextView tvTruckBayTitle = (TextView) findViewById(R.id.tvTruckBayTitle);
-//            tvTruckBayTitle.setText(Common.formatCheckedInTruckLoadingBay(trunkBayString));
-//
-//            Calendar calendar = Calendar.getInstance();
-//            if (Constant.DEBUG)
-//                calendar.set(2016, Calendar.MARCH, 22, 8, 0, 0);
-//
-//            if (checkedInTruckLoadingBay.size() == 0) {
-//                LinearLayout tvTruckBayListHeader = (LinearLayout) findViewById(R.id.tvTruckBayListHeader);
-//                tvTruckBayListHeader.setVisibility(LinearLayout.INVISIBLE);
-//            } else {
-//                DashboardWSAsync task = new DashboardWSAsync(context, ConstantWS.WSTYPE_TODAY_LIST, calendar.getTime(), trunkBayString);
-//                task.execute();
-//            }
-//        } else {
-//            LinearLayout tvTruckBayListHeader = (LinearLayout) findViewById(R.id.tvTruckBayListHeader);
-//            tvTruckBayListHeader.setVisibility(LinearLayout.INVISIBLE);
-//        }
-//    }
+    public void storeSharedPreferences(String jobID) {
 
-//    public void showTruckLoadingBayDetails(List<Order> list) {
-//
-//        List<ArrayList<Order>> truckBayOrderList = new ArrayList<ArrayList<Order>>();
-//        List<String> truckBayList = new ArrayList<String>();
-//
-//        List<TruckBayOrderList> loadingBayOrderList = new ArrayList<TruckBayOrderList>();
-//
-//        for (int x = 0; x < list.size(); x++) {
-//            if (truckBayList.contains(list.get(x).getRackNo())) {
-//                int i = truckBayList.indexOf(list.get(x).getRackNo());
-//                truckBayOrderList.get(i).add(list.get(x));
-//            } else {
-//                truckBayList.add(list.get(x).getRackNo());
-//                truckBayOrderList.add(new ArrayList<Order>());
-//                int i = truckBayList.indexOf(list.get(x).getRackNo());
-//                truckBayOrderList.get(i).add(list.get(x));
-//            }
-//        }
-//
-//        for (int x = 0; x < truckBayOrderList.size(); x++) {
-//            loadingBayOrderList.add(new TruckBayOrderList(Constant.LOADING_BAY + truckBayList.get(x), truckBayOrderList.get(x)));
-//        }
-//
-//        ListView lvLoadingBayOrder = (ListView) findViewById(R.id.lvLoadingBayOrder);
-//        CustomOrderAdapter adapter = new CustomOrderAdapter(context, R.layout.dashboard_truck_bay_order_list, loadingBayOrderList);
-//        lvLoadingBayOrder.setAdapter(adapter);
-//    }
+        jobDetail = new JobDetail();
+
+        jobDetailDataSource = new JobDetailDataSource(this);
+        //open database
+        jobDetailDataSource.open();
+        //retrieve job details by job ID
+        jobDetail = jobDetailDataSource.retrieveJobDetailsWithJobID(jobID);
+        //close database
+        jobDetailDataSource.close();
+
+        SharedPreferences.Editor editor = sharedPref.edit();
+        editor.putString(Constant.SHARED_PREF_JOB_ID, jobDetail.getJobID());
+        editor.putString(Constant.SHARED_PREF_CUSTOMER_NAME, jobDetail.getCustomerName());
+        editor.putString(Constant.SHARED_PREF_LOADING_BAY, jobDetail.getLoadingBayNo());
+        editor.putString(Constant.SHARED_PREF_LOADING_ARM, jobDetail.getLoadingArm());
+        editor.commit();
+
+    }
 
     //region Header
     /*-------- Set User Login Details --------*/
@@ -202,7 +202,35 @@ public class DashboardActivity extends AppCompatActivity {
 
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
+
         headerMessage.setText(Common.formatWelcomeMsg(Constant.LOGIN_LOGINNAME));
+
+    }
+
+    public void setLoadingBayNo() {
+
+        tvTruckBayTitle = (TextView) findViewById(R.id.tvTruckBayTitle);
+
+        String loadingBay = "";
+
+        if (!totalLoadingBay.isEmpty()) {
+
+            for (int i = 0; i < totalLoadingBay.size(); i++) {
+
+                if (loadingBay.isEmpty()) {
+
+                    loadingBay = totalLoadingBay.get(i);
+
+                } else {
+
+                    loadingBay = loadingBay + ", " + totalLoadingBay.get(i);
+                }
+            }
+
+            tvTruckBayTitle.setText(Common.formatCheckedInTruckLoadingBay(loadingBay));
+
+        }
+
     }
     //endregion
 
@@ -317,6 +345,9 @@ public class DashboardActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.clear();
                 editor.commit();
+
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(context);
+                loadingBayDetailDataSource.deleteAllLoadingBay();
 
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
                 intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

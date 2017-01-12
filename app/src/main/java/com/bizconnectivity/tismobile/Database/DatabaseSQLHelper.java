@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.bizconnectivity.tismobile.Database.Contracts.GHSDetailContract.GHSDetails;
 import com.bizconnectivity.tismobile.Database.Contracts.JobDetailContract.JobDetails;
 import com.bizconnectivity.tismobile.Database.Contracts.LoadingBayDetailContract.LoadingBayDetails;
+import com.bizconnectivity.tismobile.Database.Contracts.PPEContract.PPE;
+import com.bizconnectivity.tismobile.Database.Contracts.GHSContract.GHS;
 import com.bizconnectivity.tismobile.Database.Contracts.PPEDetailContract.PPEDetails;
 import com.bizconnectivity.tismobile.Database.Contracts.SealDetailContract.SealDetails;
 import com.bizconnectivity.tismobile.Database.Contracts.TechnicianDetailContract.TechnicianDetails;
@@ -77,7 +79,7 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 	private static final String SQL_CREATE_SEAL_DETAILS =
 			"CREATE TABLE " +
 					SealDetails.TABLE_NAME + " (" +
-					SealDetails.COLUMN_JOB_ID + " INTEGER PRIMARY KEY, " +
+					SealDetails.COLUMN_JOB_ID + " TEXT, " +
 					SealDetails.COLUMN_SEAL_NO + " TEXT)";
 
 	private static final String SQL_DELETE_SEAL_DETAILS =
@@ -87,8 +89,8 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 	private static final String SQL_CREATE_PPE_DETAILS =
 			"CREATE TABLE " +
 					PPEDetails.TABLE_NAME + " (" +
-					PPEDetails.COLUMN_JOB_ID + " INTEGER PRIMARY KEY, " +
-					PPEDetails.COLUMN_PPE_IMAGE_NAME + " TEXT)";
+					PPEDetails.COLUMN_JOB_ID + " TEXT, " +
+					PPEDetails.COLUMN_PPE_ID + " INTEGER)";
 
 	private static final String SQL_DELETE_PPE_DETAILS =
 			"DROP TABLE IF EXISTS " +
@@ -97,13 +99,172 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 	private static final String SQL_CREATE_GHS_DETAILS =
 			"CREATE TABLE " +
 					GHSDetails.TABLE_NAME + " (" +
-					GHSDetails.COLUMN_JOB_ID + " INTEGER PRIMARY KEY, " +
-					GHSDetails.COLUMN_GHS_IMAGE_NAME + " TEXT)";
+					GHSDetails.COLUMN_JOB_ID + " TEXT, " +
+					GHSDetails.COLUMN_GHS_ID + " INTEGER)";
 
 	private static final String SQL_DELETE_GHS_DETAILS =
 			"DROP TABLE IF EXISTS " +
 					GHSDetails.TABLE_NAME;
 
+	private static final String SQL_CREATE_PPE =
+			"CREATE TABLE " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + " INTEGER PRIMARY KEY, " +
+					PPE.COLUMN_PPE_NAME + " TEXT)";
+
+	private static final String SQL_CREATE_GHS =
+			"CREATE TABLE " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + " INTEGER PRIMARY KEY, " +
+					GHS.COLUMN_GHS_NAME + " TEXT)";
+
+	//region insert ppe query
+
+	private static final String SQL_INSERT_PPE1 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(1, 'ear_protection')";
+
+	private static final String SQL_INSERT_PPE2 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(2, 'face_shield')";
+
+	private static final String SQL_INSERT_PPE3 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(3, 'foot_protection')";
+
+	private static final String SQL_INSERT_PPE4 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(4, 'hand_protection')";
+
+	private static final String SQL_INSERT_PPE5 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(5, 'head_protection')";
+
+	private static final String SQL_INSERT_PPE6 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(6, 'mandatory_instruction')";
+
+	private static final String SQL_INSERT_PPE7 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(7, 'pedestrian_route')";
+
+	private static final String SQL_INSERT_PPE8 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(8, 'protective_clothing')";
+
+	private static final String SQL_INSERT_PPE9 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(9, 'respirator')";
+
+	private static final String SQL_INSERT_PPE10 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(10, 'safety_glasses')";
+
+	private static final String SQL_INSERT_PPE11 =
+			"INSERT INTO " +
+					PPE.TABLE_NAME + " (" +
+					PPE.COLUMN_PPE_ID + ", " +
+					PPE.COLUMN_PPE_NAME + ") VALUES " +
+					"(11, 'safety_harness')";
+
+	//endregion
+
+	//region insert ghs query
+
+	private static final String SQL_INSERT_GHS1 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(1, 'AcuteToxicity')";
+
+	private static final String SQL_INSERT_GHS2 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(2, 'AspirationToxicity')";
+
+	private static final String SQL_INSERT_GHS3 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(3, 'Corrosive')";
+
+	private static final String SQL_INSERT_GHS4 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(4, 'EnvironmentToxicity')";
+
+	private static final String SQL_INSERT_GHS5 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(5, 'Explosive')";
+
+	private static final String SQL_INSERT_GHS6 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(6, 'Flammable')";
+
+	private static final String SQL_INSERT_GHS7 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(7, 'GasesUnderPressure')";
+
+	private static final String SQL_INSERT_GHS8 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(8, 'Irritant')";
+
+	private static final String SQL_INSERT_GHS9 =
+			"INSERT INTO " +
+					GHS.TABLE_NAME + " (" +
+					GHS.COLUMN_GHS_ID + ", " +
+					GHS.COLUMN_GHS_NAME + ") VALUES " +
+					"(9, 'Oxidiser')";
+
+	//endregion
 
 	public DatabaseSQLHelper(Context context) {
 
@@ -120,6 +281,40 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 		db.execSQL(SQL_CREATE_SEAL_DETAILS);
 		db.execSQL(SQL_CREATE_PPE_DETAILS);
 		db.execSQL(SQL_CREATE_GHS_DETAILS);
+
+		db.execSQL(SQL_CREATE_PPE);
+		db.execSQL(SQL_CREATE_GHS);
+
+		//region insert ppe
+
+		db.execSQL(SQL_INSERT_PPE1);
+		db.execSQL(SQL_INSERT_PPE2);
+		db.execSQL(SQL_INSERT_PPE3);
+		db.execSQL(SQL_INSERT_PPE4);
+		db.execSQL(SQL_INSERT_PPE5);
+		db.execSQL(SQL_INSERT_PPE6);
+		db.execSQL(SQL_INSERT_PPE7);
+		db.execSQL(SQL_INSERT_PPE8);
+		db.execSQL(SQL_INSERT_PPE9);
+		db.execSQL(SQL_INSERT_PPE10);
+		db.execSQL(SQL_INSERT_PPE11);
+
+		//endregion
+
+		//region insert ghs
+
+		db.execSQL(SQL_INSERT_GHS1);
+		db.execSQL(SQL_INSERT_GHS2);
+		db.execSQL(SQL_INSERT_GHS3);
+		db.execSQL(SQL_INSERT_GHS4);
+		db.execSQL(SQL_INSERT_GHS5);
+		db.execSQL(SQL_INSERT_GHS6);
+		db.execSQL(SQL_INSERT_GHS7);
+		db.execSQL(SQL_INSERT_GHS8);
+		db.execSQL(SQL_INSERT_GHS9);
+
+		//endregion
+
 	}
 
 	@Override
@@ -127,13 +322,13 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 
 		// This database is only a cache for online data, so its upgrade policy is
 		// to simply to discard the data and start over
-//		db.execSQL(SQL_DELETE_USER_DETAILS);
-//		db.execSQL(SQL_DELETE_TECHNICIAN_DETAILS);
-//		db.execSQL(SQL_DELETE_LOADING_BAY_DETAILS);
-//		db.execSQL(SQL_DELETE_JOB_DETAILS);
-//		db.execSQL(SQL_DELETE_SEAL_DETAILS);
-//		db.execSQL(SQL_DELETE_PPE_DETAILS);
-//		db.execSQL(SQL_DELETE_GHS_DETAILS);
-//		onCreate(db);
+		db.execSQL(SQL_DELETE_USER_DETAILS);
+		db.execSQL(SQL_DELETE_TECHNICIAN_DETAILS);
+		db.execSQL(SQL_DELETE_LOADING_BAY_DETAILS);
+		db.execSQL(SQL_DELETE_JOB_DETAILS);
+		db.execSQL(SQL_DELETE_SEAL_DETAILS);
+		db.execSQL(SQL_DELETE_PPE_DETAILS);
+		db.execSQL(SQL_DELETE_GHS_DETAILS);
+		onCreate(db);
 	}
 }

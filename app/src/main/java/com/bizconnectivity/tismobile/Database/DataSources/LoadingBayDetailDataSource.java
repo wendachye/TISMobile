@@ -7,11 +7,14 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.bizconnectivity.tismobile.Classes.CheckIn;
+import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.Database.Contracts.LoadingBayDetailContract.LoadingBayDetails;
 import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
 
 import java.util.ArrayList;
+
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN;
 
 public class LoadingBayDetailDataSource {
 
@@ -33,7 +36,7 @@ public class LoadingBayDetailDataSource {
 		sqlHelper.close();
 	}
 
-	public void insertLoadingBayNo (CheckIn checkIn) {
+	public void insertLoadingBayNo (Context context, CheckIn checkIn) {
 
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
@@ -53,10 +56,7 @@ public class LoadingBayDetailDataSource {
 				null                                      // The sort order
 		);
 
-		if (cursor.getCount() > 0) {
-
-
-		} else {
+		if (cursor.getCount() == 0) {
 
 			// Create a new map of values, where column names are the keys
 			ContentValues values = new ContentValues();
@@ -64,6 +64,7 @@ public class LoadingBayDetailDataSource {
 
 			// Insert the new row, returning the primary key value of the new row
 			database.insert(LoadingBayDetails.TABLE_NAME, null, values);
+
 		}
 
 		cursor.close();
@@ -138,6 +139,15 @@ public class LoadingBayDetailDataSource {
 
 			return loadingBayArrayList;
 		}
+	}
+
+	public void deleteAllLoadingBay() {
+
+		database = sqlHelper.getWritableDatabase();
+
+		database.delete(LoadingBayDetails.TABLE_NAME, null, null);
+
+		sqlHelper.close();
 	}
 
 }

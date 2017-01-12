@@ -20,7 +20,6 @@ public class PPEWS {
 	public static ArrayList<PPE> invokeRetrievePPEWS(String productName) {
 
 		ArrayList<PPE> ppeArrayList = new ArrayList<>();
-		PPE ppe = new PPE();
 
 		//create request
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_GET_PRODUCT_PPE);
@@ -61,7 +60,6 @@ public class PPEWS {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
 		return ppeArrayList;

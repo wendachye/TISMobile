@@ -30,7 +30,13 @@ public class Constant {
     public static String SHARED_PREF_SCAN_SEAL = "SP_SCAN_SEAL";
 	public static String SHARED_PREF_ADD_SEAL_COUNT = "SP_ADD_SEAL_COUNT";
 
-	/*--------BCPL Development Server--------*/
+    //selected job
+    public static String SHARED_PREF_JOB_ID = "SP_JOB_ID";
+    public static String SHARED_PREF_CUSTOMER_NAME = "SP_CUSTOEMR_NAME";
+    public static String SHARED_PREF_LOADING_BAY = "SP_LOADING_BAY";
+    public static String SHARED_PREF_TRUCK_ARM = "SP_TRUCK_ARM";
+
+    /*--------BCPL Development Server--------*/
     public static String SDS_FILE_LOCATION = "http://192.168.2.91/tis/Core/MSDS Files/";
     public static String GHS_FILE_LOCATION = "http://192.168.2.91/tis/Images/GHS/";
     public static String PPE_FILE_LOCATION = "http://192.168.2.91/tis/Images/PPE/";

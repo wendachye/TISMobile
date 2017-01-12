@@ -15,19 +15,6 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class UserWS {
 
-    public static boolean getElementsFromSuccessSOAP(SoapObject response){
-
-        boolean success = false;
-        int elementCount = response.getPropertyCount();
-
-        if(elementCount > 0)
-        {
-            success = Boolean.valueOf(response.getProperty(0).toString());
-        }
-
-        return success;
-    }
-
     public static boolean invokeLoginWS (String username,String password) {
 
         boolean result = false;
@@ -74,7 +61,7 @@ public class UserWS {
                 SoapObject response = (SoapObject) envelope.bodyIn;
                 SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
 
-                if (responseProperty.equals(true)) {
+                if (responseProperty.toString().equals("True")) {
 
                     result = true;
 
@@ -82,7 +69,6 @@ public class UserWS {
 
                     result = false;
                 }
-//                success = getElementsFromSuccessSOAP(response);
             }
 
         } catch (Exception e) {

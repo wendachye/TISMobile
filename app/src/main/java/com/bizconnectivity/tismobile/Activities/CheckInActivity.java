@@ -225,13 +225,23 @@ public class CheckInActivity extends AppCompatActivity {
 
         if (message.equals(Constant.MSG_CORRECT_TECHNICIAN_NRIC)) {
 
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, checkIn.getTechnicianNRIC()).commit();
+
             Intent intent = new Intent(this, CheckInActivity.class);
             finish();
             startActivity(intent);
 
         } else {
 
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, "").commit();
+
             Common.shortToast(this, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
+
+            Intent intent = new Intent(this, CheckInActivity.class);
+            finish();
+            startActivity(intent);
         }
     }
 

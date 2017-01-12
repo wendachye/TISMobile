@@ -58,7 +58,6 @@ public class GHSWS {
 
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
 		return ghsArrayList;

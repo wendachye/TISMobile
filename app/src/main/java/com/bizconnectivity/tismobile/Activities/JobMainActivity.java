@@ -51,7 +51,7 @@ public class JobMainActivity extends AppCompatActivity {
 
     Context context;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage;
+    TextView headerMessage, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     Dialog exitDialog, scanPPEDialog, safetyChecksDialog;
     Button btnPPE, btnSDS, btnScanDetails, btnSafetyCheck;
 
@@ -206,23 +206,39 @@ public class JobMainActivity extends AppCompatActivity {
     //region Header
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
+
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
+        tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
+        tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
+        tv_loadingBay = (TextView) headerLayout.findViewById(R.id.tvBay);
+        tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
 
-        sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        //retrieve shared preferences
+        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+        String customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
+        String loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
+        String loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
 
-        headerMessage.setText(Common.formatWelcomeMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
+        headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
+        tv_jobID.setText(jobID);
+        tv_customerName.setText(customerName);
+        tv_loadingBay.setText(loadingArm);
+        tv_loadingArm.setText(loadingBay);
+
     }
     //endregion
 
     //region Footer
     public void setFooterMenu() {
+
         RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnHomeClicked(view);
+                btnHomeClicked();
             }
         });
 
@@ -230,7 +246,7 @@ public class JobMainActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSearchClicked(view);
+                btnSearchClicked();
             }
         });
 
@@ -238,7 +254,7 @@ public class JobMainActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSwitchClicked(view);
+                btnSwitchClicked();
             }
         });
 
@@ -251,29 +267,34 @@ public class JobMainActivity extends AppCompatActivity {
         });
     }
 
-    public void btnHomeClicked(View view) {
-        Intent intentHome = new Intent(context, DashboardActivity.class);
+    public void btnHomeClicked() {
+
+        Intent intent = new Intent(context, DashboardActivity.class);
         finish();
-        startActivity(intentHome);
+        startActivity(intent);
     }
 
-    public void btnSearchClicked(View view) {
-        Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
+    public void btnSearchClicked() {
+
+        Intent intent = new Intent(context, SearchJobActivity.class);
         finish();
-        startActivity(intentSearchJob);
+        startActivity(intent);
     }
 
-    public void btnSwitchClicked(View view) {
-        Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
+    public void btnSwitchClicked() {
+
+        Intent intent = new Intent(context, SwitchTruckBayActivity.class);
         finish();
-        startActivity(intentSwitchTruckBay);
+        startActivity(intent);
     }
 
     public void btnSettingsClicked(View view) {
+
         settingsMenuOptions(view);
     }
 
     public void settingsMenuOptions(View view) {
+
         PopupMenu popup = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
@@ -286,14 +307,17 @@ public class JobMainActivity extends AppCompatActivity {
                         finish();
                         startActivity(intentCheckIn);
                         return true;
+
                     case R.id.settingsMenuExitApp:
                         exitApplication();
                         return true;
+
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
                         finish();
                         startActivity(intentCheckOut);
                         return true;
+
                     default:
                         return false;
                 }
@@ -304,6 +328,7 @@ public class JobMainActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
+
         if (exitDialog != null && exitDialog.isShowing())
             return;
 

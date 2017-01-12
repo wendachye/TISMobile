@@ -10,6 +10,13 @@ public class Common {
 
     public static String formatWelcomeMsg(String loginName) {
 
+        String msg = "WELCOME " + loginName + ".";
+
+        return msg;
+    }
+
+    public static String formatCheckInMsg(String loginName) {
+
         String msg = "WELCOME " + loginName + ". YOU ARE LOGGED IN. PLEASE ENSURE YOU ARE CHECK-IN TO YOUR TRUCK LOADING BAY.";
 
         return msg;
@@ -23,11 +30,14 @@ public class Common {
     }
 
     public static boolean isNetworkAvailable(final Context context) {
+
         final ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
+
         return connectivityManager.getActiveNetworkInfo() != null && connectivityManager.getActiveNetworkInfo().isConnected();
     }
 
     public static void shortToast(Context context, String message) {
+
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
@@ -58,4 +68,5 @@ public class Common {
         float px = dp * (metrics.densityDpi / 160f);
         return px;
     }
+
 }

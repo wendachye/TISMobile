@@ -26,8 +26,9 @@ public class PPEWSAsync extends AsyncTask<String, Void, Void> {
 	String ProductName;
 	Context appContext;
 
-	ArrayList<PPE> ppeArrayList;
-	ArrayList<GHS> ghsArrayList;
+	ArrayList<PPE> ppeArrayList = new ArrayList<>();
+	ArrayList<GHS> ghsArrayList = new ArrayList<>();
+
 	Button ButtonPPE;
 
 	public PPEWSAsync(Context context, Button buttonPPE, String productName) {

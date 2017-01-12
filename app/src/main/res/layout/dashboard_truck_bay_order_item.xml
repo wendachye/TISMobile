@@ -81,4 +81,10 @@
 
     </LinearLayout>
 
+    <TextView
+        android:id="@+id/separator"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/separator_width"
+        android:background="@color/colorBlack" />
+
 </LinearLayout>

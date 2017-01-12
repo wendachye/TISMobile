@@ -1,11 +1,9 @@
 package com.bizconnectivity.tismobile.Classes;
 
-import android.graphics.Bitmap;
-
-public class PPEDetail {
+public class GHSDetail {
 
 	String jobID;
-	int ppeID;
+	int ghsID;
 
 	public String getJobID() {
 		return jobID;
@@ -15,11 +13,11 @@ public class PPEDetail {
 		this.jobID = jobID;
 	}
 
-	public int getPpeID() {
-		return ppeID;
+	public int getGhsID() {
+		return ghsID;
 	}
 
-	public void setPpeID(int ppeID) {
-		this.ppeID = ppeID;
+	public void setGhsID(int ghsID) {
+		this.ghsID = ghsID;
 	}
 }

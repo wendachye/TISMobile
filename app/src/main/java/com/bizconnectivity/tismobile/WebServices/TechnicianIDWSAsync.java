@@ -24,6 +24,7 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 	ProgressDialog progressDialog;
 
 	public TechnicianIDWSAsync(Context context, String nric) {
+
 		appContext = context;
 		NRIC = nric;
 	}
@@ -44,15 +45,18 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 
 		if (response) {
 
-			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, NRIC);
-			editor.commit();
+			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, NRIC).commit();
 
 			//insert into sqlite database
 			checkIn = new CheckIn();
 			checkIn.setTechnicianNRIC(NRIC);
+
 			technicianDetailDataSource = new TechnicianDetailDataSource(appContext);
+			//open database
 			technicianDetailDataSource.open();
+			//insert technician nric
 			technicianDetailDataSource.insertTechnicianNRIC(checkIn);
+			//close database
 			technicianDetailDataSource.close();
 
 			//end progress dialog
@@ -64,8 +68,7 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 
 		} else {
 
-			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, "");
-			editor.commit();
+			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, "").commit();
 
 			//end progress dialog
 			progressDialog.dismiss();
@@ -82,6 +85,7 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 
 	@Override
 	protected void onPreExecute() {
+
 		//start progress dialog
 		progressDialog = ProgressDialog.show(appContext, "Please wait..", "Loading...", true);
 	}

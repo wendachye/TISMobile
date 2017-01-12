@@ -48,6 +48,7 @@
             android:layout_marginRight="@dimen/header_title_text_spacing"
             android:layout_weight="0.25"
             android:text="JOB"
+            android:layout_gravity="center"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
 
@@ -58,6 +59,7 @@
             android:layout_marginRight="@dimen/header_title_text_spacing"
             android:layout_weight="0.45"
             android:text="CUSTOMER"
+            android:layout_gravity="center"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
 
@@ -68,6 +70,7 @@
             android:layout_marginRight="@dimen/header_title_text_spacing"
             android:layout_weight="0.15"
             android:text="BAY"
+            android:layout_gravity="center"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
 
@@ -78,6 +81,7 @@
             android:layout_marginRight="@dimen/header_title_text_spacing"
             android:layout_weight="0.15"
             android:text="ARM"
+            android:layout_gravity="center"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
 
@@ -89,4 +93,5 @@
         android:layout_height="@dimen/separator_width"
         android:background="@color/colorBlack"
         android:layout_marginBottom="@dimen/dialog_header_content_spacing"/>
+
 </LinearLayout>
