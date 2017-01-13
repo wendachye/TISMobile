@@ -27,7 +27,7 @@ public class JobDetailContract implements BaseColumns{
 		public static final String COLUMN_PUMP_START_TIME = "PumpStartTime";
 		public static final String COLUMN_PUMP_STOP_TIME = "PumpStopTime";
 		public static final String COLUMN_RACK_OUT_TIME = "RackOutTime";
-		public static final String COLUMN_STATUS = "Status";
+		public static final String COLUMN_JOB_STATUS = "JobStatus";
 		public static final String COLUMN_JOB_DATE = "JobDate";
 
 	}

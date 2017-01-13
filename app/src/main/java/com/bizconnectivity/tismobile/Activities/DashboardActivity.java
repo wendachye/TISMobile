@@ -8,7 +8,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -30,10 +29,10 @@ import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;
 
-import static com.bizconnectivity.tismobile.Constant.KEY_STATUS_JOB_DETAILS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
 import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
 import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PENDING;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PPE;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
@@ -95,11 +94,21 @@ public class DashboardActivity extends AppCompatActivity {
                 TextView tvLoadingBayOrderId = (TextView) v.findViewById(R.id.tvLoadingBayOrderId);
                 String jobID = tvLoadingBayOrderId.getText().toString();
 
+                jobDetail = new JobDetail();
+
+                jobDetailDataSource = new JobDetailDataSource(context);
+                //open database
+                jobDetailDataSource.open();
+                //retrieve job details by job ID
+                jobDetail = jobDetailDataSource.retrieveJobDetails(jobID);
+                //close database
+                jobDetailDataSource.close();
+
                 //store shared preferences
-                storeSharedPreferences(jobID);
+                storeJobDetailsSharedPref(jobDetail);
 
                 //status of job for navigation
-                statusNavigation(jobID);
+                statusNavigation(jobDetail.getJobStatus());
 
                 return true;
             }
@@ -183,123 +192,118 @@ public class DashboardActivity extends AppCompatActivity {
         return truckLoadingBayArrayList;
     }
 
-    public void storeSharedPreferences(String jobID) {
-
-        jobDetail = new JobDetail();
-
-        jobDetailDataSource = new JobDetailDataSource(this);
-        //open database
-        jobDetailDataSource.open();
-        //retrieve job details by job ID
-        jobDetail = jobDetailDataSource.retrieveJobDetailsWithJobID(jobID);
-        //close database
-        jobDetailDataSource.close();
+    public void storeJobDetailsSharedPref(JobDetail jobDetail) {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(Constant.SHARED_PREF_JOB_ID, jobDetail.getJobID());
         editor.putString(Constant.SHARED_PREF_CUSTOMER_NAME, jobDetail.getCustomerName());
+        editor.putString(Constant.SHARED_PREF_PRODUCT_NAME, jobDetail.getProductName());
+        editor.putString(Constant.SHARED_PREF_TANK_NO, jobDetail.getTankNo());
         editor.putString(Constant.SHARED_PREF_LOADING_BAY, jobDetail.getLoadingBayNo());
         editor.putString(Constant.SHARED_PREF_LOADING_ARM, jobDetail.getLoadingArm());
+        editor.putString(Constant.SHARED_PREF_SDS_FILE_PATH, jobDetail.getSdsFilePath());
+        editor.putString(Constant.SHARED_PREF_OPERATOR_ID, jobDetail.getOperatorID());
+        editor.putString(Constant.SHARED_PREF_DRIVER_ID, jobDetail.getDriverID());
+        editor.putString(Constant.SHARED_PREF_WORK_INSTRUCTION, jobDetail.getWorkInstruction());
+        editor.putString(Constant.SHARED_PREF_PUMP_START_TIME, jobDetail.getPumpStartTime());
+        editor.putString(Constant.SHARED_PREF_PUMP_STOP_TIME, jobDetail.getPumpStopTime());
+        editor.putString(Constant.SHARED_PREF_RACK_OUT_TIME, jobDetail.getRackOutTime());
+        editor.putString(Constant.SHARED_PREF_JOB_STATUS, jobDetail.getJobStatus());
+        editor.putString(Constant.SHARED_PREF_JOB_DATE, jobDetail.getJobDate());
         editor.commit();
 
     }
 
-    public void statusNavigation(String jobID) {
-
-        String jobStatus = "";
-
-        jobDetailDataSource = new JobDetailDataSource(context);
-        //open database
-        jobDetailDataSource.open();
-        //retrieve job status
-        jobStatus = jobDetailDataSource.retrieveStatusWithJobID(jobID);
-        //close database
-        jobDetailDataSource.close();
+    public void statusNavigation(String jobStatus) {
 
         switch (jobStatus) {
 
+            case STATUS_PENDING:
+
+                Intent intent = new Intent(this, JobMainActivity.class);
+                finish();
+                startActivity(intent);
+                break;
+
             case STATUS_PPE:
+
                 Intent intentPPE = new Intent(this, JobMainActivity.class);
-                intentPPE.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_PPE);
                 finish();
                 startActivity(intentPPE);
                 break;
 
             case STATUS_SDS:
+
                 Intent intentSDS = new Intent(this, JobMainActivity.class);
-                intentSDS.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_SDS);
                 finish();
                 startActivity(intentSDS);
                 break;
 
             case STATUS_OPERATOR_ID:
+
                 Intent intentSD = new Intent(this, ScanDetailsActivity.class);
-                intentSD.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_OPERATOR_ID);
                 finish();
                 startActivity(intentSD);
                 break;
 
             case STATUS_DRIVER_ID:
+
                 Intent intentDI = new Intent(this, ScanDetailsActivity.class);
-                intentDI.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_DRIVER_ID);
                 finish();
                 startActivity(intentDI);
                 break;
 
             case STATUS_WORK_INSTRUCTION:
+
                 Intent intentWI = new Intent(this, JobMainActivity.class);
-                intentWI.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_WORK_INSTRUCTION);
                 finish();
                 startActivity(intentWI);
                 break;
 
             case STATUS_SAFETY_CHECKS :
+
                 Intent intentSC = new Intent(this, LoadingOperationActivity.class);
-                intentSC.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_SAFETY_CHECKS);
                 finish();
                 startActivity(intentSC);
                 break;
 
             case STATUS_SCAN_LOADING_ARM:
+
                 Intent intentLA = new Intent(this, LoadingOperationActivity.class);
-                intentLA.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_SCAN_LOADING_ARM);
                 finish();
                 startActivity(intentLA);
                 break;
 
             case STATUS_BATCH_CONTROLLER:
+
                 Intent intentBC = new Intent(this, LoadingOperationActivity.class);
-                intentBC.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_BATCH_CONTROLLER);
                 finish();
                 startActivity(intentBC);
                 break;
 
             case STATUS_PUMP_START:
+
                 Intent intentPS = new Intent(this, StopOperationActivity.class);
-                intentPS.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_PUMP_START);
                 finish();
                 startActivity(intentPS);
                 break;
 
             case STATUS_PUMP_STOP:
+
                 Intent intentPSTP = new Intent(this, StopOperationActivity.class);
-                intentPSTP.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_PUMP_STOP);
                 finish();
                 startActivity(intentPSTP);
                 break;
 
             case STATUS_SCAN_SEAL:
+
                 Intent intentSS = new Intent(this, StopOperationActivity.class);
-                intentSS.putExtra(KEY_STATUS_JOB_DETAILS, STATUS_SCAN_SEAL);
                 finish();
                 startActivity(intentSS);
                 break;
 
             default:
-                Intent intent = new Intent(this, JobMainActivity.class);
-                intent.putExtra(KEY_STATUS_JOB_DETAILS, "");
-                finish();
-                startActivity(intent);
+
                 break;
         }
     }
@@ -314,9 +318,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-
         headerMessage.setText(Common.formatWelcomeMsg(Constant.LOGIN_LOGINNAME));
-
     }
 
     public void setLoadingBayNo() {

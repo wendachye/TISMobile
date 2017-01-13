@@ -81,27 +81,27 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
                 LinearLayout tvTruckBayListHeader = (LinearLayout) ((DashboardActivity) appContext).findViewById(R.id.tvTruckBayListHeader);
 
 //                if (orderList.size() > 0) {
-//                    ((DashboardActivity) appContext).showTruckLoadingBayDetails(orderList);
+//                    ((DashboardActivity) context).showTruckLoadingBayDetails(orderList);
 //                    tvTruckBayListHeader.setVisibility(LinearLayout.VISIBLE);
 //                } else {
 //                    tvTruckBayListHeader.setVisibility(LinearLayout.INVISIBLE);
-//                    Toast.makeText(appContext, Constant.ERR_MSG_NO_ORDER_FOR_TRUCK_BAY, Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(context, Constant.ERR_MSG_NO_ORDER_FOR_TRUCK_BAY, Toast.LENGTH_SHORT).show();
 //                }
             }
         }
 
         /*if(type.equals(ConstantWS.WSTYPE_ALL_COUNT))
         {
-            if(appContext instanceof Activity)
+            if(context instanceof Activity)
             {
                 *//*LinearLayout summary;
                 if(rackNo.isEmpty())
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.TerminalSummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.TerminalSummary);
                 }
                 else
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.BaySummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.BaySummary);
                 }
 
                 TextView tvLateCount = (TextView)summary.findViewById(R.id.tvLateCount);
@@ -128,16 +128,16 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
         }
         else if(type.equals(ConstantWS.WSTYPE_LATE_COUNT))
         {
-            if(appContext instanceof Activity)
+            if(context instanceof Activity)
             {
                *//* LinearLayout summary;
                 if(rackNo.isEmpty())
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.TerminalSummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.TerminalSummary);
                 }
                 else
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.BaySummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.BaySummary);
                 }
 
                 TextView tvLateCount = (TextView)summary.findViewById(R.id.tvLateCount);
@@ -146,16 +146,16 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
         }
         else if(type.equals(ConstantWS.WSTYPE_TODAY_COUNT))
         {
-            if(appContext instanceof Activity)
+            if(context instanceof Activity)
             {
                *//* LinearLayout summary;
                 if(rackNo.isEmpty())
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.TerminalSummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.TerminalSummary);
                 }
                 else
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.BaySummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.BaySummary);
                 }
 
                 TextView tvTodayCount = (TextView)summary.findViewById(R.id.tvTodayCount);
@@ -164,16 +164,16 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
         }
         else if(type.equals(ConstantWS.WSTYPE_QUEUEUP_COUNT))
         {
-            if(appContext instanceof Activity)
+            if(context instanceof Activity)
             {
                 *//*LinearLayout summary;
                 if(rackNo.isEmpty())
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.TerminalSummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.TerminalSummary);
                 }
                 else
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.BaySummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.BaySummary);
                 }
 
                 TextView tvQueueUpCount = (TextView)summary.findViewById(R.id.tvQueueUpCount);
@@ -182,16 +182,16 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
         }
         else if(type.equals(ConstantWS.WSTYPE_WEIGHIN_COUNT))
         {
-            if(appContext instanceof Activity)
+            if(context instanceof Activity)
             {
                 *//*LinearLayout summary;
                 if(rackNo.isEmpty())
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.TerminalSummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.TerminalSummary);
                 }
                 else
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.BaySummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.BaySummary);
                 }
 
                 TextView tvWeighInCount = (TextView)summary.findViewById(R.id.tvWeighInCount);
@@ -200,16 +200,16 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
         }
         else if(type.equals(ConstantWS.WSTYPE_WEIGHOUT_COUNT))
         {
-            if(appContext instanceof Activity)
+            if(context instanceof Activity)
             {
                 *//*LinearLayout summary;
                 if(rackNo.isEmpty())
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.TerminalSummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.TerminalSummary);
                 }
                 else
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.BaySummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.BaySummary);
                 }
 
                 TextView tvWeighOutCount = (TextView)summary.findViewById(R.id.tvWeighOutCount);
@@ -218,16 +218,16 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
         }
         else if(type.equals(ConstantWS.WSTYPE_PUMPSTART_COUNT))
         {
-            if(appContext instanceof Activity)
+            if(context instanceof Activity)
             {
                 *//*LinearLayout summary;
                 if(rackNo.isEmpty())
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.TerminalSummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.TerminalSummary);
                 }
                 else
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.BaySummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.BaySummary);
                 }
 
                 TextView tvPumpStartCount = (TextView)summary.findViewById(R.id.tvPumpStartCount);
@@ -236,16 +236,16 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
         }
         else if(type.equals(ConstantWS.WSTYPE_DEPARTURE_COUNT))
         {
-            if(appContext instanceof Activity)
+            if(context instanceof Activity)
             {
                 *//*LinearLayout summary;
                 if(rackNo.isEmpty())
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.TerminalSummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.TerminalSummary);
                 }
                 else
                 {
-                    summary = (LinearLayout)((Activity)appContext).findViewById(R.id.BaySummary);
+                    summary = (LinearLayout)((Activity)context).findViewById(R.id.BaySummary);
                 }
 
                 TextView tvDepartureCount = (TextView)summary.findViewById(R.id.tvDepartureCount);
@@ -258,18 +258,18 @@ public class DashboardWSAsync extends AsyncTask<String, Void, Void> {
                 || type.equals(ConstantWS.WSTYPE_WEIGHOUT_LIST) || type.equals(ConstantWS.WSTYPE_PUMPSTART_LIST)
                 || type.equals(ConstantWS.WSTYPE_DEPARTURE_LIST))
         {
-            if(appContext instanceof DashboardActivity)
+            if(context instanceof DashboardActivity)
             {
-                LinearLayout tvTruckBayListHeader = (LinearLayout) ((DashboardActivity) appContext).findViewById(R.id.tvTruckBayListHeader);
+                LinearLayout tvTruckBayListHeader = (LinearLayout) ((DashboardActivity) context).findViewById(R.id.tvTruckBayListHeader);
 
                 if(orderList.size() > 0) {
-                    ((DashboardActivity) appContext).showTruckLoadingBayDetails(orderList);
+                    ((DashboardActivity) context).showTruckLoadingBayDetails(orderList);
                     tvTruckBayListHeader.setVisibility(LinearLayout.VISIBLE);
                 }
                 else
                 {
                     tvTruckBayListHeader.setVisibility(LinearLayout.INVISIBLE);
-                    Toast toast = Toast.makeText(appContext, Constant.ERR_MSG_NO_ORDER_FOR_TRUCK_BAY, Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(context, Constant.ERR_MSG_NO_ORDER_FOR_TRUCK_BAY, Toast.LENGTH_SHORT);
                     toast.show();
                 }
             }

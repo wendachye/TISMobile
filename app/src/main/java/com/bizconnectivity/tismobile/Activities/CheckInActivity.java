@@ -54,12 +54,12 @@ public class CheckInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
 
+        context = this;
+        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+
         //region Header and Footer
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-
-        context = this;
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         /*-------- Set User Login Details --------*/
         setUserLoginDetails();
@@ -68,9 +68,8 @@ public class CheckInActivity extends AppCompatActivity {
         setFooterMenu();
         //endregion
 
+        //region button technician id
         tvTechnicianId = (TextView) findViewById(R.id.tvTechnicianId);
-        tvTruckBayId = (TextView) findViewById(R.id.tvTruckBayId);
-
         btnScanTechnician = (Button) findViewById(R.id.btnScanTechnician);
         btnScanTechnician.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +77,10 @@ public class CheckInActivity extends AppCompatActivity {
                 btnScanTechnicianClicked();
             }
         });
+        //endregion
 
+        //region button loading bay
+        tvTruckBayId = (TextView) findViewById(R.id.tvTruckBayId);
         btnScanTruckBay = (Button) findViewById(R.id.btnScanTruckBay);
         btnScanTruckBay.setEnabled(false);
         btnScanTruckBay.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +89,7 @@ public class CheckInActivity extends AppCompatActivity {
                 btnScanTruckBayClicked();
             }
         });
+        //endregion
 
         //region check loading bay no & technician nric
 
@@ -297,7 +300,8 @@ public class CheckInActivity extends AppCompatActivity {
 
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-        headerMessage.setText(Common.formatWelcomeMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
+
+        headerMessage.setText(Common.formatCheckInMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
     }
     //endregion
 

@@ -14,7 +14,7 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class LoadingArmWS {
 
-	public static boolean invokeCheckLoadingArmWS(int timeslotId, String truckRackArmNo) {
+	public static boolean invokeCheckLoadingArmWS(String timeslotId, String truckRackArmNo) {
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CHECK_LOADING_ARM);
 
@@ -23,7 +23,7 @@ public class LoadingArmWS {
 		// Set Name
 		propertyInfoTSID.setName("timeslotId");
 		// Set Value
-		propertyInfoTSID.setValue(timeslotId);
+		propertyInfoTSID.setValue(Integer.parseInt(timeslotId));
 		// Set dataType
 		propertyInfoTSID.setType(int.class);
 		// Add the property to request object

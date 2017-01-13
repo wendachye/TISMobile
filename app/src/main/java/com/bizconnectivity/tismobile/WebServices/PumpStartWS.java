@@ -17,7 +17,9 @@ import java.util.Date;
 
 public class PumpStartWS {
 
-	public static boolean invokeUpdatePumpStartWS(int TimeSlotID, String UpdatedBy) {
+	public static boolean invokeUpdatePumpStartWS(String TimeSlotID, String UpdatedBy) {
+
+		boolean returnResult = false;
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CREATE_PUMPSTART_TIME);
 
@@ -26,7 +28,7 @@ public class PumpStartWS {
 		// Set Name
 		propertyInfoTSID.setName("TimeSlotID");
 		// Set Value
-		propertyInfoTSID.setValue(TimeSlotID);
+		propertyInfoTSID.setValue(Integer.parseInt(TimeSlotID));
 		// Set dataType
 		propertyInfoTSID.setType(int.class);
 		// Add the property to request object
@@ -63,17 +65,20 @@ public class PumpStartWS {
 				SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
 
 				String result = responseProperty.toString();
+
 				if (result.equals("true")) {
-					return true;
+
+					returnResult = true;
+
 				} else {
-					return false;
+
+					returnResult = false;
 				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
-		return false;
+		return returnResult;
 	}
 }

@@ -53,7 +53,6 @@ public class GHSWS {
 
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				ghsArrayList = getElementFromGHS(response);
-
 			}
 
 		} catch (Exception e) {

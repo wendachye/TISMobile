@@ -34,11 +34,20 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL1;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL2;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL3;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL4;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
+import static com.bizconnectivity.tismobile.Constant.calendar;
+
 public class StopOperationActivity extends AppCompatActivity {
 
     Context context;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage, tvPumpStop;
+    TextView headerMessage, tvPumpStop, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     Dialog exitDialog, pumpStopDialog, scanSealDialog, departureDialog;
     Button btnPumpStop, btnScanSeal, btnDeparture;
 
@@ -49,12 +58,12 @@ public class StopOperationActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stop_operation);
 
+        context = this;
+        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+
         //region Header and Footer
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-
-        context = this;
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         /*-------- Set User Login Details --------*/
         setUserLoginDetails();
@@ -63,8 +72,8 @@ public class StopOperationActivity extends AppCompatActivity {
         setFooterMenu();
         //endregion
 
+        //region button pump stop
         tvPumpStop = (TextView) findViewById(R.id.tvPumpStop);
-
         btnPumpStop = (Button) findViewById(R.id.btnPumpStop);
         btnPumpStop.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -72,51 +81,80 @@ public class StopOperationActivity extends AppCompatActivity {
                 btnPumpStopClicked();
             }
         });
+        //endregion
 
+        //region button scan seal
         btnScanSeal = (Button) findViewById(R.id.btnScanSeal);
         btnScanSeal.setEnabled(false);
         btnScanSeal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnScanSealClicked(view);
+
+                btnScanSealClicked();
             }
         });
+        //endregion
 
+        //region button departure
         btnDeparture = (Button) findViewById(R.id.btnDeparture);
         btnDeparture.setEnabled(false);
         btnDeparture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnDepartureClicked();
             }
         });
+        //endregion
 
-        String pumpStopTime = sharedPref.getString(Constant.SHARED_PREF_PUMP_STOP, "");
-        String scanSeal = sharedPref.getString(Constant.SHARED_PREF_SCAN_SEAL, "");
+        //region status settings
 
-        if (!pumpStopTime.isEmpty() && !scanSeal.isEmpty()){
+        //retrieve job status from shared preferences
+        String jobStatus = sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "");
+        String pumpStopTime = sharedPref.getString(Constant.SHARED_PREF_PUMP_START_TIME, "");
 
-            tvPumpStop.setText(pumpStopTime);
-            btnPumpStop.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnPumpStop.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnPumpStop.setEnabled(false);
+        switch (jobStatus) {
 
-            btnScanSeal.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanSeal.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnScanSeal.setEnabled(true);
+            case STATUS_PUMP_START:
+                btnPumpStop.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnPumpStop.getBackground().clearColorFilter();
+                tvPumpStop.setText("");
 
-            btnDeparture.setEnabled(true);
+                btnScanSeal.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanSeal.getBackground().clearColorFilter();
 
-        } else if (!pumpStopTime.isEmpty()) {
+                btnDeparture.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnDeparture.getBackground().clearColorFilter();
+                break;
 
-            tvPumpStop.setText(pumpStopTime);
-            btnPumpStop.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnPumpStop.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnPumpStop.setEnabled(false);
+            case STATUS_PUMP_STOP:
+                btnPumpStop.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnPumpStop.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPumpStop.setEnabled(false);
+                tvPumpStop.setText(pumpStopTime);
 
-            btnScanSeal.setEnabled(true);
+                btnScanSeal.setEnabled(true);
+                break;
+
+            case STATUS_SCAN_SEAL:
+                btnPumpStop.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnPumpStop.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPumpStop.setEnabled(false);
+                tvPumpStop.setText(pumpStopTime);
+
+                btnScanSeal.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanSeal.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanSeal.setEnabled(true);
+
+                btnDeparture.setEnabled(true);
+                break;
+
+            default:
+
+                break;
         }
 
+        //endregion
     }
 
     //region Header
@@ -124,21 +162,36 @@ public class StopOperationActivity extends AppCompatActivity {
     public void setUserLoginDetails() {
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
+        tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
+        tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
+        tv_loadingBay = (TextView) headerLayout.findViewById(R.id.tvBay);
+        tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
 
-        sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        //retrieve shared preferences
+        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+        String customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
+        String loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
+        String loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
 
-        headerMessage.setText(Common.formatWelcomeMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
+        //set text
+        headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
+        tv_jobID.setText(jobID);
+        tv_customerName.setText(customerName);
+        tv_loadingBay.setText(loadingArm);
+        tv_loadingArm.setText(loadingBay);
     }
     //endregion
 
     //region Footer
     public void setFooterMenu() {
+
         RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnHomeClicked(view);
+                btnHomeClicked();
             }
         });
 
@@ -146,7 +199,7 @@ public class StopOperationActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSearchClicked(view);
+                btnSearchClicked();
             }
         });
 
@@ -154,7 +207,7 @@ public class StopOperationActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSwitchClicked(view);
+                btnSwitchClicked();
             }
         });
 
@@ -167,19 +220,22 @@ public class StopOperationActivity extends AppCompatActivity {
         });
     }
 
-    public void btnHomeClicked(View view) {
+    public void btnHomeClicked() {
+
         Intent intentHome = new Intent(context, DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
-    public void btnSearchClicked(View view) {
+    public void btnSearchClicked() {
+
         Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
-    public void btnSwitchClicked(View view) {
+    public void btnSwitchClicked() {
+
         Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
@@ -196,20 +252,24 @@ public class StopOperationActivity extends AppCompatActivity {
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(context, CheckInActivity.class);
                         finish();
                         startActivity(intentCheckIn);
                         return true;
+
                     case R.id.settingsMenuExitApp:
                         exitApplication();
                         return true;
+
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
                         finish();
                         startActivity(intentCheckOut);
                         return true;
+
                     default:
                         return false;
                 }
@@ -220,6 +280,7 @@ public class StopOperationActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
+
         if (exitDialog != null && exitDialog.isShowing())
             return;
 
@@ -241,7 +302,6 @@ public class StopOperationActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                System.exit(0);
             }
         });
 
@@ -267,6 +327,7 @@ public class StopOperationActivity extends AppCompatActivity {
     //endregion
 
     public void btnPumpStopClicked() {
+
         if (pumpStopDialog != null && pumpStopDialog.isShowing())
             return;
 
@@ -274,33 +335,39 @@ public class StopOperationActivity extends AppCompatActivity {
         pumpStopDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         pumpStopDialog.setContentView(R.layout.dialog_pump_stop);
 
+        //region button confirm
         Button btnConfirm = (Button) pumpStopDialog.findViewById(R.id.btnConfirm);
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-				int timeslotID = Integer.parseInt(sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, ""));
+				String jobID = sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, "");
 				String loginName = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 
-				PumpStopWSAsync task = new PumpStopWSAsync(context, timeslotID, loginName);
-				task.execute();
+                if (Common.isNetworkAvailable(context)) {
 
-                pumpStopDialog.dismiss();
+                    PumpStopWSAsync task = new PumpStopWSAsync(context, pumpStopDialog, jobID, loginName);
+                    task.execute();
 
+                } else {
 
-
+                }
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) pumpStopDialog.findViewById(R.id.btnCancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 pumpStopDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = pumpStopDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = pumpStopDialog.findViewById(dividerId);
@@ -313,25 +380,28 @@ public class StopOperationActivity extends AppCompatActivity {
         pumpStopDialog.show();
     }
 
-    public void btnScanSealClicked(View view) {
-        String seal = sharedPref.getString(Constant.SCAN_VALUE_BOTTOM_SEAL1, "");
+    public void btnScanSealClicked() {
 
-        if (seal.isEmpty()) {
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_BOTTOM_SEAL1);
-            editor.commit();
+        SharedPreferences.Editor editor = sharedPref.edit();
+
+        if (sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "").isEmpty()) {
+
+            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL1).commit();
 
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
             integrator.setPrompt(Constant.SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL);
             integrator.setBeepEnabled(true);
             integrator.initiateScan();
+
         } else {
+
             scanSealDialog();
         }
     }
 
     public void scanSealDialog() {
+
         if (scanSealDialog != null && scanSealDialog.isShowing())
             return;
 
@@ -339,69 +409,91 @@ public class StopOperationActivity extends AppCompatActivity {
         scanSealDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         scanSealDialog.setContentView(R.layout.dialog_scan_seal);
 
-        String seal1 = sharedPref.getString(Constant.SCAN_VALUE_BOTTOM_SEAL1, "");
-        String seal2 = sharedPref.getString(Constant.SCAN_VALUE_BOTTOM_SEAL2, "");
-        String seal3 = sharedPref.getString(Constant.SCAN_VALUE_BOTTOM_SEAL3, "");
-        String seal4 = sharedPref.getString(Constant.SCAN_VALUE_BOTTOM_SEAL4, "");
-
-	    final ArrayList<String> countSeal = new ArrayList<>();
-
+        //region button scan more seal
         Button btnScanMoreSeals = (Button) scanSealDialog.findViewById(R.id.btnScanMoreSeals);
 	    btnScanMoreSeals.setOnClickListener(new View.OnClickListener() {
 		    @Override
 		    public void onClick(View view) {
+
 			    scanSealDialog.dismiss();
 			    scanMoreSealsClicked();
 		    }
 	    });
+        //endregion
 
+        final ArrayList<String> countSeal = new ArrayList<>();
+
+        String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+        String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
+        String seal3 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL3, "");
+        String seal4 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL4, "");
+
+        //region set seal 1
         TextView  tvSeal1 = (TextView) scanSealDialog.findViewById(R.id.tvSeal1);
 	    if (seal1.isEmpty()) {
+
 		    tvSeal1.setVisibility(View.GONE);
+
 	    } else {
+
 		    tvSeal1.setText(seal1);
 		    tvSeal1.setVisibility(View.VISIBLE);
 		    countSeal.add(seal1);
 	    }
+        //endregion
 
+        //region set seal 2
         TextView  tvSeal2 = (TextView) scanSealDialog.findViewById(R.id.tvSeal2);
         if (seal2.isEmpty()) {
+
             tvSeal2.setVisibility(View.GONE);
+
         } else {
+
             tvSeal2.setText(seal2);
             tvSeal2.setVisibility(View.VISIBLE);
 	        countSeal.add(seal2);
         }
+        //endregion
 
+        //region set seal 3
         TextView  tvSeal3 = (TextView) scanSealDialog.findViewById(R.id.tvSeal3);
         if (seal3.isEmpty()) {
+
             tvSeal3.setVisibility(View.GONE);
+
         } else {
+
             tvSeal3.setText(seal3);
             tvSeal3.setVisibility(View.VISIBLE);
 	        countSeal.add(seal3);
         }
+        //endregion
 
+        //region set seal 4
         TextView  tvSeal4 = (TextView) scanSealDialog.findViewById(R.id.tvSeal4);
         if (seal4.isEmpty()) {
+
             tvSeal4.setVisibility(View.GONE);
+
         } else {
+
             tvSeal4.setText(seal4);
             tvSeal4.setVisibility(View.VISIBLE);
 	        countSeal.add(seal4);
 
             btnScanMoreSeals.setEnabled(false);
         }
+        //endregion
 
-
-
+        //region button confirm
 	    Button btnConfirm = (Button) scanSealDialog.findViewById(R.id.btnConfirm);
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-	            int timeslotID = Integer.parseInt(sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, ""));
+	            String jobID = sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, "");
 	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 	            String sealPos = "bottom";
 
@@ -409,14 +501,14 @@ public class StopOperationActivity extends AppCompatActivity {
 
 	            for (int i=0 ; i<countSeal.size() ; i++) {
 
-		            AddSealWSAsync task = new AddSealWSAsync(context, scanSealDialog, totalCount, countSeal.get(i), timeslotID, sealPos, updatedBy);
+		            AddSealWSAsync task = new AddSealWSAsync(context, scanSealDialog, totalCount, countSeal.get(i), jobID, sealPos, updatedBy);
 		            task.execute();
-
 	            }
-
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) scanSealDialog.findViewById(R.id.btnCancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -429,6 +521,7 @@ public class StopOperationActivity extends AppCompatActivity {
 	            scanSealDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = scanSealDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = scanSealDialog.findViewById(dividerId);
@@ -442,21 +535,24 @@ public class StopOperationActivity extends AppCompatActivity {
     }
 
     public void scanMoreSealsClicked() {
+
         SharedPreferences.Editor editor = sharedPref.edit();
 
-        String seal2 = sharedPref.getString(Constant.SCAN_VALUE_BOTTOM_SEAL2, "");
-        String seal3 = sharedPref.getString(Constant.SCAN_VALUE_BOTTOM_SEAL3, "");
-        String seal4 = sharedPref.getString(Constant.SCAN_VALUE_BOTTOM_SEAL4, "");
+        String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
+        String seal3 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL3, "");
+        String seal4 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL4, "");
 
         if (seal2.isEmpty()) {
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_BOTTOM_SEAL2);
-            editor.commit();
+
+            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL2).commit();
+
         } else if (seal3.isEmpty()) {
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_BOTTOM_SEAL3);
-            editor.commit();
+
+            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL3).commit();
+
         } else if (seal4.isEmpty()) {
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_BOTTOM_SEAL4);
-            editor.commit();
+
+            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL4).commit();
         }
 
         IntentIntegrator integrator = new IntentIntegrator(this);
@@ -467,6 +563,7 @@ public class StopOperationActivity extends AppCompatActivity {
     }
 
     public void btnDepartureClicked() {
+
         if (departureDialog != null && departureDialog.isShowing())
             return;
 
@@ -474,29 +571,33 @@ public class StopOperationActivity extends AppCompatActivity {
         departureDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         departureDialog.setContentView(R.layout.dialog_departure);
 
+        //region button confirm
         Button btnConfirm = (Button) departureDialog.findViewById(R.id.btnConfirm);
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-	            int timeslotID = Integer.parseInt(sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, ""));
+	            String jobID = sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, "");
 	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 
-	            DepartureWSAsync task = new DepartureWSAsync(context, departureDialog, timeslotID, updatedBy);
+	            DepartureWSAsync task = new DepartureWSAsync(context, departureDialog, jobID, updatedBy);
 	            task.execute();
-
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) departureDialog.findViewById(R.id.btnCancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 departureDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = departureDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = departureDialog.findViewById(dividerId);
@@ -524,39 +625,33 @@ public class StopOperationActivity extends AppCompatActivity {
                 SharedPreferences.Editor editor = sharedPref.edit();
                 String returnScanValue = sharedPref.getString(Constant.SHARED_PREF_SCAN_VALUE, "");
 
-                if (returnScanValue.equals(Constant.SCAN_VALUE_BOTTOM_SEAL1)) {
+                if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL1)) {
 
-	                int timeslotID = Integer.parseInt(sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, ""));
-
-	                CheckSealWSAsync task = new CheckSealWSAsync(this, timeslotID, scanContent);
+	                CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
 	                task.execute();
 
-                } else if (returnScanValue.equals(Constant.SCAN_VALUE_BOTTOM_SEAL2)) {
+                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL2)) {
 
-                    editor.putString(Constant.SCAN_VALUE_BOTTOM_SEAL2, scanContent);
-                    editor.commit();
+                    CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
+                    task.execute();
 
-                    scanSealDialog();
+                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL3)) {
 
-                } else if (returnScanValue.equals(Constant.SCAN_VALUE_BOTTOM_SEAL3)) {
+                    CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
+                    task.execute();
 
-                    editor.putString(Constant.SCAN_VALUE_BOTTOM_SEAL3, scanContent);
-                    editor.commit();
+                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL4)) {
 
-                    scanSealDialog();
-
-                } else if (returnScanValue.equals(Constant.SCAN_VALUE_BOTTOM_SEAL4)) {
-
-                    editor.putString(Constant.SCAN_VALUE_BOTTOM_SEAL4, scanContent);
-                    editor.commit();
-
-                    scanSealDialog();
-
+                    CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
+                    task.execute();
                 }
                 else {
+
                     Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
                 }
+
             } else {
+
                 Common.shortToast(this, Constant.SCAN_MSG_NO_DATA_RECEIVED);
             }
         } else {
@@ -568,8 +663,6 @@ public class StopOperationActivity extends AppCompatActivity {
     //endregion
 
 	public void onBackPressed() {
-		finish();
-		Intent intent = new Intent(this, LoadingOperationActivity.class);
-		startActivity(intent);
+
 	}
 }

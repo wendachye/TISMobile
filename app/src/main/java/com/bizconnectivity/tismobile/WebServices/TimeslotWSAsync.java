@@ -111,19 +111,19 @@ public class TimeslotWSAsync extends AsyncTask<String, Void, Void> {
     protected void onPostExecute(Void result) {
         if (type.equals(ConstantWS.WSTYPE_GET_TIMESLOT_DETAIL)) {
             if (appContext instanceof Activity) {
-                /*TextView tvArm = (TextView) ((Activity) appContext).findViewById(R.id.tvArm);
+                /*TextView tvArm = (TextView) ((Activity) context).findViewById(R.id.tvArm);
                 tvArm.setText("ARM " + detailList.get(0).getArmNo());
-                OrderDetailActivity activity = ((OrderDetailActivity) appContext);
+                OrderDetailActivity activity = ((OrderDetailActivity) context);
                 activity.detail = detailList.get(0);*/
             }
         } else if (type.equals(ConstantWS.WSTYPE_GET_SEAL_USED)) {
             if (appContext instanceof Activity) {
-                /*OrderDetailActivity activity = ((OrderDetailActivity) appContext);
+                /*OrderDetailActivity activity = ((OrderDetailActivity) context);
                 activity.sealUsedList = strList;*/
             }
         } else if (type.equals(ConstantWS.WSTYPE_GET_PRODUCT_GHS)) {
             if (appContext instanceof Activity) {
-                /*OrderDetailActivity activity = ((OrderDetailActivity) appContext);
+                /*OrderDetailActivity activity = ((OrderDetailActivity) context);
                 activity.ghsList = strList;
                 activity.ghsImgList.clear();
                 for (int x = 0; x < strList.size(); x++) {
@@ -132,7 +132,7 @@ public class TimeslotWSAsync extends AsyncTask<String, Void, Void> {
             }
         } else if (type.equals(ConstantWS.WSTYPE_GET_PRODUCT_PPE)) {
             if (appContext instanceof Activity) {
-                /*OrderDetailActivity activity = ((OrderDetailActivity) appContext);
+                /*OrderDetailActivity activity = ((OrderDetailActivity) context);
                 activity.ppeList = strList;
                 for (int x = 0; x < strList.size(); x++) {
                     activity.ppeImgList.add(activity.loadImageFromURL(Const.PPE_FILE_LOCATION + strList.get(x), Float.valueOf(activity.btnPPERequired.getTag().toString())));
@@ -140,37 +140,37 @@ public class TimeslotWSAsync extends AsyncTask<String, Void, Void> {
             }
         } else if (type.equals(ConstantWS.WSTYPE_GET_NUM_INCORRECT_SEAL)) {
             if (appContext instanceof Activity) {
-                /*OrderDetailActivity activity = ((OrderDetailActivity) appContext);
+                /*OrderDetailActivity activity = ((OrderDetailActivity) context);
                 if (outputCount == 0) {
                     String[] sealList = seal.split(",");
                     for (int x = 0; x < sealList.length; x++) {
-                        InvokeWS.createSealUsed(appContext, sealList[x], timeslotId, "bottom", Const.loginName);
+                        InvokeWS.createSealUsed(context, sealList[x], timeslotId, "bottom", Const.loginName);
                     }
 
                     activity.jobStat.setIsSeal(true);
                     activity.jobStat.setStatus("Departure");
-                    InvokeWS.updateJobStatus(appContext, activity.jobStat);
+                    InvokeWS.updateJobStatus(context, activity.jobStat);
 
                     activity.scanDialog.dismiss();
                     ColorDrawable buttonColor = (ColorDrawable) activity.btnScanSeal.getBackground();
                     int colorId = buttonColor.getColor();
-                    if (colorId == appContext.getResources().getColor(R.color.layout_red)) {
-                        activity.btnScanSeal.setBackgroundColor(appContext.getResources().getColor(R.color.layout_green));
+                    if (colorId == context.getResources().getColor(R.color.layout_red)) {
+                        activity.btnScanSeal.setBackgroundColor(context.getResources().getColor(R.color.layout_green));
 
                         buttonColor = (ColorDrawable) activity.btnDeparture.getBackground();
                         colorId = buttonColor.getColor();
-                        if (colorId == appContext.getResources().getColor(R.color.job_locked_color)) {
-                            activity.btnDeparture.setBackgroundColor(appContext.getResources().getColor(R.color.layout_red));
+                        if (colorId == context.getResources().getColor(R.color.job_locked_color)) {
+                            activity.btnDeparture.setBackgroundColor(context.getResources().getColor(R.color.layout_red));
                         }
                     }
                 } else {
-                    Toast toast = Toast.makeText(appContext, String.valueOf(outputCount) + " of the seal is incorrect.", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(context, String.valueOf(outputCount) + " of the seal is incorrect.", Toast.LENGTH_SHORT);
                     toast.show();
                 }*/
             }
         } else if (type.equals(ConstantWS.WSTYPE_RETRIEVE_JOB_STATUS)) {
             if (appContext instanceof Activity) {
-               /* OrderDetailActivity activity = ((OrderDetailActivity) appContext);
+               /* OrderDetailActivity activity = ((OrderDetailActivity) context);
 
                 if (statList.size() > 0) {
                     activity.jobStat = statList.get(0);
@@ -180,22 +180,22 @@ public class TimeslotWSAsync extends AsyncTask<String, Void, Void> {
         } else if (type.equals(ConstantWS.WSTYPE_GET_OPERATOR_ID)) {
             if (appContext instanceof Activity) {
                 /*if (outputId == 0) {
-                    Toast toast = Toast.makeText(appContext, "Invalid Operator.", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(context, "Invalid Operator.", Toast.LENGTH_SHORT);
                     toast.show();
                 } else {
-                    TextView tvScanOperator = (TextView) ((Activity) appContext).findViewById(R.id.tvScanOperator);
+                    TextView tvScanOperator = (TextView) ((Activity) context).findViewById(R.id.tvScanOperator);
                     tvScanOperator.setText("OPERATOR ID:" + name);
 
-                    InvokeWS.createOperator(appContext, timeslotId, outputId, name);
-                    LinearLayout btnScanOperator = (LinearLayout) ((Activity) appContext).findViewById(R.id.btnScanOperator);
-                    LinearLayout btnScanDriver = (LinearLayout) ((Activity) appContext).findViewById(R.id.btnScanDriver);
+                    InvokeWS.createOperator(context, timeslotId, outputId, name);
+                    LinearLayout btnScanOperator = (LinearLayout) ((Activity) context).findViewById(R.id.btnScanOperator);
+                    LinearLayout btnScanDriver = (LinearLayout) ((Activity) context).findViewById(R.id.btnScanDriver);
 
-                    OrderDetailActivity activity = ((OrderDetailActivity) appContext);
+                    OrderDetailActivity activity = ((OrderDetailActivity) context);
 
                     activity.jobStat.setIsOperator(true);
                     activity.jobStat.setOperatorId(outputId);
                     activity.jobStat.setStatus("Scan Driver");
-                    InvokeWS.updateJobStatus(appContext, activity.jobStat);
+                    InvokeWS.updateJobStatus(context, activity.jobStat);
 
                     activity.scanDialog.dismiss();
 

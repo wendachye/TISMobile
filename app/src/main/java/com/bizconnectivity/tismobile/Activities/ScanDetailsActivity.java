@@ -20,11 +20,17 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.WebServices.DriverIDWSAsync;
 import com.bizconnectivity.tismobile.WebServices.WorkInstructionWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
+import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
+import static com.bizconnectivity.tismobile.Constant.calendar;
 
 public class ScanDetailsActivity extends AppCompatActivity {
 
@@ -35,6 +41,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
     Button btnScanOperatorId, btnScanDriverId, btnScanWorkInstruction;
 
     public SharedPreferences sharedPref;
+
+    JobDetailDataSource jobDetailDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,76 +63,101 @@ public class ScanDetailsActivity extends AppCompatActivity {
         setFooterMenu();
         //endregion
 
+        //region button operator id
         tvOperatorId = (TextView) findViewById(R.id.tvOperatorId);
-        tvDriverId = (TextView) findViewById(R.id.tvDriverId);
-
         btnScanOperatorId = (Button) findViewById(R.id.btnScanOperatorId);
         btnScanOperatorId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnScanOperatorIdClicked(view);
+                btnScanOperatorIdClicked();
             }
         });
+        //endregion
 
-        btnScanDriverId = (Button) findViewById(R.id.btnScanDriverId);
+        //region button driver id
+        tvDriverId = (TextView) findViewById(R.id.tvDriverId);
         btnScanDriverId.setEnabled(false);
+        btnScanDriverId = (Button) findViewById(R.id.btnScanDriverId);
         btnScanDriverId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnScanDriverIdClicked(view);
+                btnScanDriverIdClicked();
             }
         });
+        //endregion
 
-        btnScanWorkInstruction = (Button) findViewById(R.id.btnScanWorkInstruction);
+        //region button work instruction
         btnScanWorkInstruction.setEnabled(false);
+        btnScanWorkInstruction = (Button) findViewById(R.id.btnScanWorkInstruction);
         btnScanWorkInstruction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnScanWorkInstructionClicked(view);
+                btnScanWorkInstructionClicked();
             }
         });
+        //endregion
 
+        //region status settings
+
+        //retrieve job details from shared preferences
+        String jobStatus = sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "");
         String operatorID = sharedPref.getString(Constant.SHARED_PREF_OPERATOR_ID, "");
         String driverID = sharedPref.getString(Constant.SHARED_PREF_DRIVER_ID, "");
-        String workInstruction = sharedPref.getString(Constant.SHARED_PREF_WORK_INSTRUCTION, "");
 
-        if (!operatorID.isEmpty() && !driverID.isEmpty() && !workInstruction.isEmpty()) {
+        switch (jobStatus) {
 
-            btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            tvOperatorId.setText(operatorID);
+            case STATUS_SDS:
+                btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanOperatorId.getBackground().clearColorFilter();
+                tvOperatorId.setText("");
 
-            btnScanDriverId.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanDriverId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnScanDriverId.setEnabled(true);
-            tvDriverId.setText(driverID);
+                btnScanDriverId.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanDriverId.getBackground().clearColorFilter();
+                tvDriverId.setText("");
 
-            btnScanWorkInstruction.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanWorkInstruction.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnScanWorkInstruction.setEnabled(true);
+                btnScanWorkInstruction.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanWorkInstruction.getBackground().clearColorFilter();
+                break;
 
-        } else if (!operatorID.isEmpty() && !driverID.isEmpty()) {
+            case STATUS_OPERATOR_ID:
+                btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                tvOperatorId.setText(operatorID);
 
-            btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            tvOperatorId.setText(operatorID);
+                btnScanDriverId.setEnabled(true);
+                break;
 
-            btnScanDriverId.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanDriverId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnScanDriverId.setEnabled(true);
-            tvDriverId.setText(driverID);
+            case STATUS_DRIVER_ID:
+                btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                tvOperatorId.setText(operatorID);
 
-            btnScanWorkInstruction.setEnabled(true);
+                btnScanDriverId.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanDriverId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanDriverId.setEnabled(true);
+                tvDriverId.setText(driverID);
 
-        } else if (!operatorID.isEmpty()) {
+                btnScanWorkInstruction.setEnabled(true);
+                break;
 
-            btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            tvOperatorId.setText(operatorID);
+            default:
+                btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                tvOperatorId.setText(operatorID);
 
-            btnScanDriverId.setEnabled(true);
+                btnScanDriverId.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanDriverId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanDriverId.setEnabled(true);
+                tvDriverId.setText(driverID);
+
+                btnScanWorkInstruction.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanWorkInstruction.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanWorkInstruction.setEnabled(true);
+                break;
 
         }
+
+        //endregion
 
     }
 
@@ -298,7 +331,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
     }
     //endregion
 
-    public void btnScanOperatorIdClicked(View view) {
+    public void btnScanOperatorIdClicked() {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_OPERATOR_ID);
         editor.commit();
@@ -310,7 +343,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
         integrator.initiateScan();
     }
 
-    public void btnScanDriverIdClicked(View view) {
+    public void btnScanDriverIdClicked() {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_DRIVER_ID);
         editor.commit();
@@ -322,7 +355,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
         integrator.initiateScan();
     }
 
-    public void btnScanWorkInstructionClicked(View view) {
+    public void btnScanWorkInstructionClicked() {
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_WORK_INSTRUCTION);
         editor.commit();
@@ -352,23 +385,31 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                 if (returnScanValue.equals(Constant.SCAN_VALUE_OPERATOR_ID)) {
 
-                    editor.putString(Constant.SHARED_PREF_OPERATOR_ID, scanContent).commit();
+                    //region update job status
+                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_OPERATOR_ID).commit();
 
+                    jobDetailDataSource = new JobDetailDataSource(context);
+                    jobDetailDataSource.open();
+                    jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_OPERATOR_ID);
+                    jobDetailDataSource.close();
+                    //endregion
+
+                    //region button operator setup
                     tvOperatorId.setText(scanContent);
                     btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
                     btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+
                     btnScanDriverId.setEnabled(true);
+                    //endregion
 
                 } else if (returnScanValue.equals(Constant.SCAN_VALUE_DRIVER_ID)) {
 
-                    String selectedJobID = sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, "");
-                    DriverIDWSAsync task = new DriverIDWSAsync(this, selectedJobID, scanContent);
+                    DriverIDWSAsync task = new DriverIDWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
                     task.execute();
 
                 } else if (returnScanValue.equals(Constant.SCAN_VALUE_WORK_INSTRUCTION)) {
 
-                    String selectedJobID = sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, "");
-                    WorkInstructionWSAsync task = new WorkInstructionWSAsync(this, selectedJobID, scanContent);
+                    WorkInstructionWSAsync task = new WorkInstructionWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
                     task.execute();
 
                 } else {
@@ -386,8 +427,6 @@ public class ScanDetailsActivity extends AppCompatActivity {
     //endregion
 
 	public void onBackPressed() {
-		finish();
-		Intent intent = new Intent(this, JobMainActivity.class);
-		startActivity(intent);
+
 	}
 }

@@ -63,7 +63,7 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 					JobDetails.COLUMN_PUMP_START_TIME + " TEXT, " +
 					JobDetails.COLUMN_PUMP_STOP_TIME + " TEXT, " +
 					JobDetails.COLUMN_RACK_OUT_TIME + " TEXT, " +
-					JobDetails.COLUMN_STATUS + " TEXT, " +
+					JobDetails.COLUMN_JOB_STATUS + " TEXT NOT NULL DEFAULT 'Pending', " +
 					JobDetails.COLUMN_JOB_DATE + " TEXT)";
 
 	private static final String SQL_DELETE_JOB_DETAILS =

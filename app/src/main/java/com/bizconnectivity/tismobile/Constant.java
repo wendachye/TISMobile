@@ -10,31 +10,49 @@ public class Constant {
     public static String SHARED_PREF_SCAN_VALUE = "SP_SCAN_VALUE";
     public static String SHARED_PREF_TECHNICIAN_ID = "SP_TECHNICIAN_ID";
     public static String SHARED_PREF_TRUCK_LOADING_BAY = "SP_TRUCK_LOADING_BAY";
-    public static String SHARED_PREF_OPERATOR_ID = "SP_OPERATOR_ID";
-    public static String SHARED_PREF_DRIVER_ID = "SP_DRIVER_ID";
-    public static String SHARED_PREF_WORK_INSTRUCTION = "SP_WORK_INSTRUCTION";
-    public static String SHARED_PREF_LOADING_ARM = "SP_LOADING_ARM";
     public static String SHARED_PREF_ORDER_ID_SELECTED = "SP_ORDER_ID_SELECTED";
-    public static String SHARED_PREF_ARM_NO_SELECTED = "SP_ARM_NO_SELECTED";
-    public static String SHARED_PREF_PRODUCT_NAME_SELECTED = "SP_PRODUCT_NAME_SELECTED";
     public static String SHARED_PREF_PPE = "SP_PPE";
     public static String SHARED_PREF_PPE_PICTURE_URL = "SP_PPE_PICTURE_URL";
     public static String SHARED_PREF_SDS = "SP_SDS";
     public static String SHARED_PREF_SDS_PDF_URL = "SP_SDS_PDF_URL";
     public static String SHARED_PREF_SCAN_DETAILS = "SP_SCAN_DETAILS";
     public static String SHARED_PREF_SAFETY_CHECKS = "SP_SAFETY_CHECKS";
-    public static String SHARED_PREF_BATCH_CONTROLLER_L = "SP_BATCH_CONTROLLER_T";
-	public static String SHARED_PREF_BATCH_CONTROLLER_MT = "SP_BATCH_CONTROLLER_MT";
-    public static String SHARED_PREF_PUMP_START = "SP_PUMP_START";
-    public static String SHARED_PREF_PUMP_STOP = "SP_PUMP_STOP";
     public static String SHARED_PREF_SCAN_SEAL = "SP_SCAN_SEAL";
 	public static String SHARED_PREF_ADD_SEAL_COUNT = "SP_ADD_SEAL_COUNT";
 
-    //selected job
+    //Selected Job Details
     public static String SHARED_PREF_JOB_ID = "SP_JOB_ID";
-    public static String SHARED_PREF_CUSTOMER_NAME = "SP_CUSTOEMR_NAME";
+    public static String SHARED_PREF_CUSTOMER_NAME = "SP_CUSTOMER_NAME";
+    public static String SHARED_PREF_PRODUCT_NAME = "SP_PRODUCT_NAME";
+    public static String SHARED_PREF_TANK_NO = "SP_TANK_NO";
     public static String SHARED_PREF_LOADING_BAY = "SP_LOADING_BAY";
-    public static String SHARED_PREF_TRUCK_ARM = "SP_TRUCK_ARM";
+    public static String SHARED_PREF_LOADING_ARM = "SP_LOADING_ARM";
+    public static String SHARED_PREF_SDS_FILE_PATH = "SP_SDS_FILE_PATH";
+    public static String SHARED_PREF_OPERATOR_ID = "SP_OPERATOR_ID";
+    public static String SHARED_PREF_DRIVER_ID = "SP_DRIVER_ID";
+    public static String SHARED_PREF_WORK_INSTRUCTION = "SP_WORK_INSTRUCTION";
+    public static String SHARED_PREF_PUMP_START_TIME = "SP_PUMP_START_TIME";
+    public static String SHARED_PREF_PUMP_STOP_TIME = "SP_PUMP_STOP_TIME";
+    public static String SHARED_PREF_RACK_OUT_TIME = "SP_RACK_OUT_TIME";
+    public static String SHARED_PREF_JOB_STATUS = "SP_JOB_STATUS";
+    public static String SHARED_PREF_JOB_DATE = "SP_JOB_DATE";
+    public static String SHARED_PREF_BATCH_CONTROLLER = "SP_BATCH_CONTROLLER";
+    public static String SHARED_PREF_BATCH_CONTROLLER_LITRE = "SP_BATCH_CONTROLLER_LITRE";
+
+    //Job Status
+    public static final String STATUS_PENDING = "Pending";
+    public static final String STATUS_PPE = "PPE Completed";
+    public static final String STATUS_SDS = "SDS Completed ";
+    public static final String STATUS_OPERATOR_ID = "Operator ID Completed";
+    public static final String STATUS_DRIVER_ID = "Driver ID Completed";
+    public static final String STATUS_WORK_INSTRUCTION = "Work Instruction Completed";
+    public static final String STATUS_SAFETY_CHECKS = "Safety Checks Completed";
+    public static final String STATUS_SCAN_LOADING_ARM = "Scan Loading Bay Completed";
+    public static final String STATUS_BATCH_CONTROLLER = "Batch Controller Completed";
+    public static final String STATUS_PUMP_START = "Pump Start Completed";
+    public static final String STATUS_PUMP_STOP = "Pump Stop Completed";
+    public static final String STATUS_SCAN_SEAL = "Scan Seal Completed";
+
 
     /*--------BCPL Development Server--------*/
     public static String SDS_FILE_LOCATION = "http://192.168.2.91/tis/Core/MSDS Files/";
@@ -85,7 +103,11 @@ public class Constant {
 
 	public static String ERR_MSG_CANNOT_ADD_SEAL = "Can not add the Seal";
 
-	/*--------Text Messages--------*/
+    //PPE
+    public static String ERR_MSG_CHECK_PPE = "Please check the PPE and GHS.";
+
+
+    /*--------Text Messages--------*/
     public static String TEXT_EXCEPTION = "EXCEPTION";
     public static String TEXT_ERROR = "ERROR";
     public static String TEXT_ERROR_MSG = "ERROR MSG: ";
@@ -93,19 +115,7 @@ public class Constant {
     //Check Out
     public static String TRUCK_BAY_CHECKED_OUT = "You have check-out from Truck Loading Bay: ";
 
-    //Job Status
-    public static String KEY_STATUS_JOB_DETAILS = "STATUS_OF_JOB_DETAILS";
-    public static final String STATUS_PPE = "PPE Completed";
-    public static final String STATUS_SDS = "SDS Completed ";
-    public static final String STATUS_OPERATOR_ID = "Operator ID Completed";
-    public static final String STATUS_DRIVER_ID = "Driver ID Completed";
-    public static final String STATUS_WORK_INSTRUCTION = "Work Instruction Completed";
-    public static final String STATUS_SAFETY_CHECKS = "Safety Checks Completed";
-    public static final String STATUS_SCAN_LOADING_ARM = "Scan Loading Bay Completed";
-    public static final String STATUS_BATCH_CONTROLLER = "Batch Controller Completed";
-    public static final String STATUS_PUMP_START = "Pump Start Completed";
-    public static final String STATUS_PUMP_STOP = "Pump Stop Completed";
-    public static final String STATUS_SCAN_SEAL = "Scan Seal Completed";
+
 
     /*--------Barcode Scanner--------*/
     public static String SCAN_MSG_CANCEL_SCANNING = "Scanning is cancelled";
@@ -135,6 +145,7 @@ public class Constant {
 
 
     public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    public static SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH:mm");
     public static Calendar calendar = Calendar.getInstance();
     public static String CURRENT_DATE = simpleDateFormat.format(calendar.getTime());
 }

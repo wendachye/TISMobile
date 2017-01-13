@@ -1,6 +1,8 @@
 package com.bizconnectivity.tismobile.Classes;
 
-public class JobDetail {
+import java.io.Serializable;
+
+public class JobDetail implements Serializable{
 
 	String jobID;
 	String customerName;
@@ -8,9 +10,14 @@ public class JobDetail {
 	String tankNo;
 	String loadingBayNo;
 	String loadingArm;
-	String sdsFile;
-	String driverID;
+	String sdsFilePath;
 	String operatorID;
+	String driverID;
+	String workInstruction;
+	String pumpStartTime;
+	String pumpStopTime;
+	String rackOutTime;
+	String jobStatus;
 	String jobDate;
 
 	public String getJobID() {
@@ -61,12 +68,12 @@ public class JobDetail {
 		this.loadingArm = loadingArm;
 	}
 
-	public String getSdsFile() {
-		return sdsFile;
+	public String getSdsFilePath() {
+		return sdsFilePath;
 	}
 
-	public void setSdsFile(String sdsFile) {
-		this.sdsFile = sdsFile;
+	public void setSdsFilePath(String sdsFilePath) {
+		this.sdsFilePath = sdsFilePath;
 	}
 
 	public String getDriverID() {
@@ -83,6 +90,46 @@ public class JobDetail {
 
 	public void setOperatorID(String operatorID) {
 		this.operatorID = operatorID;
+	}
+
+	public String getWorkInstruction() {
+		return workInstruction;
+	}
+
+	public void setWorkInstruction(String workInstruction) {
+		this.workInstruction = workInstruction;
+	}
+
+	public String getPumpStartTime() {
+		return pumpStartTime;
+	}
+
+	public void setPumpStartTime(String pumpStartTime) {
+		this.pumpStartTime = pumpStartTime;
+	}
+
+	public String getPumpStopTime() {
+		return pumpStopTime;
+	}
+
+	public void setPumpStopTime(String pumpStopTime) {
+		this.pumpStopTime = pumpStopTime;
+	}
+
+	public String getRackOutTime() {
+		return rackOutTime;
+	}
+
+	public void setRackOutTime(String rackOutTime) {
+		this.rackOutTime = rackOutTime;
+	}
+
+	public String getJobStatus() {
+		return jobStatus;
+	}
+
+	public void setJobStatus(String jobStatus) {
+		this.jobStatus = jobStatus;
 	}
 
 	public String getJobDate() {

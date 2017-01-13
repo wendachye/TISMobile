@@ -14,7 +14,9 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class DepartureWS {
 
-	public static boolean invokeAddDepartureWS(int TimeSlotID, String UpdatedBy) {
+	public static boolean invokeAddDepartureWS(String TimeSlotID, String UpdatedBy) {
+
+		boolean returnResult = false;
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CREATE_DEPARTURE_TIME);
 
@@ -23,7 +25,7 @@ public class DepartureWS {
 		// Set Name
 		propertyInfoTSID.setName("TimeSlotID");
 		// Set Value
-		propertyInfoTSID.setValue(TimeSlotID);
+		propertyInfoTSID.setValue(Integer.parseInt(TimeSlotID));
 		// Set dataType
 		propertyInfoTSID.setType(int.class);
 		// Add the property to request object
@@ -59,14 +61,16 @@ public class DepartureWS {
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
 
-				responseProperty.toString();
-				return true;
+				if (responseProperty.toString().equals("true")) {
+
+					returnResult =  true;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
-		return false;
+		return returnResult;
 	}
 }

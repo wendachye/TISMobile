@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;
@@ -45,17 +46,19 @@ public class CheckOutActivity extends AppCompatActivity {
 
     public SharedPreferences sharedPref;
 
+    LoadingBayDetailDataSource loadingBayDetailDataSource;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_out);
 
+        context = this;
+        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+
         //region Header and Footer
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-
-        context = this;
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         /*-------- Set User Login Details --------*/
         setUserLoginDetails();
@@ -64,74 +67,48 @@ public class CheckOutActivity extends AppCompatActivity {
         setFooterMenu();
         //endregion
 
-        loadCheckedInTruckBay();
 
         setCheckOutTruckBay();
     }
 
     public void setCheckOutTruckBay() {
 
-
-        final Set<String> checkedInTruckLoadingBay = sharedPref.getStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, null);
         Button btnConfirm = (Button) findViewById(R.id.btnConfirm);
-        final Spinner ddlItem = (Spinner) findViewById(R.id.ddlTruckBayItem);
 
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String checkedOutTruckBay = ddlItem.getSelectedItem().toString();
-                checkedInTruckLoadingBay.remove(checkedOutTruckBay);
+
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(context);
+                loadingBayDetailDataSource.deleteAllLoadingBay();
 
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, checkedInTruckLoadingBay);
-                editor.commit();
 
-                editor.remove(Constant.SHARED_PREF_PPE);
-                editor.remove(Constant.SHARED_PREF_PPE_PICTURE_URL);
-                editor.remove(Constant.SHARED_PREF_SDS);
-                editor.remove(Constant.SHARED_PREF_SDS_PDF_URL);
-                editor.remove(Constant.SHARED_PREF_SCAN_DETAILS);
-                editor.remove(Constant.SHARED_PREF_SAFETY_CHECKS);
+                editor.remove(Constant.SHARED_PREF_JOB_ID);
+                editor.remove(Constant.SHARED_PREF_CUSTOMER_NAME);
+                editor.remove(Constant.SHARED_PREF_PRODUCT_NAME);
+                editor.remove(Constant.SHARED_PREF_TANK_NO);
+                editor.remove(Constant.SHARED_PREF_LOADING_BAY);
+                editor.remove(Constant.SHARED_PREF_LOADING_ARM);
+                editor.remove(Constant.SHARED_PREF_SDS_FILE_PATH);
                 editor.remove(Constant.SHARED_PREF_OPERATOR_ID);
                 editor.remove(Constant.SHARED_PREF_DRIVER_ID);
                 editor.remove(Constant.SHARED_PREF_WORK_INSTRUCTION);
-                editor.remove(Constant.SHARED_PREF_LOADING_ARM);
-                editor.remove(Constant.SHARED_PREF_BATCH_CONTROLLER_L);
-                editor.remove(Constant.SHARED_PREF_PUMP_START);
-                editor.remove(Constant.SHARED_PREF_PUMP_STOP);
-                editor.remove(Constant.SHARED_PREF_SCAN_SEAL);
+                editor.remove(Constant.SHARED_PREF_PUMP_START_TIME);
+                editor.remove(Constant.SHARED_PREF_PUMP_STOP_TIME);
+                editor.remove(Constant.SHARED_PREF_RACK_OUT_TIME);
+                editor.remove(Constant.SHARED_PREF_JOB_STATUS);
+                editor.remove(Constant.SHARED_PREF_JOB_DATE);
+                editor.remove(Constant.SHARED_PREF_BATCH_CONTROLLER);
+                editor.remove(Constant.SHARED_PREF_BATCH_CONTROLLER_LITRE);
                 editor.remove(Constant.SCAN_VALUE_BOTTOM_SEAL1);
                 editor.remove(Constant.SCAN_VALUE_BOTTOM_SEAL2);
                 editor.remove(Constant.SCAN_VALUE_BOTTOM_SEAL3);
                 editor.remove(Constant.SCAN_VALUE_BOTTOM_SEAL4);
-                editor.remove(Constant.SHARED_PREF_ADD_SEAL_COUNT);
                 editor.apply();
 
-                Toast.makeText(context, Constant.TRUCK_BAY_CHECKED_OUT + checkedOutTruckBay, Toast.LENGTH_SHORT).show();
-                loadCheckedInTruckBay();
             }
         });
-    }
-
-    private void loadCheckedInTruckBay() {
-        Set<String> checkedInTruckLoadingBay = sharedPref.getStringSet(Constant.SHARED_PREF_TRUCK_LOADING_BAY, null);
-
-        if (checkedInTruckLoadingBay == null) {
-            Common.shortToast(context, Constant.ERR_MSG_NO_TRUCK_BAY_CHECKED_IN);
-
-            Button btnConfirm = (Button) findViewById(R.id.btnConfirm);
-            btnConfirm.setEnabled(false);
-        }
-        else
-        {
-            List<String> truckBayList = new ArrayList<>(checkedInTruckLoadingBay);
-            Spinner ddlItem = (Spinner) findViewById(R.id.ddlTruckBayItem);
-            ArrayAdapter<String> ddlAdapter = new ArrayAdapter<String>(context, R.layout.spinner_item, truckBayList);
-            ddlItem.setAdapter(ddlAdapter);
-
-            if (truckBayList.size() == 0)
-                Toast.makeText(context, Constant.ERR_MSG_NO_TRUCK_BAY_CHECKED_IN, Toast.LENGTH_SHORT).show();
-        }
     }
 
     //region Header
@@ -151,7 +128,7 @@ public class CheckOutActivity extends AppCompatActivity {
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnHomeClicked(view);
+                btnHomeClicked();
             }
         });
 
@@ -159,7 +136,7 @@ public class CheckOutActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSearchClicked(view);
+                btnSearchClicked();
             }
         });
 
@@ -167,7 +144,7 @@ public class CheckOutActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSwitchClicked(view);
+                btnSwitchClicked();
             }
         });
 
@@ -180,19 +157,22 @@ public class CheckOutActivity extends AppCompatActivity {
         });
     }
 
-    public void btnHomeClicked(View view) {
+    public void btnHomeClicked() {
+
         Intent intentHome = new Intent(context, DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
-    public void btnSearchClicked(View view) {
+    public void btnSearchClicked() {
+
         Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
-    public void btnSwitchClicked(View view) {
+    public void btnSwitchClicked() {
+
         Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
@@ -203,6 +183,7 @@ public class CheckOutActivity extends AppCompatActivity {
     }
 
     public void settingsMenuOptions(View view) {
+
         PopupMenu popup = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
@@ -210,19 +191,20 @@ public class CheckOutActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
+
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(context, CheckInActivity.class);
                         finish();
                         startActivity(intentCheckIn);
                         return true;
+
                     case R.id.settingsMenuExitApp:
                         exitApplication();
                         return true;
+
                     case R.id.settingsMenuCheckOut:
-                        /*Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
-                        finish();
-                        startActivity(intentCheckOut);*/
                         return true;
+
                     default:
                         return false;
                 }
@@ -233,6 +215,7 @@ public class CheckOutActivity extends AppCompatActivity {
     }
 
     public void exitApplication() {
+
         if (exitDialog != null && exitDialog.isShowing())
             return;
 
@@ -253,10 +236,6 @@ public class CheckOutActivity extends AppCompatActivity {
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intent);
-                //v.getContext().finish();
-
-                /*((Activity) context).finish();*/
-                System.exit(0);
             }
         });
 

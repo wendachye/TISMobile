@@ -1,6 +1,7 @@
 package com.bizconnectivity.tismobile.WebServices;
 
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,51 +9,69 @@ import android.os.AsyncTask;
 
 import com.bizconnectivity.tismobile.Activities.JobMainActivity;
 import com.bizconnectivity.tismobile.Activities.ScanDetailsActivity;
+import com.bizconnectivity.tismobile.Classes.JobDetail;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+
+import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
 public class WorkInstructionWSAsync extends AsyncTask<String, Void, Void> {
 
-	Context appContext;
-	String timeSlotID, workInstruction, response;
+	Context context;
+	String jobID, workInstruction, response;
 
-	public WorkInstructionWSAsync(Context context, String selectedJobID, String scanContent) {
-		appContext = context;
-		timeSlotID = selectedJobID;
-		workInstruction = scanContent;
+	JobDetailDataSource jobDetailDataSource;
+
+	ProgressDialog progressDialog;
+
+	public WorkInstructionWSAsync(Context context, String jobID, String workInstruction) {
+
+		this.context = context;
+		this.jobID = jobID;
+		this.workInstruction = workInstruction;
 	}
 
 	@Override
 	protected Void doInBackground(String... params) {
 
-		response = WorkInstructionWS.invokeRetrieveWorkInstruction(timeSlotID, workInstruction);
+		response = WorkInstructionWS.invokeRetrieveWorkInstruction(jobID, workInstruction);
 		return null;
 	}
 
 	@Override
 	protected void onPostExecute(Void result) {
 
-		SharedPreferences sharedPref = appContext.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 
 		if (!response.isEmpty()) {
 
+			//update job status
 			editor.putString(Constant.SHARED_PREF_WORK_INSTRUCTION, response).commit();
-			editor.putString(Constant.SHARED_PREF_SCAN_DETAILS, "done").commit();
 
-			Intent intent = new Intent(appContext, JobMainActivity.class);
-			((ScanDetailsActivity) appContext).finish();
-			appContext.startActivity(intent);
+			jobDetailDataSource = new JobDetailDataSource(context);
+			jobDetailDataSource.open();
+			jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_WORK_INSTRUCTION);
+			jobDetailDataSource.close();
+
+			//end progress dialog
+			progressDialog.dismiss();
+
+			Intent intent = new Intent(context, JobMainActivity.class);
+			((ScanDetailsActivity) context).finish();
+			context.startActivity(intent);
 
 		} else {
 
-			editor.putString(Constant.SHARED_PREF_WORK_INSTRUCTION, "").commit();
-			Common.shortToast(appContext, Constant.SCAN_MSG_INVALID_WORK_INSTRUCTION_RECEIVED);
+			//end progress dialog
+			progressDialog.dismiss();
 
-			Intent intent = new Intent(appContext, ScanDetailsActivity.class);
-			((ScanDetailsActivity) appContext).finish();
-			appContext.startActivity(intent);
+			Common.shortToast(context, Constant.SCAN_MSG_INVALID_WORK_INSTRUCTION_RECEIVED);
 
+			Intent intent = new Intent(context, ScanDetailsActivity.class);
+			((ScanDetailsActivity) context).finish();
+			context.startActivity(intent);
 		}
 
 	}
@@ -60,6 +79,8 @@ public class WorkInstructionWSAsync extends AsyncTask<String, Void, Void> {
 	@Override
 	protected void onPreExecute() {
 
+		//start progress dialog
+		progressDialog = ProgressDialog.show(context, "Please wait..", "Loading...", true);
 	}
 
 	@Override

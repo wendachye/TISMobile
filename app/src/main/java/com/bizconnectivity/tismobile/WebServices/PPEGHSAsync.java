@@ -75,7 +75,6 @@ public class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 			int ppeID = 0;
 			String ppeURL = ppeArrayList.get(i).getPpePictureURL();
 			String ppeName = ppeURL.substring(0, ppeURL.indexOf("."));
-			Log.d("aa", ppeName);
 
 			switch (ppeName) {
 
@@ -149,7 +148,6 @@ public class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 			int ghsID = 0;
 			String ghsURL = ghsArrayList.get(i).getGhsPictureURL();
 			String ghsName = ghsURL.substring(0, ghsURL.indexOf("."));
-			Log.d("aa", ghsName);
 
 			switch (ghsName) {
 

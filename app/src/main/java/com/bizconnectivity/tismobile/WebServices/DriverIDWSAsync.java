@@ -1,5 +1,6 @@
 package com.bizconnectivity.tismobile.WebServices;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,49 +9,67 @@ import android.os.AsyncTask;
 import com.bizconnectivity.tismobile.Activities.ScanDetailsActivity;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+
+import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
 
 
 public class DriverIDWSAsync extends AsyncTask<String, Void, Void> {
 
-	Context appContext;
-	String timeslotId, idNumber, response;
+	Context context;
+	String jobID, driverID, response;
 
-	public DriverIDWSAsync(Context context, String selectedJobID, String driverID) {
-		appContext = context;
-		timeslotId = selectedJobID;
-		idNumber = driverID;
+	JobDetailDataSource jobDetailDataSource;
+
+	ProgressDialog progressDialog;
+
+	public DriverIDWSAsync(Context context, String jobID, String driverID) {
+
+		this.context = context;
+		this.jobID = jobID;
+		this.driverID = driverID;
 	}
 
 	@Override
 	protected Void doInBackground(String... params) {
 
-		response = DriverIDWS.invokeRetrieveDriverID(timeslotId, idNumber);
+		response = DriverIDWS.invokeRetrieveDriverID(jobID, driverID);
 		return null;
 	}
 
 	@Override
 	protected void onPostExecute(Void result) {
 
-		SharedPreferences sharedPref = appContext.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 
 		if (!response.isEmpty()) {
 
-			editor.putString(Constant.SHARED_PREF_DRIVER_ID, response).commit();
+			//update job status
+			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).commit();
 
-			Intent intent = new Intent(appContext, ScanDetailsActivity.class);
-			((ScanDetailsActivity) appContext).finish();
-			appContext.startActivity(intent);
+			jobDetailDataSource = new JobDetailDataSource(context);
+			jobDetailDataSource.open();
+			jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_DRIVER_ID);
+			jobDetailDataSource.close();
+
+			//end progress dialog
+			progressDialog.dismiss();
+
+			Intent intent = new Intent(context, ScanDetailsActivity.class);
+			((ScanDetailsActivity) context).finish();
+			context.startActivity(intent);
 
 		} else {
 
-			editor.putString(Constant.SHARED_PREF_DRIVER_ID, "").commit();
-			Common.shortToast(appContext, Constant.SCAN_MSG_INVALID_DRIVER_ID_RECEIVED);
+			//end progress dialog
+			progressDialog.dismiss();
 
-			Intent intent = new Intent(appContext, ScanDetailsActivity.class);
-			((ScanDetailsActivity) appContext).finish();
-			appContext.startActivity(intent);
+			Common.shortToast(context, Constant.SCAN_MSG_INVALID_DRIVER_ID_RECEIVED);
 
+			Intent intent = new Intent(context, ScanDetailsActivity.class);
+			((ScanDetailsActivity) context).finish();
+			context.startActivity(intent);
 		}
 
 	}
@@ -58,6 +77,8 @@ public class DriverIDWSAsync extends AsyncTask<String, Void, Void> {
 	@Override
 	protected void onPreExecute() {
 
+		//start progress dialog
+		progressDialog = ProgressDialog.show(context, "Please wait..", "Loading...", true);
 	}
 
 	@Override

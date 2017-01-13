@@ -17,7 +17,9 @@ import java.util.Date;
 
 public class PumpStopWS {
 
-	public static boolean invokeUpdatePumpStopWS(int TimeSlotID, String UpdatedBy) {
+	public static boolean invokeUpdatePumpStopWS(String TimeSlotID, String UpdatedBy) {
+
+		boolean returnResult = false;
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CREATE_PUMPSTOP_TIME);
 
@@ -26,7 +28,7 @@ public class PumpStopWS {
 		// Set Name
 		propertyInfoTSID.setName("TimeSlotID");
 		// Set Value
-		propertyInfoTSID.setValue(TimeSlotID);
+		propertyInfoTSID.setValue(Integer.parseInt(TimeSlotID));
 		// Set dataType
 		propertyInfoTSID.setType(int.class);
 		// Add the property to request object
@@ -56,20 +58,21 @@ public class PumpStopWS {
 			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_CREATE_PUMPSTOP_TIME, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
+
 				SoapFault response = (SoapFault) envelope.bodyIn;
-				Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
+
 			} else {
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
 
-				responseProperty.toString();
-				return true;
+				if (responseProperty.toString().equals("true")) {
+					returnResult = true;
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
-		return false;
+		return returnResult;
 	}
 }

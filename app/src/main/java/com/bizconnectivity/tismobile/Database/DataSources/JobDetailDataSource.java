@@ -62,7 +62,7 @@ public class JobDetailDataSource {
 			values.put(JobDetails.COLUMN_TANK_NO, jobDetail.getTankNo());
 			values.put(JobDetails.COLUMN_TRUCK_LOADING_BAY_NO, jobDetail.getLoadingBayNo());
 			values.put(JobDetails.COLUMN_LOADING_ARM_NO, jobDetail.getLoadingArm());
-			values.put(JobDetails.COLUMN_SDS_FILE_PATH, jobDetail.getSdsFile());
+			values.put(JobDetails.COLUMN_SDS_FILE_PATH, jobDetail.getSdsFilePath());
 			values.put(JobDetails.COLUMN_OPERATOR_ID, jobDetail.getOperatorID());
 			values.put(JobDetails.COLUMN_DRIVER_ID, jobDetail.getDriverID());
 			values.put(JobDetails.COLUMN_JOB_DATE, jobDetail.getJobDate());
@@ -83,7 +83,7 @@ public class JobDetailDataSource {
 			values.put(JobDetails.COLUMN_TANK_NO, jobDetail.getTankNo());
 			values.put(JobDetails.COLUMN_TRUCK_LOADING_BAY_NO, jobDetail.getLoadingBayNo());
 			values.put(JobDetails.COLUMN_LOADING_ARM_NO, jobDetail.getLoadingArm());
-			values.put(JobDetails.COLUMN_SDS_FILE_PATH, jobDetail.getSdsFile());
+			values.put(JobDetails.COLUMN_SDS_FILE_PATH, jobDetail.getSdsFilePath());
 			values.put(JobDetails.COLUMN_OPERATOR_ID, jobDetail.getOperatorID());
 			values.put(JobDetails.COLUMN_DRIVER_ID, jobDetail.getDriverID());
 			values.put(JobDetails.COLUMN_JOB_DATE, jobDetail.getJobDate());
@@ -102,8 +102,8 @@ public class JobDetailDataSource {
 		String[] projection = { JobDetails.COLUMN_JOB_ID, JobDetails.COLUMN_CUSTOMER_NAME, JobDetails.COLUMN_PRODUCT_NAME, JobDetails.COLUMN_TANK_NO };
 
 		// Filter results WHERE
-		String selectionRetrieve = JobDetails.COLUMN_TRUCK_LOADING_BAY_NO + " = ?";
-		String[] selectionArgsRetrieve = { truckLoadingBayList.getGroupTitle() };
+		String selectionRetrieve = JobDetails.COLUMN_TRUCK_LOADING_BAY_NO + " = ? AND " + JobDetails.COLUMN_JOB_STATUS + " = ?";
+		String[] selectionArgsRetrieve = { truckLoadingBayList.getGroupTitle(), "Pending" };
 
 		Cursor cursor = database.query(
 				JobDetails.TABLE_NAME,                    // The table to query
@@ -141,13 +141,9 @@ public class JobDetailDataSource {
 		return jobDetailArrayList;
 	}
 
-	public JobDetail retrieveJobDetailsWithJobID(String jobID) {
+	public JobDetail retrieveJobDetails(String jobID) {
 
 		JobDetail jobDetail = new JobDetail();
-
-		// Define a projection that specifies which columns from the database
-		// you will actually use after this query.
-		String[] projection = { JobDetails.COLUMN_JOB_ID, JobDetails.COLUMN_CUSTOMER_NAME, JobDetails.COLUMN_TRUCK_LOADING_BAY_NO, JobDetails.COLUMN_LOADING_ARM_NO };
 
 		// Filter results WHERE
 		String selectionRetrieve = JobDetails.COLUMN_JOB_ID + " = ?";
@@ -155,7 +151,7 @@ public class JobDetailDataSource {
 
 		Cursor cursor = database.query(
 				JobDetails.TABLE_NAME,                    // The table to query
-				projection,                               // The columns to return
+				null,                                     // The columns to return
 				selectionRetrieve,                        // The columns for the WHERE clause
 				selectionArgsRetrieve,                    // The values for the WHERE clause
 				null,                                     // Group the rows
@@ -167,41 +163,46 @@ public class JobDetailDataSource {
 
 			jobDetail.setJobID(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_ID)));
 			jobDetail.setCustomerName(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_CUSTOMER_NAME)));
+			jobDetail.setProductName(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PRODUCT_NAME)));
+			jobDetail.setTankNo(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TANK_NO)));
 			jobDetail.setLoadingBayNo(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TRUCK_LOADING_BAY_NO)));
 			jobDetail.setLoadingArm(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_LOADING_ARM_NO)));
+			jobDetail.setSdsFilePath(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_SDS_FILE_PATH)));
+			jobDetail.setOperatorID(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_OPERATOR_ID)));
+			jobDetail.setDriverID(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_DRIVER_ID)));
+			jobDetail.setWorkInstruction(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_WORK_INSTRUCTION)));
+			jobDetail.setPumpStartTime(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PUMP_START_TIME)));
+			jobDetail.setPumpStopTime(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PUMP_STOP_TIME)));
+			jobDetail.setRackOutTime(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_RACK_OUT_TIME)));
+			jobDetail.setJobStatus(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_STATUS)));
+			jobDetail.setJobDate(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_DATE)));
 		}
 
 		return jobDetail;
 	}
 
-	public String retrieveStatusWithJobID(String jobID) {
+	public void updateJobDetails(String jobID, String jobStatus) {
 
-		String jobStatus = "";
+		// New value for one column
+		ContentValues values = new ContentValues();
+		values.put(JobDetails.COLUMN_JOB_STATUS, jobStatus);
 
-		// Define a projection that specifies which columns from the database
-		// you will actually use after this query.
-		String[] projection = { JobDetails.COLUMN_STATUS };
+		// Which row to update, based on the title
+		String selectionUpdate = JobDetails.COLUMN_JOB_ID + " = ?";
+		String[] selectionArgsUpdate = { jobID };
 
-		// Filter results WHERE
-		String selectionRetrieve = JobDetails.COLUMN_JOB_ID + " = ?";
-		String[] selectionArgsRetrieve = { jobID };
+		database.update(JobDetails.TABLE_NAME, values, selectionUpdate, selectionArgsUpdate);
+	}
 
-		Cursor cursor = database.query(
-				JobDetails.TABLE_NAME,                    // The table to query
-				projection,                               // The columns to return
-				selectionRetrieve,                        // The columns for the WHERE clause
-				selectionArgsRetrieve,                    // The values for the WHERE clause
-				null,                                     // Group the rows
-				null,                                     // Filter by row groups
-				null                                      // The sort order
-		);
+	public void deleteFinishedJob(String jobID) {
 
-		if (cursor.moveToFirst()) {
+		// Define 'where' part of query.
+		String selection = JobDetails.COLUMN_JOB_ID + " = ?";
+		// Specify arguments in placeholder order.
+		String[] selectionArgs = { jobID };
 
-			jobStatus = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_STATUS));
-		}
-
-		return jobStatus;
+		// Issue SQL statement.
+		database.delete(JobDetails.TABLE_NAME, selection, selectionArgs);
 	}
 
 }

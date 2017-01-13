@@ -1,5 +1,6 @@
 package com.bizconnectivity.tismobile.WebServices;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,51 +9,64 @@ import android.os.AsyncTask;
 import com.bizconnectivity.tismobile.Activities.LoadingOperationActivity;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+
+import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
 
 public class LoadingArmWSAsync extends AsyncTask<String, Void, Void> {
 
-	Context appContext;
-	String ArmNo;
-	int TimeSlotID;
+	Context context;
+	String armNo;
+	String jobID;
 	Boolean response;
+	ProgressDialog progressDialog;
+	JobDetailDataSource jobDetailDataSource;
 
-	public LoadingArmWSAsync(Context context, int timeSlotID, String armNo) {
-		appContext = context;
-		TimeSlotID = timeSlotID;
-		ArmNo = armNo;
+	public LoadingArmWSAsync(Context context, String jobID, String armNo) {
+
+		this.context = context;
+		this.jobID = jobID;
+		this.armNo = armNo;
 	}
 
 	@Override
 	protected Void doInBackground(String... params) {
 
-		response = LoadingArmWS.invokeCheckLoadingArmWS(TimeSlotID, ArmNo);
+		response = LoadingArmWS.invokeCheckLoadingArmWS(jobID, armNo);
 		return null;
-
 	}
 
 	@Override
 	protected void onPostExecute(Void result) {
 
-		SharedPreferences sharedPref = appContext.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 
 		if (response) {
 
-			editor.putString(Constant.SHARED_PREF_LOADING_ARM, "done").commit();
+			//region set job status
+			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_SCAN_LOADING_ARM).commit();
 
-			Intent intent = new Intent(appContext, LoadingOperationActivity.class);
-			((LoadingOperationActivity) appContext).finish();
-			appContext.startActivity(intent);
+			jobDetailDataSource = new JobDetailDataSource(context);
+			jobDetailDataSource.open();
+			jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_SCAN_LOADING_ARM);
+			jobDetailDataSource.close();
+			//endregion
+
+			Intent intent = new Intent(context, LoadingOperationActivity.class);
+			((LoadingOperationActivity) context).finish();
+			context.startActivity(intent);
 
 		} else {
 
-			editor.putString(Constant.SHARED_PREF_LOADING_ARM, "").commit();
-			Common.shortToast(appContext, Constant.ERR_MSG_INVALID_LOADING_ARM);
+			//end progress dialog
+			progressDialog.dismiss();
 
-			Intent intent = new Intent(appContext, LoadingOperationActivity.class);
-			((LoadingOperationActivity) appContext).finish();
-			appContext.startActivity(intent);
+			Common.shortToast(context, Constant.ERR_MSG_INVALID_LOADING_ARM);
 
+			Intent intent = new Intent(context, LoadingOperationActivity.class);
+			((LoadingOperationActivity) context).finish();
+			context.startActivity(intent);
 		}
 
 	}
@@ -60,6 +74,8 @@ public class LoadingArmWSAsync extends AsyncTask<String, Void, Void> {
 	@Override
 	protected void onPreExecute() {
 
+		//start progress dialog
+		progressDialog = ProgressDialog.show(context, "Please wait..", "Loading...", true);
 	}
 
 	@Override

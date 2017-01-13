@@ -4,22 +4,14 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.ColorDrawable;
-import android.net.Uri;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutCompat;
 import android.support.v7.widget.PopupMenu;
-import android.text.Layout;
-import android.util.Base64;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -27,37 +19,28 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Classes.GHS;
+import com.bizconnectivity.tismobile.Classes.JobDetail;
 import com.bizconnectivity.tismobile.Classes.PPE;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.WebServices.PPEWSAsync;
 import com.bizconnectivity.tismobile.WebServices.SDSWSAsync;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
 
-import butterknife.BindView;
-
-import static com.bizconnectivity.tismobile.Constant.KEY_STATUS_JOB_DETAILS;
-import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
-import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CHECK_PPE;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
+import static com.bizconnectivity.tismobile.Constant.STATUS_PENDING;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PPE;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
@@ -69,6 +52,7 @@ public class JobMainActivity extends AppCompatActivity {
     Dialog exitDialog, scanPPEDialog, safetyChecksDialog;
     Button btnPPE, btnSDS, btnScanDetails, btnSafetyCheck;
 
+    JobDetailDataSource jobDetailDataSource;
     public SharedPreferences sharedPref;
 
     @Override
@@ -76,12 +60,12 @@ public class JobMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_job_main);
 
+        context = this;
+        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+
         //region Header and Footer
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-
-        context = this;
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         /*-------- Set User Login Details --------*/
         setUserLoginDetails();
@@ -90,119 +74,61 @@ public class JobMainActivity extends AppCompatActivity {
         setFooterMenu();
         //endregion
 
-        String jobStatus = getIntent().getExtras().getString(KEY_STATUS_JOB_DETAILS);
-
-        switch (jobStatus) {
-
-            case STATUS_PPE:
-
-                break;
-
-            case STATUS_SDS:
-
-                break;
-
-            case STATUS_OPERATOR_ID:
-
-                break;
-
-            case STATUS_DRIVER_ID:
-
-                break;
-
-            case STATUS_WORK_INSTRUCTION:
-
-                break;
-
-            case STATUS_SAFETY_CHECKS :
-
-                break;
-
-            case STATUS_SCAN_LOADING_ARM:
-
-                break;
-
-            case STATUS_BATCH_CONTROLLER:
-
-                break;
-
-            case STATUS_PUMP_START:
-
-                break;
-
-            case STATUS_PUMP_STOP:
-
-                break;
-
-            case STATUS_SCAN_SEAL:
-
-                break;
-
-            default:
-
-                break;
-        }
-
-
-
+        //region button PPE
         btnPPE = (Button) findViewById(R.id.btnScanPPE);
         btnPPE.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                String ppePicURL = sharedPref.getString(Constant.SHARED_PREF_PPE_PICTURE_URL, "");
-                String productName = sharedPref.getString(Constant.SHARED_PREF_PRODUCT_NAME_SELECTED, "");
+                if (Common.isNetworkAvailable(context)) {
 
-                if (ppePicURL.isEmpty()) {
-
-                    PPEWSAsync task = new PPEWSAsync(context, btnPPE, productName);
+                    PPEWSAsync task = new PPEWSAsync(context, btnPPE, sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
                     task.execute();
 
                 } else {
 
-//                    ppeDialog();
 
                 }
 
             }
         });
+        //endregion
 
+        //region button SDS
         btnSDS = (Button) findViewById(R.id.btnSDS);
         btnSDS.setEnabled(false);
         btnSDS.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                btnScanDetails.setEnabled(true);
+                if (Common.isNetworkAvailable(context)) {
 
-                String sdsFileURL = sharedPref.getString(Constant.SHARED_PREF_SDS_PDF_URL, "");
-                int timeslotID = Integer.parseInt(sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, ""));
-
-                if (sdsFileURL.isEmpty()) {
-
-                    SDSWSAsync task = new SDSWSAsync(context, btnSDS, timeslotID);
+                    SDSWSAsync task = new SDSWSAsync(context, btnSDS, sharedPref.getString(SHARED_PREF_JOB_ID, ""));
                     task.execute();
 
                 } else {
 
-                    String URL = Constant.SDS_FILE_LOCATION + sdsFileURL;
-
-                    Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
-                    startActivity(browserIntent);
 
                 }
             }
         });
+        //endregion
 
+        //region button scan details
         btnScanDetails = (Button) findViewById(R.id.btnScanDetails);
         btnScanDetails.setEnabled(false);
         btnScanDetails.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnScanDetailsClicked(view);
+
+                Intent intent = new Intent(context, ScanDetailsActivity.class);
+                finish();
+                startActivity(intent);
             }
         });
+        //endregion
 
+        //region button safety checks onclick
         btnSafetyCheck = (Button) findViewById(R.id.btnSafetyCheck);
         btnSafetyCheck.setEnabled(false);
         btnSafetyCheck.setOnClickListener(new View.OnClickListener() {
@@ -211,65 +137,77 @@ public class JobMainActivity extends AppCompatActivity {
                 safetyChecks();
             }
         });
+        //endregion
 
-        String checkPPE = sharedPref.getString(Constant.SHARED_PREF_PPE, "");
-        String checkSDS = sharedPref.getString(Constant.SHARED_PREF_SDS, "");
-        String checkScanDetails = sharedPref.getString(Constant.SHARED_PREF_SCAN_DETAILS, "");
-        String checkSafety = sharedPref.getString(Constant.SHARED_PREF_SAFETY_CHECKS, "");
+        //region status settings
 
+        //retrieve job status from shared preferences
+        String jobStatus = sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "");
 
-        if (checkPPE.equals("done") && checkSDS.equals("done") && checkScanDetails.equals("done") && checkSafety.equals("done")) {
+        switch (jobStatus) {
 
-            btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            case STATUS_PENDING:
+                btnPPE.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnPPE.getBackground().clearColorFilter();
 
-            btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnSDS.setEnabled(true);
+                btnSDS.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnSDS.getBackground().clearColorFilter();
 
-            btnScanDetails.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanDetails.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnScanDetails.setEnabled(true);
+                btnScanDetails.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanDetails.getBackground().clearColorFilter();
 
-            btnSafetyCheck.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnSafetyCheck.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnSafetyCheck.setEnabled(true);
+                btnSafetyCheck.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnSafetyCheck.getBackground().clearColorFilter();
+                break;
 
-        } else if (checkPPE.equals("done") && checkSDS.equals("done") && checkScanDetails.equals("done")) {
+            case STATUS_PPE:
+                btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
 
-            btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSDS.setEnabled(true);
+                break;
 
-            btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnSDS.setEnabled(true);
+            case STATUS_SDS:
+                btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
 
-            btnScanDetails.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanDetails.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnScanDetails.setEnabled(true);
+                btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSDS.setEnabled(true);
 
-            btnSafetyCheck.setEnabled(true);
+                btnScanDetails.setEnabled(true);
+                break;
 
-        } else if (checkPPE.equals("done") && checkSDS.equals("done")) {
+            case STATUS_WORK_INSTRUCTION:
+                btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
 
-            btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSDS.setEnabled(true);
 
-            btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
-            btnSDS.setEnabled(true);
+                btnScanDetails.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanDetails.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanDetails.setEnabled(true);
 
-            btnScanDetails.setEnabled(true);
+                btnSafetyCheck.setEnabled(true);
+                break;
 
-        } else if (checkPPE.equals("done")) {
+            default:
+                btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
 
-            btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
 
-            btnSDS.setEnabled(true);
+                btnScanDetails.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnScanDetails.setBackgroundColor(getResources().getColor(R.color.colorGreen));
 
+                btnSafetyCheck.setTextColor(getResources().getColor(R.color.colorWhite));
+                btnSafetyCheck.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                break;
         }
-
+        //endregion
     }
 
     //region Header
@@ -443,12 +381,6 @@ public class JobMainActivity extends AppCompatActivity {
     }
     //endregion
 
-    public void btnScanDetailsClicked(View view) {
-        Intent intent = new Intent(this, ScanDetailsActivity.class);
-	    finish();
-        startActivity(intent);
-    }
-
     public void ppeDialog(ArrayList<PPE> ppeArrayList, ArrayList<GHS> ghsArrayList) {
 
         if (scanPPEDialog != null && scanPPEDialog.isShowing())
@@ -460,23 +392,27 @@ public class JobMainActivity extends AppCompatActivity {
 
         LinearLayout linearLayoutPPE = (LinearLayout) scanPPEDialog.findViewById(R.id.linearLayoutPPE);
         LinearLayout linearLayoutGHS = (LinearLayout) scanPPEDialog.findViewById(R.id.linearLayoutGHS);
-
         TextView tvPPEProductName = (TextView) scanPPEDialog.findViewById(R.id.tvPPEProductName);
         final RadioButton rbtnHandleProduct = (RadioButton) scanPPEDialog.findViewById(R.id.rbtnHandleProduct);
         final RadioButton rbtnHavePPE = (RadioButton) scanPPEDialog.findViewById(R.id.rbtnHavePPE);
 
-        String checkPPE = sharedPref.getString(Constant.SHARED_PREF_PPE, "");
-        String productName = sharedPref.getString(Constant.SHARED_PREF_PRODUCT_NAME_SELECTED, "");
+        //set product name
+        tvPPEProductName.setText(sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
 
-        tvPPEProductName.setText(productName);
+        //region set radio button status
+        if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_PENDING)) {
 
-        if (checkPPE.equals("done")) {
-            rbtnHandleProduct.setChecked(true);
-            rbtnHavePPE.setChecked(true);
-        } else {
             rbtnHandleProduct.setChecked(false);
             rbtnHavePPE.setChecked(false);
+
+        } else {
+
+            rbtnHandleProduct.setChecked(true);
+            rbtnHavePPE.setChecked(true);
         }
+        //endregion
+
+        //region ppe and ghs picture setup
 
         int totalLinearLayoutGHS = (int) Math.ceil(ghsArrayList.size() / 4.0);
         int totalLinearLayoutPPE = (int) Math.ceil(ppeArrayList.size() / 4.0);
@@ -500,8 +436,6 @@ public class JobMainActivity extends AppCompatActivity {
 	    }
 
 	    for (int j=0; j<ghsArrayList.size(); j++) {
-
-            Picasso.with(this).setIndicatorsEnabled(true);
 
 		    ImageView image = new ImageView(this);
 		    String ghsPictureUrl = Constant.GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
@@ -552,6 +486,9 @@ public class JobMainActivity extends AppCompatActivity {
 
         }
 
+        //endregion
+
+        //region button confirm
         Button btnConfirm = (Button) scanPPEDialog.findViewById(R.id.btnConfirm);
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
@@ -559,20 +496,33 @@ public class JobMainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString(Constant.SHARED_PREF_PPE, "done");
-                editor.commit();
 
                 if (rbtnHandleProduct.isChecked() && rbtnHavePPE.isChecked()) {
+
+                    //region set job status
+                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_PPE).commit();
+
+                    jobDetailDataSource = new JobDetailDataSource(context);
+                    jobDetailDataSource.open();
+                    jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
+                    jobDetailDataSource.close();
+                    //endregion
+
                     scanPPEDialog.dismiss();
+
                     Intent intent = getIntent();
                     finish();
                     startActivity(intent);
+
                 } else {
-                    Common.shortToast(getApplicationContext(), "Please Answer All The Question");
+
+                    Common.shortToast(getApplicationContext(), ERR_MSG_CHECK_PPE);
                 }
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) scanPPEDialog.findViewById(R.id.btnCancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -581,6 +531,7 @@ public class JobMainActivity extends AppCompatActivity {
                 scanPPEDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = scanPPEDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = scanPPEDialog.findViewById(dividerId);
@@ -605,15 +556,20 @@ public class JobMainActivity extends AppCompatActivity {
         final RadioButton rbtnWheelChocked = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnWheelChocked);
         final RadioButton rbtnBondingWire = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnBondingWire);
 
-        String checkSafety = sharedPref.getString(Constant.SHARED_PREF_SAFETY_CHECKS, "");
-        if (checkSafety.equals("done")) {
+        //region set radio button status
+        if (sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "").equals(STATUS_SAFETY_CHECKS)) {
+
             rbtnWheelChocked.setChecked(true);
             rbtnBondingWire.setChecked(true);
+
         } else {
+
             rbtnWheelChocked.setChecked(false);
             rbtnBondingWire.setChecked(false);
         }
+        //endregion
 
+        //region button confirm
         Button btnConfirm = (Button) safetyChecksDialog.findViewById(R.id.btnConfirm);
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
@@ -621,20 +577,33 @@ public class JobMainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.putString(Constant.SHARED_PREF_SAFETY_CHECKS, "done");
-                editor.commit();
 
                 if (rbtnWheelChocked.isChecked() && rbtnBondingWire.isChecked()) {
+
+                    //region set job status
+                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_SAFETY_CHECKS).commit();
+
+                    jobDetailDataSource = new JobDetailDataSource(context);
+                    jobDetailDataSource.open();
+                    jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
+                    jobDetailDataSource.close();
+                    //endregion
+
                     safetyChecksDialog.dismiss();
+
                     Intent intent = new Intent(getApplicationContext(), LoadingOperationActivity.class);
                     finish();
                     startActivity(intent);
+
                 } else {
+
                     Common.shortToast(getApplicationContext(), "Please Answer All The Question");
                 }
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) safetyChecksDialog.findViewById(R.id.btnCancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -643,6 +612,7 @@ public class JobMainActivity extends AppCompatActivity {
                 safetyChecksDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = safetyChecksDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = safetyChecksDialog.findViewById(dividerId);

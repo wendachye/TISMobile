@@ -14,7 +14,6 @@ import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -145,9 +144,9 @@ public class JobDetailWS {
 			}
 
 			if (!table.getProperty("SDSFile").toString().equals("anyType{}")) {
-				jobDetail.setSdsFile(table.getProperty("SDSFile").toString());
+				jobDetail.setSdsFilePath(table.getProperty("SDSFile").toString());
 			} else {
-				jobDetail.setSdsFile("");
+				jobDetail.setSdsFilePath("");
 			}
 
 			if (!table.getProperty("DriverID").toString().equals("anyType{}")) {

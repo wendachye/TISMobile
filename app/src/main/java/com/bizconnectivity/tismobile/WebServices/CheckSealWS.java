@@ -14,7 +14,7 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class CheckSealWS {
 
-	public static boolean invokeCheckSeal(int timeslotId, String sealNo) {
+	public static boolean invokeCheckSeal(String timeslotId, String sealNo) {
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CHECK_SEAL);
 
@@ -23,7 +23,7 @@ public class CheckSealWS {
 		// Set Name
 		propertyInfoTSID.setName("timeslotId");
 		// Set Value
-		propertyInfoTSID.setValue(timeslotId);
+		propertyInfoTSID.setValue(Integer.parseInt(timeslotId));
 		// Set dataType
 		propertyInfoTSID.setType(int.class);
 		// Add the property to request object

@@ -14,7 +14,7 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class AddSealWS {
 
-	public static boolean invokeAddSealWS(String sealNo, int TimeSlotID, String sealPos, String UpdatedBy) {
+	public static boolean invokeAddSealWS(String sealNo, String TimeSlotID, String sealPos, String UpdatedBy) {
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CREATE_SEAL);
 
@@ -34,7 +34,7 @@ public class AddSealWS {
 		// Set Name
 		propertyInfoTSID.setName("TimeSlotID");
 		// Set Value
-		propertyInfoTSID.setValue(TimeSlotID);
+		propertyInfoTSID.setValue(Integer.parseInt(TimeSlotID));
 		// Set dataType
 		propertyInfoTSID.setType(int.class);
 		// Add the property to request object

@@ -14,7 +14,7 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class SDSWS {
 
-	public static String invokeRetrieveSDSWS (int timeslotID) {
+	public static String invokeRetrieveSDSWS (String timeslotID) {
 
 		SDS sds = new SDS();
 
@@ -26,7 +26,7 @@ public class SDSWS {
 		//set name
 		propertyInfo.setName("timeslotID");
 		//set value
-		propertyInfo.setValue(timeslotID);
+		propertyInfo.setValue(Integer.parseInt(timeslotID));
 		//set datatype
 		propertyInfo.setType(int.class);
 		//add the property to request object
