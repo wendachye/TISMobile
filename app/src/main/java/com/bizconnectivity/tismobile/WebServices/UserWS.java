@@ -1,9 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
-
-import android.util.Log;
-
-import com.bizconnectivity.tismobile.Common;
-import com.bizconnectivity.tismobile.Constant;
+package com.bizconnectivity.tismobile.webservices;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;

@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">TIS Mobile</string>
 
-    <!-- Strings related to login -->
+    <string name="welcome">WELCOME</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
     <string name="prompt_litre">Litre</string>
@@ -16,13 +16,17 @@
         completions."
     </string>
     <string name="title_activity_dashboard">DashboardActivity</string>
-    <!-- End Strings related to login -->
+    <string name="truck_loading_bay">TRUCK LOADING BAY: </string>
+    <string name="order">Order</string>
+    <string name="customer">Customer</string>
+    <string name="product">Product</string>
+    <string name="tank_no">Tank No</string>
+    <string name="check_out">CHECK-OUT TRUCK BAY</string>
+    <string name="ok">OK</string>
 
-    <!-- Strings related to footer menu -->
     <string name="Menu_Settings">Settings</string>
     <string name="Menu_Home">Home</string>
     <string name="Menu_Search">Search</string>
     <string name="Menu_Switch">Switch</string>
-    <!-- End Strings related to footer menu -->
 
 </resources>

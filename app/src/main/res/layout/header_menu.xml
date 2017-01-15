@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/header_menu"
@@ -13,7 +13,7 @@
         android:layout_marginLeft="@dimen/header_title_text_spacing"
         android:layout_marginRight="@dimen/header_title_text_spacing"
         android:layout_marginTop="@dimen/header_title_text_spacing"
-        android:text="WELCOME MR X. YOU ARE LOGGED IN. PLEASE ENSURE YOU CHECK-IN TO YOUR TRUCK LOADING BAY"
+        android:text="@string/welcome"
         android:textSize="@dimen/header_menu_text" />
 
     <TextView

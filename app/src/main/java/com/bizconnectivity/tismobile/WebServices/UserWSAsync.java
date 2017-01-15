@@ -1,19 +1,22 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.LoginActivity;
-import com.bizconnectivity.tismobile.Classes.UserDetail;
+import com.bizconnectivity.tismobile.activities.LoginActivity;
+import com.bizconnectivity.tismobile.classes.UserDetail;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Activities.DashboardActivity;
-import com.bizconnectivity.tismobile.Database.DataSources.UserDetailDataSource;
+import com.bizconnectivity.tismobile.activities.DashboardActivity;
+import com.bizconnectivity.tismobile.database.DataSources.UserDetailDataSource;
 import com.scottyab.aescrypt.AESCrypt;
 
 import java.security.GeneralSecurityException;
+
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 
 public class UserWSAsync extends AsyncTask<String, Void, Void> {
 
@@ -45,10 +48,13 @@ public class UserWSAsync extends AsyncTask<String, Void, Void> {
     @Override
     protected void onPostExecute(Void result) {
 
+        SharedPreferences sharedPref = context.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPref.edit();
+
         if (response) {
 
             //set username
-            Constant.LOGIN_LOGINNAME = username;
+            editor.putString(SHARED_PREF_LOGINNAME, username).apply();
 
             //insert into sqlite database
             try {

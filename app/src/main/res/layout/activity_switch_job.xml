@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_dashboard"
+    android:id="@+id/activity_switch_truck_bay"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.bizconnectivity.tismobile.activities.DashboardActivity">
+    tools:context="com.bizconnectivity.tismobile.activities.SwitchJobActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -27,7 +26,7 @@
             android:layout_marginBottom="@dimen/header_title_text_spacing"
             android:layout_marginTop="@dimen/header_title_text_spacing"
             android:gravity="center_horizontal"
-            android:text="@string/truck_loading_bay"
+            android:text="TRUCK LOADING BAY"
             android:textStyle="bold"
             android:textSize="@dimen/header_title_text" />
 
@@ -53,7 +52,7 @@
                 android:layout_marginRight="@dimen/list_item_spacing"
                 android:layout_weight="0.15"
                 android:padding="@dimen/list_item_padding"
-                android:text="@string/order"
+                android:text="Order"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -72,7 +71,7 @@
                 android:layout_marginRight="@dimen/list_item_spacing"
                 android:layout_weight="0.35"
                 android:padding="@dimen/list_item_padding"
-                android:text="@string/customer"
+                android:text="Customer"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -91,7 +90,7 @@
                 android:layout_marginRight="@dimen/list_item_spacing"
                 android:layout_weight="0.35"
                 android:padding="@dimen/list_item_padding"
-                android:text="@string/product"
+                android:text="Product"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -110,7 +109,7 @@
                 android:layout_marginRight="@dimen/list_item_spacing"
                 android:layout_weight="0.15"
                 android:padding="@dimen/list_item_padding"
-                android:text="@string/tank_no"
+                android:text="Tank No"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -125,7 +124,6 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/footerRelativeLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">

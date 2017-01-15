@@ -1,8 +1,8 @@
-package com.bizconnectivity.tismobile.Classes;
+package com.bizconnectivity.tismobile.classes;
 
 import java.util.ArrayList;
 
-public class TruckLoadingBayList {
+public class LoadingBayList {
 
 	String groupTitle;
 	ArrayList<JobDetail> jobDetails;

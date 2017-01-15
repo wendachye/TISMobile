@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 
 import android.app.ProgressDialog;
@@ -7,22 +7,21 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.JobMainActivity;
-import com.bizconnectivity.tismobile.Activities.ScanDetailsActivity;
-import com.bizconnectivity.tismobile.Classes.JobDetail;
+import com.bizconnectivity.tismobile.activities.JobMainActivity;
+import com.bizconnectivity.tismobile.activities.ScanDetailsActivity;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
 public class WorkInstructionWSAsync extends AsyncTask<String, Void, Void> {
 
 	Context context;
 	String jobID, workInstruction, response;
-
 	JobDetailDataSource jobDetailDataSource;
-
 	ProgressDialog progressDialog;
 
 	public WorkInstructionWSAsync(Context context, String jobID, String workInstruction) {
@@ -48,11 +47,11 @@ public class WorkInstructionWSAsync extends AsyncTask<String, Void, Void> {
 		if (!response.isEmpty()) {
 
 			//update job status
-			editor.putString(Constant.SHARED_PREF_WORK_INSTRUCTION, response).commit();
+			editor.putString(SHARED_PREF_JOB_STATUS, STATUS_WORK_INSTRUCTION).apply();
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();
-			jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_WORK_INSTRUCTION);
+			jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_WORK_INSTRUCTION);
 			jobDetailDataSource.close();
 
 			//end progress dialog

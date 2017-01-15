@@ -1,17 +1,15 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.bizconnectivity.tismobile.Classes.GHS;
-import com.bizconnectivity.tismobile.Classes.GHSDetail;
-import com.bizconnectivity.tismobile.Classes.JobDetail;
-import com.bizconnectivity.tismobile.Classes.PPE;
-import com.bizconnectivity.tismobile.Classes.PPEDetail;
-import com.bizconnectivity.tismobile.Database.DataSources.GHSDetailDataSource;
-import com.bizconnectivity.tismobile.Database.DataSources.PPEDetailDataSource;
+import com.bizconnectivity.tismobile.classes.GHS;
+import com.bizconnectivity.tismobile.classes.GHSDetail;
+import com.bizconnectivity.tismobile.classes.PPE;
+import com.bizconnectivity.tismobile.classes.PPEDetail;
+import com.bizconnectivity.tismobile.database.DataSources.GHSDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.PPEDetailDataSource;
 
 import java.util.ArrayList;
 

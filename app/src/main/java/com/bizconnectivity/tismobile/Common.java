@@ -10,23 +10,17 @@ public class Common {
 
     public static String formatWelcomeMsg(String loginName) {
 
-        String msg = "WELCOME " + loginName + ".";
-
-        return msg;
+        return "WELCOME " + loginName + ".";
     }
 
     public static String formatCheckInMsg(String loginName) {
 
-        String msg = "WELCOME " + loginName + ". YOU ARE LOGGED IN. PLEASE ENSURE YOU ARE CHECK-IN TO YOUR TRUCK LOADING BAY.";
-
-        return msg;
+        return "WELCOME " + loginName + ". PLEASE ENSURE YOU ARE CHECK-IN TO YOUR TRUCK LOADING BAY.";
     }
 
     public static String formatCheckedInTruckLoadingBay(String truckLoadingBay) {
 
-        String msg = "TRUCK LOADING BAY: " + truckLoadingBay;
-
-        return msg;
+        return "TRUCK LOADING BAY: " + truckLoadingBay;
     }
 
     public static boolean isNetworkAvailable(final Context context) {
@@ -40,33 +34,4 @@ public class Common {
 
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
-
-    /**
-     * This method converts device specific pixels to density independent pixels.
-     *
-     * @param px      A value in px (pixels) unit. Which we need to convert into db
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent dp equivalent to px value
-     */
-    public static float convertPixelsToDp(float px, Context context) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float dp = px / (metrics.densityDpi / 160f);
-        return dp;
-    }
-
-    /**
-     * This method converts dp unit to equivalent pixels, depending on device density.
-     *
-     * @param dp      A value in dp (density independent pixels) unit. Which we need to convert into pixels
-     * @param context Context to get resources and device specific display metrics
-     * @return A float value to represent px equivalent to dp depending on device density
-     */
-    public static float convertDpToPixel(float dp, Context context) {
-        Resources resources = context.getResources();
-        DisplayMetrics metrics = resources.getDisplayMetrics();
-        float px = dp * (metrics.densityDpi / 160f);
-        return px;
-    }
-
 }

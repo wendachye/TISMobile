@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.bizconnectivity.tismobile.Activities.LoadingOperationActivity">
+    tools:context="com.bizconnectivity.tismobile.activities.LoadingOperationActivity">
 
     <LinearLayout
         android:id="@+id/headerLayout"

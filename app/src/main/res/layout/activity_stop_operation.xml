@@ -4,7 +4,7 @@
     android:id="@+id/activity_stop_operation"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.bizconnectivity.tismobile.Activities.StopOperationActivity">
+    tools:context="com.bizconnectivity.tismobile.activities.StopOperationActivity">
 
     <LinearLayout
         android:id="@+id/headerLayout"

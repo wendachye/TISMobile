@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.bizconnectivity.tismobile.Activities.JobMainActivity">
+    tools:context="com.bizconnectivity.tismobile.activities.JobMainActivity">
 
     <LinearLayout
         android:id="@+id/headerLayout"

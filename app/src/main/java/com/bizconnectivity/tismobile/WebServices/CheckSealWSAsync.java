@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -6,14 +6,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.StopOperationActivity;
+import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CANNOT_ADD_SEAL;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL1;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL2;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL3;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL4;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
 
 public class CheckSealWSAsync extends AsyncTask<String, Void, Void> {
 
@@ -45,23 +47,56 @@ public class CheckSealWSAsync extends AsyncTask<String, Void, Void> {
 
 		if (response) {
 
-			String seal = sharedPref.getString(Constant.SHARED_PREF_SCAN_VALUE, "");
+			String seal = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
+
+			String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+			String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
+			String seal3 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL3, "");
+			String seal4 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL4, "");
 
 			if (seal.equals(SCAN_VALUE_BOTTOM_SEAL1)) {
 
-				editor.putString(SCAN_VALUE_BOTTOM_SEAL1, sealNo).commit();
+				if (!sealNo.equals(seal1)) {
+
+					editor.putString(SCAN_VALUE_BOTTOM_SEAL1, sealNo).apply();
+
+				} else {
+
+					Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+				}
 
 			} else if (seal.equals(SCAN_VALUE_BOTTOM_SEAL2)) {
 
-				editor.putString(SCAN_VALUE_BOTTOM_SEAL2, sealNo).commit();
+				if (!sealNo.equals(seal1) && !sealNo.equals(seal2)) {
+
+					editor.putString(SCAN_VALUE_BOTTOM_SEAL2, sealNo).apply();
+
+				} else {
+
+					Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+				}
 
 			} else if (seal.equals(SCAN_VALUE_BOTTOM_SEAL3)) {
 
-				editor.putString(SCAN_VALUE_BOTTOM_SEAL3, sealNo).commit();
+				if (!sealNo.equals(seal1) && !sealNo.equals(seal2) && !sealNo.equals(seal3)) {
+
+					editor.putString(SCAN_VALUE_BOTTOM_SEAL3, sealNo).apply();
+
+				} else {
+
+					Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+				}
 
 			} else {
 
-				editor.putString(SCAN_VALUE_BOTTOM_SEAL4, sealNo).commit();
+				if (!sealNo.equals(seal1) && !sealNo.equals(seal2) && !sealNo.equals(seal3) && !sealNo.equals(seal4)) {
+
+					editor.putString(SCAN_VALUE_BOTTOM_SEAL4, sealNo).apply();
+
+				} else {
+
+					Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+				}
 			}
 
 			//end progress dialog

@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.util.Log;
 
@@ -68,8 +68,11 @@ public class WorkInstructionWS {
 		if (!workInstruction.isEmpty()) {
 
 			if (workInstruction.equals(WI)) {
+
 				return workInstruction;
+
 			} else {
+
 				workInstruction = "";
 				return workInstruction;
 			}

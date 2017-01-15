@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.Database.DataSources;
+package com.bizconnectivity.tismobile.database.DataSources;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,10 +6,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
-import com.bizconnectivity.tismobile.Classes.UserDetail;
+import com.bizconnectivity.tismobile.classes.UserDetail;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.Contracts.UserDetailContract.UserDetails;
-import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
+import com.bizconnectivity.tismobile.database.Contracts.UserDetailContract.UserDetails;
+import com.bizconnectivity.tismobile.database.DatabaseSQLHelper;
 
 public class UserDetailDataSource {
 

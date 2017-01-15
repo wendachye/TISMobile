@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -7,10 +7,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.DashboardActivity;
-import com.bizconnectivity.tismobile.Activities.StopOperationActivity;
+import com.bizconnectivity.tismobile.activities.DashboardActivity;
+import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 
 public class DepartureWSAsync extends AsyncTask<String, Void, Void> {
 
