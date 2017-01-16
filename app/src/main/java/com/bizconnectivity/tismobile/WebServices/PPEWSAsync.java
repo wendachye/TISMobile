@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -6,11 +6,9 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Button;
 
-import com.bizconnectivity.tismobile.Activities.JobMainActivity;
-import com.bizconnectivity.tismobile.Classes.GHS;
-import com.bizconnectivity.tismobile.Classes.JobDetail;
-import com.bizconnectivity.tismobile.Classes.PPE;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.activities.JobMainActivity;
+import com.bizconnectivity.tismobile.classes.GHS;
+import com.bizconnectivity.tismobile.classes.PPE;
 import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;
@@ -47,7 +45,7 @@ public class PPEWSAsync extends AsyncTask<String, Void, Void> {
 
 		if (ppeArrayList.size() > 0 || ghsArrayList.size() > 0) {
 
-			//end progress dialog
+			//close progress dialog
 			progressDialog.dismiss();
 
 			((JobMainActivity) context).ppeDialog(ppeArrayList, ghsArrayList);

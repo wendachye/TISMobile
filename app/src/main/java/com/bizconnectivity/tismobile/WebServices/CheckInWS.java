@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 
 import android.util.Log;
@@ -15,6 +15,7 @@ import org.ksoap2.transport.HttpTransportSE;
 public class CheckInWS {
 
 	public static boolean invokeCheckTruckRack(String rackNo) {
+
 		boolean result = false;
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_CHECK_TRUCK_RACK_EXISTS);

@@ -1,6 +1,7 @@
-package com.bizconnectivity.tismobile.Activities;
+package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -8,7 +9,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,15 +21,14 @@ import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.Classes.GHS;
-import com.bizconnectivity.tismobile.Classes.JobDetail;
-import com.bizconnectivity.tismobile.Classes.PPE;
+import com.bizconnectivity.tismobile.classes.GHS;
+import com.bizconnectivity.tismobile.classes.PPE;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.WebServices.PPEWSAsync;
-import com.bizconnectivity.tismobile.WebServices.SDSWSAsync;
+import com.bizconnectivity.tismobile.webservices.PPEWSAsync;
+import com.bizconnectivity.tismobile.webservices.SDSWSAsync;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -102,6 +101,8 @@ public class JobMainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 if (Common.isNetworkAvailable(context)) {
+
+                    btnScanDetails.setEnabled(true);
 
                     SDSWSAsync task = new SDSWSAsync(context, btnSDS, sharedPref.getString(SHARED_PREF_JOB_ID, ""));
                     task.execute();
@@ -290,7 +291,7 @@ public class JobMainActivity extends AppCompatActivity {
 
     public void btnSwitchClicked() {
 
-        Intent intent = new Intent(context, SwitchTruckBayActivity.class);
+        Intent intent = new Intent(context, SwitchJobActivity.class);
         finish();
         startActivity(intent);
     }
@@ -452,7 +453,6 @@ public class JobMainActivity extends AppCompatActivity {
 
 			    countLinearLayoutGHS++;
 		    }
-
 	    }
 
         for (int i=0; i<totalLinearLayoutPPE; i++) {
@@ -483,7 +483,6 @@ public class JobMainActivity extends AppCompatActivity {
 
                 countLinearLayoutPPE++;
             }
-
         }
 
         //endregion
@@ -581,11 +580,11 @@ public class JobMainActivity extends AppCompatActivity {
                 if (rbtnWheelChocked.isChecked() && rbtnBondingWire.isChecked()) {
 
                     //region set job status
-                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_SAFETY_CHECKS).commit();
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SAFETY_CHECKS).commit();
 
                     jobDetailDataSource = new JobDetailDataSource(context);
                     jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
+                    jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SAFETY_CHECKS);
                     jobDetailDataSource.close();
                     //endregion
 

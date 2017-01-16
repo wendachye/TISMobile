@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.Activities;
+package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -8,7 +8,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -20,17 +19,16 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.WebServices.DriverIDWSAsync;
-import com.bizconnectivity.tismobile.WebServices.WorkInstructionWSAsync;
+import com.bizconnectivity.tismobile.webservices.DriverIDWSAsync;
+import com.bizconnectivity.tismobile.webservices.WorkInstructionWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
 import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
-import static com.bizconnectivity.tismobile.Constant.calendar;
 
 public class ScanDetailsActivity extends AppCompatActivity {
 
@@ -76,8 +74,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
         //region button driver id
         tvDriverId = (TextView) findViewById(R.id.tvDriverId);
-        btnScanDriverId.setEnabled(false);
         btnScanDriverId = (Button) findViewById(R.id.btnScanDriverId);
+        btnScanDriverId.setEnabled(false);
         btnScanDriverId.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -87,8 +85,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
         //endregion
 
         //region button work instruction
-        btnScanWorkInstruction.setEnabled(false);
         btnScanWorkInstruction = (Button) findViewById(R.id.btnScanWorkInstruction);
+        btnScanWorkInstruction.setEnabled(false);
         btnScanWorkInstruction.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -241,7 +239,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
     public void btnSwitchClicked() {
 
-        Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
+        Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }

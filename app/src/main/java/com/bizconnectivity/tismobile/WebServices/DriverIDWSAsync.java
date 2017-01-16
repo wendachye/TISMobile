@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -6,10 +6,10 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.ScanDetailsActivity;
+import com.bizconnectivity.tismobile.activities.ScanDetailsActivity;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 
 import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
 
@@ -18,9 +18,7 @@ public class DriverIDWSAsync extends AsyncTask<String, Void, Void> {
 
 	Context context;
 	String jobID, driverID, response;
-
 	JobDetailDataSource jobDetailDataSource;
-
 	ProgressDialog progressDialog;
 
 	public DriverIDWSAsync(Context context, String jobID, String driverID) {

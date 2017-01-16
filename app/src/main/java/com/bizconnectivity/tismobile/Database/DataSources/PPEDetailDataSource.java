@@ -1,13 +1,13 @@
-package com.bizconnectivity.tismobile.Database.DataSources;
+package com.bizconnectivity.tismobile.database.DataSources;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.bizconnectivity.tismobile.Classes.PPEDetail;
-import com.bizconnectivity.tismobile.Database.Contracts.PPEDetailContract.PPEDetails;
-import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
+import com.bizconnectivity.tismobile.classes.PPEDetail;
+import com.bizconnectivity.tismobile.database.Contracts.PPEDetailContract.PPEDetails;
+import com.bizconnectivity.tismobile.database.DatabaseSQLHelper;
 
 import java.util.ArrayList;
 

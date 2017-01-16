@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -6,11 +6,13 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.LoadingOperationActivity;
+import com.bizconnectivity.tismobile.activities.LoadingOperationActivity;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
 
 public class LoadingArmWSAsync extends AsyncTask<String, Void, Void> {
@@ -45,13 +47,16 @@ public class LoadingArmWSAsync extends AsyncTask<String, Void, Void> {
 		if (response) {
 
 			//region set job status
-			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_SCAN_LOADING_ARM).commit();
+			editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_LOADING_ARM).commit();
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();
-			jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_SCAN_LOADING_ARM);
+			jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_LOADING_ARM);
 			jobDetailDataSource.close();
 			//endregion
+
+			//end progress dialog
+			progressDialog.dismiss();
 
 			Intent intent = new Intent(context, LoadingOperationActivity.class);
 			((LoadingOperationActivity) context).finish();

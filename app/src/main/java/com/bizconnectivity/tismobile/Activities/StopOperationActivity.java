@@ -1,20 +1,17 @@
-package com.bizconnectivity.tismobile.Activities;
+package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
-import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.Chronometer;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -23,16 +20,14 @@ import android.widget.TextView;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.WebServices.AddSealWSAsync;
-import com.bizconnectivity.tismobile.WebServices.CheckSealWSAsync;
-import com.bizconnectivity.tismobile.WebServices.DepartureWSAsync;
-import com.bizconnectivity.tismobile.WebServices.PumpStopWSAsync;
+import com.bizconnectivity.tismobile.webservices.AddSealWSAsync;
+import com.bizconnectivity.tismobile.webservices.CheckSealWSAsync;
+import com.bizconnectivity.tismobile.webservices.DepartureWSAsync;
+import com.bizconnectivity.tismobile.webservices.PumpStopWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL1;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL2;
@@ -41,7 +36,6 @@ import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL4;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
-import static com.bizconnectivity.tismobile.Constant.calendar;
 
 public class StopOperationActivity extends AppCompatActivity {
 
@@ -111,7 +105,7 @@ public class StopOperationActivity extends AppCompatActivity {
 
         //retrieve job status from shared preferences
         String jobStatus = sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "");
-        String pumpStopTime = sharedPref.getString(Constant.SHARED_PREF_PUMP_START_TIME, "");
+        String pumpStopTime = sharedPref.getString(Constant.SHARED_PREF_PUMP_STOP_TIME, "");
 
         switch (jobStatus) {
 
@@ -236,7 +230,7 @@ public class StopOperationActivity extends AppCompatActivity {
 
     public void btnSwitchClicked() {
 
-        Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
+        Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
@@ -297,7 +291,7 @@ public class StopOperationActivity extends AppCompatActivity {
                 SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.clear();
-                editor.commit();
+                editor.apply();
 
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -342,7 +336,7 @@ public class StopOperationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-				String jobID = sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, "");
+				String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
 				String loginName = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 
                 if (Common.isNetworkAvailable(context)) {
@@ -493,17 +487,14 @@ public class StopOperationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-	            String jobID = sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, "");
+	            String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
 	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 	            String sealPos = "bottom";
-
 	            int totalCount = countSeal.size();
 
-	            for (int i=0 ; i<countSeal.size() ; i++) {
+                AddSealWSAsync task = new AddSealWSAsync(context, scanSealDialog, totalCount, countSeal, jobID, sealPos, updatedBy);
+                task.execute();
 
-		            AddSealWSAsync task = new AddSealWSAsync(context, scanSealDialog, totalCount, countSeal.get(i), jobID, sealPos, updatedBy);
-		            task.execute();
-	            }
             }
         });
         //endregion
@@ -514,9 +505,6 @@ public class StopOperationActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-	            SharedPreferences.Editor editor = sharedPref.edit();
-	            editor.putString(Constant.SHARED_PREF_SCAN_SEAL, "").commit();
 
 	            scanSealDialog.dismiss();
             }
@@ -578,7 +566,7 @@ public class StopOperationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-	            String jobID = sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, "");
+	            String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
 	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 
 	            DepartureWSAsync task = new DepartureWSAsync(context, departureDialog, jobID, updatedBy);
@@ -622,7 +610,6 @@ public class StopOperationActivity extends AppCompatActivity {
 
             if (scanContent != null) {
 
-                SharedPreferences.Editor editor = sharedPref.edit();
                 String returnScanValue = sharedPref.getString(Constant.SHARED_PREF_SCAN_VALUE, "");
 
                 if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL1)) {

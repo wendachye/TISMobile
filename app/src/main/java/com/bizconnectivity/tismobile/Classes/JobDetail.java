@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.Classes;
+package com.bizconnectivity.tismobile.classes;
 
 import java.io.Serializable;
 

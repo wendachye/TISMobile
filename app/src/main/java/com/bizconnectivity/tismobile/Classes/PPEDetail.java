@@ -1,6 +1,4 @@
-package com.bizconnectivity.tismobile.Classes;
-
-import android.graphics.Bitmap;
+package com.bizconnectivity.tismobile.classes;
 
 public class PPEDetail {
 

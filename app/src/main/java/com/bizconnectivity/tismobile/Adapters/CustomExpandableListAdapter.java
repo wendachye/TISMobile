@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.Adapters;
+package com.bizconnectivity.tismobile.adapters;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -6,11 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseExpandableListAdapter;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.Classes.JobDetail;
-import com.bizconnectivity.tismobile.Classes.TruckLoadingBayList;
+import com.bizconnectivity.tismobile.classes.JobDetail;
+import com.bizconnectivity.tismobile.classes.LoadingBayList;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.R;
 
@@ -19,19 +18,19 @@ import java.util.ArrayList;
 public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 	private Context context;
-	private ArrayList<TruckLoadingBayList> truckLoadingBayLists;
+	private ArrayList<LoadingBayList> loadingBayLists;
 
-	public CustomExpandableListAdapter(Context context, ArrayList<TruckLoadingBayList> truckLoadingBayLists) {
+	public CustomExpandableListAdapter(Context context, ArrayList<LoadingBayList> loadingBayLists) {
 
 		this.context = context;
-		this.truckLoadingBayLists = truckLoadingBayLists;
+		this.loadingBayLists = loadingBayLists;
 
 	}
 
 	@Override
 	public Object getGroup(int groupPosition) {
 
-		return this.truckLoadingBayLists.get(groupPosition);
+		return this.loadingBayLists.get(groupPosition);
 	}
 
 	@Override
@@ -43,13 +42,13 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 	@Override
 	public int getGroupCount() {
 
-		return this.truckLoadingBayLists.size();
+		return this.loadingBayLists.size();
 	}
 
 	@Override
 	public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
 
-		TruckLoadingBayList group = (TruckLoadingBayList) getGroup(groupPosition);
+		LoadingBayList group = (LoadingBayList) getGroup(groupPosition);
 
 		if (convertView == null) {
 
@@ -71,7 +70,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 	@Override
 	public Object getChild(int groupPosition, int childPosition) {
 
-		ArrayList<JobDetail> childList = this.truckLoadingBayLists.get(groupPosition).getJobDetails();
+		ArrayList<JobDetail> childList = this.loadingBayLists.get(groupPosition).getJobDetails();
 
 		return childList.get(childPosition);
 	}
@@ -85,7 +84,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 	@Override
 	public int getChildrenCount(int groupPosition) {
 
-		ArrayList<JobDetail> childList = this.truckLoadingBayLists.get(groupPosition).getJobDetails();
+		ArrayList<JobDetail> childList = this.loadingBayLists.get(groupPosition).getJobDetails();
 
 		return childList.size();
 	}

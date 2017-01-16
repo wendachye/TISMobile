@@ -1,15 +1,13 @@
-package com.bizconnectivity.tismobile.Database.DataSources;
+package com.bizconnectivity.tismobile.database.DataSources;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import com.bizconnectivity.tismobile.Classes.JobDetail;
-import com.bizconnectivity.tismobile.Classes.TruckLoadingBayList;
-import com.bizconnectivity.tismobile.Database.Contracts.JobDetailContract.JobDetails;
-import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
+import com.bizconnectivity.tismobile.classes.JobDetail;
+import com.bizconnectivity.tismobile.database.Contracts.JobDetailContract.JobDetails;
+import com.bizconnectivity.tismobile.database.DatabaseSQLHelper;
 
 import java.util.ArrayList;
 
@@ -93,7 +91,7 @@ public class JobDetailDataSource {
 		}
 	}
 
-	public ArrayList<JobDetail> retrieveAllJobDetails(TruckLoadingBayList truckLoadingBayList) {
+	public ArrayList<JobDetail> retrieveAllPendingJobDetails(String loadingBayNo) {
 
 		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
 
@@ -103,7 +101,55 @@ public class JobDetailDataSource {
 
 		// Filter results WHERE
 		String selectionRetrieve = JobDetails.COLUMN_TRUCK_LOADING_BAY_NO + " = ? AND " + JobDetails.COLUMN_JOB_STATUS + " = ?";
-		String[] selectionArgsRetrieve = { truckLoadingBayList.getGroupTitle(), "Pending" };
+		String[] selectionArgsRetrieve = { loadingBayNo, "Pending" };
+
+		Cursor cursor = database.query(
+				JobDetails.TABLE_NAME,                    // The table to query
+				projection,                               // The columns to return
+				selectionRetrieve,                        // The columns for the WHERE clause
+				selectionArgsRetrieve,                    // The values for the WHERE clause
+				null,                                     // Group the rows
+				null,                                     // Filter by row groups
+				null                                      // The sort order
+		);
+
+		if (cursor.getCount() > 0) {
+
+			while(cursor.moveToNext()) {
+
+				JobDetail jobDetail = new JobDetail();
+
+				String jobID = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_ID));
+				jobDetail.setJobID(jobID);
+
+				String customerName = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_CUSTOMER_NAME));
+				jobDetail.setCustomerName(customerName);
+
+				String productName = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PRODUCT_NAME));
+				jobDetail.setProductName(productName);
+
+				String tankNo = cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TANK_NO));
+				jobDetail.setTankNo(tankNo);
+
+				jobDetailArrayList.add(jobDetail);
+			}
+
+		}
+
+		return jobDetailArrayList;
+	}
+
+	public ArrayList<JobDetail> retrieveAllStartedJobDetails(String loadingBayNo) {
+
+		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
+
+		// Define a projection that specifies which columns from the database
+		// you will actually use after this query.
+		String[] projection = { JobDetails.COLUMN_JOB_ID, JobDetails.COLUMN_CUSTOMER_NAME, JobDetails.COLUMN_PRODUCT_NAME, JobDetails.COLUMN_TANK_NO };
+
+		// Filter results WHERE
+		String selectionRetrieve = JobDetails.COLUMN_TRUCK_LOADING_BAY_NO + " = ? AND " + JobDetails.COLUMN_JOB_STATUS + " != ?";
+		String[] selectionArgsRetrieve = { loadingBayNo, "Pending" };
 
 		Cursor cursor = database.query(
 				JobDetails.TABLE_NAME,                    // The table to query

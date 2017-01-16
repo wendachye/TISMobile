@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -9,9 +9,8 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.widget.Button;
 
-import com.bizconnectivity.tismobile.Activities.JobMainActivity;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 
 public class SDSWSAsync extends AsyncTask<String, Void, Void> {
@@ -54,7 +53,7 @@ public class SDSWSAsync extends AsyncTask<String, Void, Void> {
 			buttonSDS.setBackgroundColor(context.getResources().getColor(R.color.colorGreen));
 
 			//update job status
-			editor.putString(Constant.SHARED_PREF_JOB_STATUS, Constant.STATUS_SDS).commit();
+			editor.putString(Constant.SHARED_PREF_JOB_STATUS, Constant.STATUS_SDS).apply();
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();

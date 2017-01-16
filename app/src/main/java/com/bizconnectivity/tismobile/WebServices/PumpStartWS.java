@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.util.Log;
 
@@ -6,14 +6,11 @@ import com.bizconnectivity.tismobile.Constant;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
-import org.ksoap2.serialization.MarshalDate;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
-
-import java.util.Date;
 
 public class PumpStartWS {
 
@@ -69,10 +66,6 @@ public class PumpStartWS {
 				if (result.equals("true")) {
 
 					returnResult = true;
-
-				} else {
-
-					returnResult = false;
 				}
 			}
 		} catch (Exception e) {

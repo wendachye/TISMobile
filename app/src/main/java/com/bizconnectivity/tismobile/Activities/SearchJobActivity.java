@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.Activities;
+package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -117,7 +117,7 @@ public class SearchJobActivity extends AppCompatActivity {
     }
 
     public void btnSwitchClicked(View view) {
-        Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
+        Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }

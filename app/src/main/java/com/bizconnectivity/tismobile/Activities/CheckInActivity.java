@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.Activities;
+package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -17,19 +17,20 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.Classes.CheckIn;
+import com.bizconnectivity.tismobile.classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
-import com.bizconnectivity.tismobile.Database.DataSources.TechnicianDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.TechnicianDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.WebServices.CheckInWSAsync;
-import com.bizconnectivity.tismobile.WebServices.TechnicianIDWSAsync;
+import com.bizconnectivity.tismobile.webservices.CheckInWSAsync;
+import com.bizconnectivity.tismobile.webservices.TechnicianIDWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
-import java.util.Set;
+
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 
 
 public class CheckInActivity extends AppCompatActivity {
@@ -277,7 +278,7 @@ public class CheckInActivity extends AppCompatActivity {
         //open database
         loadingBayDetailDataSource.open();
         //retrieve loading bay no
-        String message = loadingBayDetailDataSource.retrieveLoadingBay(checkIn);
+        String message = loadingBayDetailDataSource.checkLoadingBayNo(checkIn);
         //close database
         loadingBayDetailDataSource.close();
 
@@ -301,7 +302,7 @@ public class CheckInActivity extends AppCompatActivity {
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
 
-        headerMessage.setText(Common.formatCheckInMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
+        headerMessage.setText(Common.formatCheckInMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
     }
     //endregion
 
@@ -358,7 +359,7 @@ public class CheckInActivity extends AppCompatActivity {
 
     public void btnSwitchClicked() {
 
-        Intent intent = new Intent(context, SwitchTruckBayActivity.class);
+        Intent intent = new Intent(context, SwitchJobActivity.class);
         finish();
         startActivity(intent);
     }

@@ -1,28 +1,19 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.util.Log;
 
-import com.bizconnectivity.tismobile.Classes.GHS;
-import com.bizconnectivity.tismobile.Classes.GHSDetail;
-import com.bizconnectivity.tismobile.Classes.JobDetail;
-import com.bizconnectivity.tismobile.Classes.PPE;
-import com.bizconnectivity.tismobile.Classes.PPEDetail;
-import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.GHSDetailDataSource;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
-import com.bizconnectivity.tismobile.Database.DataSources.PPEDetailDataSource;
+import com.bizconnectivity.tismobile.classes.JobDetail;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 
 import java.util.ArrayList;
 import java.util.Date;
 
 public class JobDetailWSAsync extends AsyncTask<String, Void, Void> {
 
-	Context appContext;
-	String TruckRackNo;
-	Date BookingDate;
+	Context context;
+	String truckRackNo;
+	Date bookingDate;
 
 	ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
 
@@ -30,15 +21,15 @@ public class JobDetailWSAsync extends AsyncTask<String, Void, Void> {
 
 	public JobDetailWSAsync(Context context, Date bookingDate, String truckRackNo) {
 
-		appContext = context;
-		BookingDate = bookingDate;
-		TruckRackNo = truckRackNo;
+		this.context = context;
+		this.bookingDate = bookingDate;
+		this.truckRackNo = truckRackNo;
 	}
 
 	@Override
 	protected Void doInBackground(String... params) {
 
-		jobDetailArrayList = JobDetailWS.invokeRetrieveAllJobs(BookingDate, TruckRackNo);
+		jobDetailArrayList = JobDetailWS.invokeRetrieveAllJobs(bookingDate, truckRackNo);
 
 		return null;
 	}
@@ -50,7 +41,7 @@ public class JobDetailWSAsync extends AsyncTask<String, Void, Void> {
 
 			for (int i=0; i<jobDetailArrayList.size(); i++) {
 
-				jobDetailDataSource = new JobDetailDataSource(appContext);
+				jobDetailDataSource = new JobDetailDataSource(context);
 				//open database
 				jobDetailDataSource.open();
 				//insert all the job details into sqlite
@@ -59,7 +50,7 @@ public class JobDetailWSAsync extends AsyncTask<String, Void, Void> {
 				jobDetailDataSource.close();
 
 				//retrieve all the ppe and ghs from web service
-				PPEGHSAsync task = new PPEGHSAsync(appContext, jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getProductName());
+				PPEGHSAsync task = new PPEGHSAsync(context, jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getProductName());
 				task.execute();
 			}
 

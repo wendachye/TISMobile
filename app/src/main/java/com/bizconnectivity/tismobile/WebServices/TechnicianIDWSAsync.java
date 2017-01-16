@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -6,16 +6,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.CheckInActivity;
-import com.bizconnectivity.tismobile.Classes.CheckIn;
+import com.bizconnectivity.tismobile.activities.CheckInActivity;
+import com.bizconnectivity.tismobile.classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.TechnicianDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.TechnicianDetailDataSource;
 
 public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 
-	Context appContext;
-	String NRIC;
+	Context context;
+	String nric;
 	boolean response;
 
 	TechnicianDetailDataSource technicianDetailDataSource;
@@ -25,33 +25,32 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 
 	public TechnicianIDWSAsync(Context context, String nric) {
 
-		appContext = context;
-		NRIC = nric;
+		this.context = context;
+		this.nric = nric;
 	}
 
 	@Override
 	protected Void doInBackground(String... params) {
 
-		response = TechnicianIDWS.invokeTechnicianIDWS(NRIC);
+		response = TechnicianIDWS.invokeTechnicianIDWS(nric);
 		return null;
-
 	}
 
 	@Override
 	protected void onPostExecute(Void result) {
 
-		SharedPreferences sharedPref = appContext.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+		SharedPreferences sharedPref = context.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 
 		if (response) {
 
-			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, NRIC).commit();
+			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, nric).commit();
 
 			//insert into sqlite database
 			checkIn = new CheckIn();
-			checkIn.setTechnicianNRIC(NRIC);
+			checkIn.setTechnicianNRIC(nric);
 
-			technicianDetailDataSource = new TechnicianDetailDataSource(appContext);
+			technicianDetailDataSource = new TechnicianDetailDataSource(context);
 			//open database
 			technicianDetailDataSource.open();
 			//insert technician nric
@@ -62,9 +61,9 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 			//end progress dialog
 			progressDialog.dismiss();
 
-			Intent intent = new Intent(appContext, CheckInActivity.class);
-			((CheckInActivity)appContext).finish();
-			appContext.startActivity(intent);
+			Intent intent = new Intent(context, CheckInActivity.class);
+			((CheckInActivity) context).finish();
+			context.startActivity(intent);
 
 		} else {
 
@@ -73,21 +72,19 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 			//end progress dialog
 			progressDialog.dismiss();
 
-			Common.shortToast(appContext, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
+			Common.shortToast(context, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
 
-			Intent intent = new Intent(appContext, CheckInActivity.class);
-			((CheckInActivity) appContext).finish();
-			appContext.startActivity(intent);
-
+			Intent intent = new Intent(context, CheckInActivity.class);
+			((CheckInActivity) context).finish();
+			context.startActivity(intent);
 		}
-
 	}
 
 	@Override
 	protected void onPreExecute() {
 
 		//start progress dialog
-		progressDialog = ProgressDialog.show(appContext, "Please wait..", "Loading...", true);
+		progressDialog = ProgressDialog.show(context, "Please wait..", "Loading...", true);
 	}
 
 	@Override

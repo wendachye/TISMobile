@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.Activities;
+package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -23,26 +22,21 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.WebServices.LoadingArmWSAsync;
-import com.bizconnectivity.tismobile.WebServices.PumpStartWSAsync;
-import com.google.zxing.client.result.CalendarParsedResult;
-import com.google.zxing.common.StringUtils;
+import com.bizconnectivity.tismobile.webservices.LoadingArmWSAsync;
+import com.bizconnectivity.tismobile.webservices.PumpStartWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
-
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_BATCH_CONTROLLER;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_START_TIME;
 import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
+import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
-import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
 public class LoadingOperationActivity extends AppCompatActivity {
 
@@ -113,14 +107,14 @@ public class LoadingOperationActivity extends AppCompatActivity {
         //region status settings
 
         //retrieve job status from shared preferences
-        String jobStatus = sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "");
-        String loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
-        String batchController = sharedPref.getString(Constant.SHARED_PREF_BATCH_CONTROLLER, "");
-        String pumpStartTime = sharedPref.getString(Constant.SHARED_PREF_PUMP_START_TIME, "");
+        String jobStatus = sharedPref.getString(SHARED_PREF_JOB_STATUS, "");
+        String loadingArm = sharedPref.getString(SHARED_PREF_LOADING_ARM, "");
+        String batchController = sharedPref.getString(SHARED_PREF_BATCH_CONTROLLER, "");
+        String pumpStartTime = sharedPref.getString(SHARED_PREF_PUMP_START_TIME, "");
 
         switch (jobStatus) {
 
-            case STATUS_WORK_INSTRUCTION:
+            case STATUS_SAFETY_CHECKS:
                 btnScanLoadingArm.setTextColor(getResources().getColor(R.color.colorBlack));
                 btnScanLoadingArm.getBackground().clearColorFilter();
                 tvScanLoadingArm.setText("");
@@ -205,7 +199,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
         String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
         String customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
         String loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
-        String loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
+        String loadingArm = sharedPref.getString(SHARED_PREF_LOADING_ARM, "");
 
         //set text
         headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
@@ -269,7 +263,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
     public void btnSwitchClicked() {
 
-        Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
+        Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
@@ -419,10 +413,10 @@ public class LoadingOperationActivity extends AppCompatActivity {
         final EditText etLitre = (EditText) batchControllerDialog.findViewById(R.id.etLitre);
 
         //region set batch controller status
-        if (sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "").equals(STATUS_BATCH_CONTROLLER)) {
+        if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_BATCH_CONTROLLER)) {
 
             String litre = sharedPref.getString(Constant.SHARED_PREF_BATCH_CONTROLLER_LITRE, "");
-            String metric = sharedPref.getString(Constant.SHARED_PREF_BATCH_CONTROLLER, "");
+            String metric = sharedPref.getString(SHARED_PREF_BATCH_CONTROLLER, "");
 
             tvMetricTon.setText(metric);
             etLitre.setText(litre);
@@ -474,8 +468,8 @@ public class LoadingOperationActivity extends AppCompatActivity {
 					String metric = tvMetricTon.getText().toString();
 
                     editor.putString(Constant.SHARED_PREF_BATCH_CONTROLLER_LITRE, litre).commit();
-					editor.putString(Constant.SHARED_PREF_BATCH_CONTROLLER, metric).commit();
-                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_BATCH_CONTROLLER).commit();
+					editor.putString(SHARED_PREF_BATCH_CONTROLLER, metric).commit();
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_BATCH_CONTROLLER).commit();
 
                     jobDetailDataSource = new JobDetailDataSource(context);
                     jobDetailDataSource.open();
@@ -524,7 +518,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
     public void btnPumpStartClicked() {
 
-	    if (sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "").equals(STATUS_BATCH_CONTROLLER)) {
+	    if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_BATCH_CONTROLLER)) {
 
 		    if (pumpStartDialog != null && pumpStartDialog.isShowing())
 			    return;
@@ -540,9 +534,12 @@ public class LoadingOperationActivity extends AppCompatActivity {
 			    @Override
 			    public void onClick(View view) {
 
+                    String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+                    String loginName = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+
                     if (Common.isNetworkAvailable(context)) {
 
-                        PumpStartWSAsync task = new PumpStartWSAsync(context, pumpStartDialog, sharedPref.getString(Constant.SHARED_PREF_ORDER_ID_SELECTED, ""), sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, ""));
+                        PumpStartWSAsync task = new PumpStartWSAsync(context, pumpStartDialog, jobID, loginName);
                         task.execute();
 
                     } else {

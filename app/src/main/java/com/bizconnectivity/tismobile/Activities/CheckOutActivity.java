@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.Activities;
+package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -18,33 +18,28 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_NO_TRUCK_BAY_CHECKED_IN;
+import static com.bizconnectivity.tismobile.Constant.TRUCK_BAY_CHECKED_OUT;
 
 public class CheckOutActivity extends AppCompatActivity {
 
-    //region Header and Footer
-    Context context;
-
-    //footer buttons
+    //region Data types Declaration
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-
-    //TextViews
     TextView headerMessage;
-
-    //Dialog boxes
     Dialog exitDialog;
+    Button btnConfirm;
+    SharedPreferences sharedPref;
+    Spinner spLoadingBay;
+    ArrayList<String> loadingBayArrayList;
     //endregion
-
-    public SharedPreferences sharedPref;
 
     LoadingBayDetailDataSource loadingBayDetailDataSource;
 
@@ -53,7 +48,6 @@ public class CheckOutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_out);
 
-        context = this;
         sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
@@ -67,53 +61,58 @@ public class CheckOutActivity extends AppCompatActivity {
         setFooterMenu();
         //endregion
 
+        //region retrieve all loading bay
+        loadingBayArrayList = new ArrayList<>();
 
-        setCheckOutTruckBay();
-    }
+        loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
+        //open database
+        loadingBayDetailDataSource.open();
+        //retrieve all loading bay no
+        loadingBayArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
+        //close database
+        loadingBayDetailDataSource.close();
+        //endregion
 
-    public void setCheckOutTruckBay() {
+        //region spinner loading bay
+        spLoadingBay = (Spinner) findViewById(R.id.ddlTruckBayItem);
 
-        Button btnConfirm = (Button) findViewById(R.id.btnConfirm);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, loadingBayArrayList);
+        spLoadingBay.setAdapter(adapter);
+        //endregion
 
+        //region button confirm
+        btnConfirm = (Button) findViewById(R.id.btnConfirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
 
-                loadingBayDetailDataSource = new LoadingBayDetailDataSource(context);
-                loadingBayDetailDataSource.deleteAllLoadingBay();
+                if (spLoadingBay.getSelectedItem() != null ) {
 
-                SharedPreferences.Editor editor = sharedPref.edit();
+                    //delete selected loading bay
+                    loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+                    loadingBayDetailDataSource.deleteSelectedLoadingBay(spLoadingBay.getSelectedItem().toString());
 
-                editor.remove(Constant.SHARED_PREF_JOB_ID);
-                editor.remove(Constant.SHARED_PREF_CUSTOMER_NAME);
-                editor.remove(Constant.SHARED_PREF_PRODUCT_NAME);
-                editor.remove(Constant.SHARED_PREF_TANK_NO);
-                editor.remove(Constant.SHARED_PREF_LOADING_BAY);
-                editor.remove(Constant.SHARED_PREF_LOADING_ARM);
-                editor.remove(Constant.SHARED_PREF_SDS_FILE_PATH);
-                editor.remove(Constant.SHARED_PREF_OPERATOR_ID);
-                editor.remove(Constant.SHARED_PREF_DRIVER_ID);
-                editor.remove(Constant.SHARED_PREF_WORK_INSTRUCTION);
-                editor.remove(Constant.SHARED_PREF_PUMP_START_TIME);
-                editor.remove(Constant.SHARED_PREF_PUMP_STOP_TIME);
-                editor.remove(Constant.SHARED_PREF_RACK_OUT_TIME);
-                editor.remove(Constant.SHARED_PREF_JOB_STATUS);
-                editor.remove(Constant.SHARED_PREF_JOB_DATE);
-                editor.remove(Constant.SHARED_PREF_BATCH_CONTROLLER);
-                editor.remove(Constant.SHARED_PREF_BATCH_CONTROLLER_LITRE);
-                editor.remove(Constant.SCAN_VALUE_BOTTOM_SEAL1);
-                editor.remove(Constant.SCAN_VALUE_BOTTOM_SEAL2);
-                editor.remove(Constant.SCAN_VALUE_BOTTOM_SEAL3);
-                editor.remove(Constant.SCAN_VALUE_BOTTOM_SEAL4);
-                editor.apply();
+                    //check out message
+                    String msg = spLoadingBay.getSelectedItem().toString() + TRUCK_BAY_CHECKED_OUT;
+                    Common.shortToast(getApplicationContext(), msg);
 
+                    Intent intent = new Intent(getApplicationContext(), CheckOutActivity.class);
+                    finish();
+                    startActivity(intent);
+
+                } else {
+
+                    Common.shortToast(getApplicationContext(), ERR_MSG_NO_TRUCK_BAY_CHECKED_IN);
+                }
             }
         });
+        //endregion
     }
 
     //region Header
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
+
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
 
@@ -123,6 +122,7 @@ public class CheckOutActivity extends AppCompatActivity {
 
     //region Footer
     public void setFooterMenu() {
+
         RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
@@ -159,21 +159,21 @@ public class CheckOutActivity extends AppCompatActivity {
 
     public void btnHomeClicked() {
 
-        Intent intentHome = new Intent(context, DashboardActivity.class);
+        Intent intentHome = new Intent(getApplicationContext(), DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
-        Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
+        Intent intentSearchJob = new Intent(getApplicationContext(), SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
-        Intent intentSwitchTruckBay = new Intent(context, SwitchTruckBayActivity.class);
+        Intent intentSwitchTruckBay = new Intent(getApplicationContext(), SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
@@ -193,7 +193,7 @@ public class CheckOutActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
 
                     case R.id.settingsMenuCheckIn:
-                        Intent intentCheckIn = new Intent(context, CheckInActivity.class);
+                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         finish();
                         startActivity(intentCheckIn);
                         return true;

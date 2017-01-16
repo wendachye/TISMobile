@@ -1,39 +1,33 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.AsyncTask;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
-import com.bizconnectivity.tismobile.Activities.CheckInActivity;
-import com.bizconnectivity.tismobile.Activities.DashboardActivity;
-import com.bizconnectivity.tismobile.Classes.CheckIn;
+import com.bizconnectivity.tismobile.activities.CheckInActivity;
+import com.bizconnectivity.tismobile.classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN;
 
 public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 
-	Context appContext;
+	Context context;
 	String rackNo;
 	boolean response;
-
+	boolean returnResult;
 	LoadingBayDetailDataSource loadingBayDetailDataSource;
 	CheckIn checkIn;
 
 	ProgressDialog progressDialog;
 
-	public CheckInWSAsync(Context context, String rack) {
-		appContext = context;
-		rackNo = rack;
+	public CheckInWSAsync(Context context, String rackNo) {
+
+		this.context = context;
+		this.rackNo = rackNo;
 	}
 
 	@Override
@@ -53,33 +47,38 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 			checkIn = new CheckIn();
 			checkIn.setLoadingBayNo(rackNo);
 
-			loadingBayDetailDataSource = new LoadingBayDetailDataSource(appContext);
+			loadingBayDetailDataSource = new LoadingBayDetailDataSource(context);
 			//open database
 			loadingBayDetailDataSource.open();
 			//insert loading bay no into sqlite
-			loadingBayDetailDataSource.insertLoadingBayNo(appContext, checkIn);
+			returnResult = loadingBayDetailDataSource.insertLoadingBayNo(context, checkIn);
 			//close database
 			loadingBayDetailDataSource.close();
 
+			if (!returnResult) {
+
+				Common.shortToast(context, ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN);
+
+			}
+
 			//get all the job details from web service
-			JobDetailWSAsync task = new JobDetailWSAsync(appContext, Constant.calendar.getTime(), rackNo);
+			JobDetailWSAsync task = new JobDetailWSAsync(context, Constant.calendar.getTime(), rackNo);
         	task.execute();
 
 			//end progress dialog
 			progressDialog.dismiss();
 
 			//navigate back to checkIn Activity
-			Intent intent = new Intent(appContext, CheckInActivity.class);
-			((CheckInActivity) appContext).finish();
-			appContext.startActivity(intent);
+			Intent intent = new Intent(context, CheckInActivity.class);
+			((CheckInActivity) context).finish();
+			context.startActivity(intent);
 
 		} else {
 
 			//end progress dialog
 			progressDialog.dismiss();
 
-			Common.shortToast(appContext, Constant.ERR_MSG_INVALID_TRUCK_BAY);
-
+			Common.shortToast(context, Constant.ERR_MSG_INVALID_TRUCK_BAY);
 		}
 	}
 
@@ -87,7 +86,7 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 	protected void onPreExecute() {
 
 		//start progress dialog
-		progressDialog = ProgressDialog.show(appContext, "Please wait..", "Loading...", true);
+		progressDialog = ProgressDialog.show(context, "Please wait..", "Loading...", true);
 	}
 
 	@Override

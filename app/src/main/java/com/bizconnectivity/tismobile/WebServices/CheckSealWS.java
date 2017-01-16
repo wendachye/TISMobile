@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.util.Log;
 
@@ -15,6 +15,8 @@ import org.ksoap2.transport.HttpTransportSE;
 public class CheckSealWS {
 
 	public static boolean invokeCheckSeal(String timeslotId, String sealNo) {
+
+		boolean returnResult = false;
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CHECK_SEAL);
 
@@ -62,9 +64,8 @@ public class CheckSealWS {
 				String result = responseProperty.toString();
 
 				if (result.equals("true")) {
-					return true;
-				} else {
-					return false;
+
+					returnResult =  true;
 				}
 			}
 		} catch (Exception e) {
@@ -72,6 +73,6 @@ public class CheckSealWS {
 			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
-		return false;
+		return returnResult;
 	}
 }

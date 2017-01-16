@@ -1,20 +1,16 @@
-package com.bizconnectivity.tismobile.Database.DataSources;
+package com.bizconnectivity.tismobile.database.DataSources;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import com.bizconnectivity.tismobile.Classes.CheckIn;
-import com.bizconnectivity.tismobile.Common;
+import com.bizconnectivity.tismobile.classes.CheckIn;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.Contracts.LoadingBayDetailContract.LoadingBayDetails;
-import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
+import com.bizconnectivity.tismobile.database.Contracts.LoadingBayDetailContract.LoadingBayDetails;
+import com.bizconnectivity.tismobile.database.DatabaseSQLHelper;
 
 import java.util.ArrayList;
-
-import static com.bizconnectivity.tismobile.Constant.ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN;
 
 public class LoadingBayDetailDataSource {
 
@@ -36,8 +32,9 @@ public class LoadingBayDetailDataSource {
 		sqlHelper.close();
 	}
 
-	public void insertLoadingBayNo (Context context, CheckIn checkIn) {
+	public boolean insertLoadingBayNo (Context context, CheckIn checkIn) {
 
+		boolean returnResult = false;
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
 		String[] projection = { LoadingBayDetails.COLUMN_LOADING_BAY_NO };
@@ -65,12 +62,15 @@ public class LoadingBayDetailDataSource {
 			// Insert the new row, returning the primary key value of the new row
 			database.insert(LoadingBayDetails.TABLE_NAME, null, values);
 
+			returnResult = true;
 		}
 
 		cursor.close();
+
+		return returnResult;
 	}
 
-	public String retrieveLoadingBay (CheckIn checkIn) {
+	public String checkLoadingBayNo(CheckIn checkIn) {
 
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
@@ -146,6 +146,20 @@ public class LoadingBayDetailDataSource {
 		database = sqlHelper.getWritableDatabase();
 
 		database.delete(LoadingBayDetails.TABLE_NAME, null, null);
+
+		sqlHelper.close();
+	}
+
+	public void deleteSelectedLoadingBay(String loadingBayNo) {
+
+		database = sqlHelper.getWritableDatabase();
+
+		// Define 'where' part of query.
+		String selection = LoadingBayDetails.COLUMN_LOADING_BAY_NO + " = ?";
+		// Specify arguments in placeholder order.
+		String[] selectionArgs = { loadingBayNo };
+
+		database.delete(LoadingBayDetails.TABLE_NAME, selection, selectionArgs);
 
 		sqlHelper.close();
 	}

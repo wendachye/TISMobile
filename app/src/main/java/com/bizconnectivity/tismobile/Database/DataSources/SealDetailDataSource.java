@@ -1,9 +1,9 @@
-package com.bizconnectivity.tismobile.Database.DataSources;
+package com.bizconnectivity.tismobile.database.DataSources;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import com.bizconnectivity.tismobile.Classes.SealDetail;
-import com.bizconnectivity.tismobile.Database.DatabaseSQLHelper;
+import com.bizconnectivity.tismobile.classes.SealDetail;
+import com.bizconnectivity.tismobile.database.DatabaseSQLHelper;
 
 public class SealDetailDataSource {
 

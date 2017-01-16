@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.WebServices;
+package com.bizconnectivity.tismobile.webservices;
 
 import android.app.Dialog;
 import android.app.ProgressDialog;
@@ -7,13 +7,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Activities.StopOperationActivity;
+import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.Database.DataSources.JobDetailDataSource;
-
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
 import static com.bizconnectivity.tismobile.Constant.calendar;
