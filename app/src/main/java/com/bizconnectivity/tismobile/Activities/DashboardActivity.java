@@ -39,6 +39,7 @@ import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_BAY;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_START_TIME;
@@ -75,7 +76,7 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region expandable list view settings
         expandableListView = (ExpandableListView) findViewById(R.id.expandable_list_view);

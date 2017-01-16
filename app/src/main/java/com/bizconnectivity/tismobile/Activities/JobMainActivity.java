@@ -37,6 +37,7 @@ import java.util.ArrayList;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CHECK_PPE;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PENDING;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PPE;
@@ -67,7 +68,7 @@ public class JobMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_job_main);
 
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
         assert getSupportActionBar() != null;

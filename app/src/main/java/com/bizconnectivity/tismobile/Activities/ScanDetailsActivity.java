@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -21,36 +22,51 @@ import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.webservices.DriverIDWSAsync;
 import com.bizconnectivity.tismobile.webservices.WorkInstructionWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_DRIVER_ID;
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_WORK_INSTRUCTION;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_DRIVER_ID;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_WORK_INSTRUCTION;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
 import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
 import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
 
 public class ScanDetailsActivity extends AppCompatActivity {
 
-    Context context;
+    //region declaration
     TextView headerMessage, tvOperatorId, tvDriverId, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     Dialog exitDialog;
+    RelativeLayout footerLayout;
     Button btnScanOperatorId, btnScanDriverId, btnScanWorkInstruction;
-
-    public SharedPreferences sharedPref;
-
+    SharedPreferences sharedPref;
     JobDetailDataSource jobDetailDataSource;
+    LoadingBayDetailDataSource loadingBayDetailDataSource;
+    String jobStatus, operatorID, driverID, welcomeMessage, jobID, customerName, loadingBay, loadingArm;
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_details);
 
-        context = this;
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
@@ -98,40 +114,40 @@ public class ScanDetailsActivity extends AppCompatActivity {
         //region status settings
 
         //retrieve job details from shared preferences
-        String jobStatus = sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "");
-        String operatorID = sharedPref.getString(Constant.SHARED_PREF_OPERATOR_ID, "");
-        String driverID = sharedPref.getString(Constant.SHARED_PREF_DRIVER_ID, "");
+        jobStatus = sharedPref.getString(SHARED_PREF_JOB_STATUS, "");
+        operatorID = sharedPref.getString(SHARED_PREF_OPERATOR_ID, "");
+        driverID = sharedPref.getString(SHARED_PREF_DRIVER_ID, "");
 
         switch (jobStatus) {
 
             case STATUS_SDS:
-                btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnScanOperatorId.getBackground().clearColorFilter();
                 tvOperatorId.setText("");
 
-                btnScanDriverId.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanDriverId.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnScanDriverId.getBackground().clearColorFilter();
                 tvDriverId.setText("");
 
-                btnScanWorkInstruction.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanWorkInstruction.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnScanWorkInstruction.getBackground().clearColorFilter();
                 break;
 
             case STATUS_OPERATOR_ID:
-                btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanOperatorId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvOperatorId.setText(operatorID);
 
                 btnScanDriverId.setEnabled(true);
                 break;
 
             case STATUS_DRIVER_ID:
-                btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanOperatorId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvOperatorId.setText(operatorID);
 
-                btnScanDriverId.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanDriverId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanDriverId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanDriverId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnScanDriverId.setEnabled(true);
                 tvDriverId.setText(driverID);
 
@@ -139,24 +155,23 @@ public class ScanDetailsActivity extends AppCompatActivity {
                 break;
 
             default:
-                btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanOperatorId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvOperatorId.setText(operatorID);
 
-                btnScanDriverId.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanDriverId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanDriverId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanDriverId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnScanDriverId.setEnabled(true);
                 tvDriverId.setText(driverID);
 
-                btnScanWorkInstruction.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanWorkInstruction.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanWorkInstruction.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanWorkInstruction.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnScanWorkInstruction.setEnabled(true);
                 break;
 
         }
 
         //endregion
-
     }
 
     //region Header
@@ -172,11 +187,11 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
         //retrieve shared preferences
         sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
-        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
-        String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
-        String customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
-        String loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
-        String loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
+        welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+        customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
+        loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
+        loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
 
         headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
         tv_jobID.setText(jobID);
@@ -189,7 +204,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -225,21 +241,21 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
     public void btnHomeClicked() {
 
-        Intent intentHome = new Intent(context, DashboardActivity.class);
+        Intent intentHome = new Intent(this, DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
-        Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
+        Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
-        Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
+        Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
@@ -258,7 +274,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
-                        Intent intentCheckIn = new Intent(context, CheckInActivity.class);
+                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         finish();
                         startActivity(intentCheckIn);
                         return true;
@@ -268,7 +284,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.settingsMenuCheckOut:
-                        Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
+                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
                         finish();
                         startActivity(intentCheckOut);
                         return true;
@@ -290,39 +306,48 @@ public class ScanDetailsActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
 
-        // if button is clicked, close the custom dialog
+        //region button confirm
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exitDialog.dismiss();
-                SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear();
-                editor.commit();
 
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                //close exit dialog
+                exitDialog.dismiss();
+
+                //clear all shared preferences
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.clear().apply();
+
+                //delete all loading bay
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+                loadingBayDetailDataSource.deleteAllLoadingBay();
+
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLogin);
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exitDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert exitDialog.getWindow() != null;
         exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         exitDialog.show();
@@ -330,37 +355,37 @@ public class ScanDetailsActivity extends AppCompatActivity {
     //endregion
 
     public void btnScanOperatorIdClicked() {
+
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_OPERATOR_ID);
-        editor.commit();
+        editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_OPERATOR_ID).apply();
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(Constant.SCAN_MSG_PROMPT_OPERATOR_ID);
+        integrator.setPrompt(SCAN_MSG_PROMPT_OPERATOR_ID);
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
 
     public void btnScanDriverIdClicked() {
+
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_DRIVER_ID);
-        editor.commit();
+        editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_DRIVER_ID).apply();
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(Constant.SCAN_MSG_PROMPT_DRIVER_ID);
+        integrator.setPrompt(SCAN_MSG_PROMPT_DRIVER_ID);
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
 
     public void btnScanWorkInstructionClicked() {
+
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_WORK_INSTRUCTION);
-        editor.commit();
+        editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_WORK_INSTRUCTION).apply();
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(Constant.SCAN_MSG_PROMPT_WORK_INSTRUCTION);
+        integrator.setPrompt(SCAN_MSG_PROMPT_WORK_INSTRUCTION);
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
@@ -368,6 +393,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
     //region Barcode Scanner
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
         IntentResult scanningIntentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
 
         if (scanningIntentResult != null) {
@@ -376,17 +402,18 @@ public class ScanDetailsActivity extends AppCompatActivity {
             String scanContent = scanningIntentResult.getContents();
 
             if (scanContent != null) {
-                String returnScanValue = sharedPref.getString(Constant.SHARED_PREF_SCAN_VALUE, "");
+
+                String returnScanValue = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.remove(Constant.SHARED_PREF_SCAN_VALUE);
+                editor.remove(SHARED_PREF_SCAN_VALUE);
                 editor.apply();
 
-                if (returnScanValue.equals(Constant.SCAN_VALUE_OPERATOR_ID)) {
+                if (returnScanValue.equals(SCAN_VALUE_OPERATOR_ID)) {
 
                     //region update job status
-                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_OPERATOR_ID).commit();
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_OPERATOR_ID).commit();
 
-                    jobDetailDataSource = new JobDetailDataSource(context);
+                    jobDetailDataSource = new JobDetailDataSource(this);
                     jobDetailDataSource.open();
                     jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_OPERATOR_ID);
                     jobDetailDataSource.close();
@@ -394,18 +421,18 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                     //region button operator setup
                     tvOperatorId.setText(scanContent);
-                    btnScanOperatorId.setTextColor(getResources().getColor(R.color.colorWhite));
-                    btnScanOperatorId.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                    btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                    btnScanOperatorId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
                     btnScanDriverId.setEnabled(true);
                     //endregion
 
-                } else if (returnScanValue.equals(Constant.SCAN_VALUE_DRIVER_ID)) {
+                } else if (returnScanValue.equals(SCAN_VALUE_DRIVER_ID)) {
 
                     DriverIDWSAsync task = new DriverIDWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
                     task.execute();
 
-                } else if (returnScanValue.equals(Constant.SCAN_VALUE_WORK_INSTRUCTION)) {
+                } else if (returnScanValue.equals(SCAN_VALUE_WORK_INSTRUCTION)) {
 
                     WorkInstructionWSAsync task = new WorkInstructionWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
                     task.execute();

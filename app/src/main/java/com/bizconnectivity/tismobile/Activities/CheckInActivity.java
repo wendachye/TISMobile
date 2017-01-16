@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_TECHNICIAN_ID;
 import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_TRUCK_LOADING_BAY;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_TECHNICIAN_ID;
 
@@ -60,7 +61,7 @@ public class CheckInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
 
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
         assert getSupportActionBar() != null;

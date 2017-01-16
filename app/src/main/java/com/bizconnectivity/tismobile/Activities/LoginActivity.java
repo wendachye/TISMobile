@@ -25,6 +25,7 @@ import static com.bizconnectivity.tismobile.Constant.ERR_MSG_INCORRECT_PASSWORD;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_INCORRECT_USERNAME;
 import static com.bizconnectivity.tismobile.Constant.MSG_LOGIN_CORRECT;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.TEST_PASSWORD;
 import static com.bizconnectivity.tismobile.Constant.TEST_USERNAME;
 
@@ -70,7 +71,7 @@ public class LoginActivity extends AppCompatActivity  {
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
         // clear all values in shared preference
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.clear().apply();
     }

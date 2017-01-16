@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -24,15 +25,21 @@ import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.webservices.LoadingArmWSAsync;
 import com.bizconnectivity.tismobile.webservices.PumpStartWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import static com.bizconnectivity.tismobile.Common.isNetworkAvailable;
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_SCAN_LOADING_ARM;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_LOADING_ARM;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_BATCH_CONTROLLER;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_START_TIME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
 import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
@@ -40,25 +47,28 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
 
 public class LoadingOperationActivity extends AppCompatActivity {
 
-    Context context;
+    //region declaration
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage, tvScanLoadingArm, tvBatchController, tvPumpStart, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     Dialog exitDialog, batchControllerDialog, pumpStartDialog;
+    RelativeLayout footerLayout;
     Button btnScanLoadingArm, btnBatchController, btnPumpStart;
-
-    public SharedPreferences sharedPref;
-
+    SharedPreferences sharedPref;
     JobDetailDataSource jobDetailDataSource;
+    LoadingBayDetailDataSource loadingBayDetailDataSource;
+    String jobStatus, loadingArm, batchController, pumpStartTime, welcomeMessage, jobID, customerName, loadingBay;
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_loading_operation);
 
-        context = this;
         sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
@@ -107,42 +117,42 @@ public class LoadingOperationActivity extends AppCompatActivity {
         //region status settings
 
         //retrieve job status from shared preferences
-        String jobStatus = sharedPref.getString(SHARED_PREF_JOB_STATUS, "");
-        String loadingArm = sharedPref.getString(SHARED_PREF_LOADING_ARM, "");
-        String batchController = sharedPref.getString(SHARED_PREF_BATCH_CONTROLLER, "");
-        String pumpStartTime = sharedPref.getString(SHARED_PREF_PUMP_START_TIME, "");
+        jobStatus = sharedPref.getString(SHARED_PREF_JOB_STATUS, "");
+        loadingArm = sharedPref.getString(SHARED_PREF_LOADING_ARM, "");
+        batchController = sharedPref.getString(SHARED_PREF_BATCH_CONTROLLER, "");
+        pumpStartTime = sharedPref.getString(SHARED_PREF_PUMP_START_TIME, "");
 
         switch (jobStatus) {
 
             case STATUS_SAFETY_CHECKS:
-                btnScanLoadingArm.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanLoadingArm.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnScanLoadingArm.getBackground().clearColorFilter();
                 tvScanLoadingArm.setText("");
 
-                btnBatchController.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnBatchController.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnBatchController.getBackground().clearColorFilter();
                 tvBatchController.setText("");
 
-                btnPumpStart.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnPumpStart.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnPumpStart.getBackground().clearColorFilter();
                 tvPumpStart.setText("");
                 break;
 
             case STATUS_SCAN_LOADING_ARM:
-                btnScanLoadingArm.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanLoadingArm.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanLoadingArm.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanLoadingArm.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvScanLoadingArm.setText(loadingArm);
 
                 btnBatchController.setEnabled(true);
                 break;
 
             case STATUS_BATCH_CONTROLLER:
-                btnScanLoadingArm.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanLoadingArm.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanLoadingArm.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanLoadingArm.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvScanLoadingArm.setText(loadingArm);
 
-                btnBatchController.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnBatchController.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnBatchController.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnBatchController.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnBatchController.setEnabled(true);
                 tvBatchController.setText(batchController);
 
@@ -150,32 +160,32 @@ public class LoadingOperationActivity extends AppCompatActivity {
                 break;
 
             case STATUS_PUMP_START:
-                btnScanLoadingArm.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanLoadingArm.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanLoadingArm.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanLoadingArm.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvScanLoadingArm.setText(loadingArm);
 
-                btnBatchController.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnBatchController.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnBatchController.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnBatchController.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnBatchController.setEnabled(true);
                 tvBatchController.setText(batchController);
 
-                btnPumpStart.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnPumpStart.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPumpStart.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnPumpStart.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnPumpStart.setEnabled(true);
                 tvPumpStart.setText(pumpStartTime);
                 break;
 
             default:
-                btnScanLoadingArm.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanLoadingArm.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanLoadingArm.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanLoadingArm.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvScanLoadingArm.setText(loadingArm);
 
-                btnBatchController.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnBatchController.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnBatchController.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnBatchController.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvBatchController.setText(batchController);
 
-                btnPumpStart.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnPumpStart.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPumpStart.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnPumpStart.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 tvPumpStart.setText(pumpStartTime);
                 break;
         }
@@ -195,11 +205,11 @@ public class LoadingOperationActivity extends AppCompatActivity {
         tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
 
         //retrieve shared preferences
-        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
-        String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
-        String customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
-        String loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
-        String loadingArm = sharedPref.getString(SHARED_PREF_LOADING_ARM, "");
+        welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
+        customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
+        loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
+        loadingArm = sharedPref.getString(SHARED_PREF_LOADING_ARM, "");
 
         //set text
         headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
@@ -213,7 +223,8 @@ public class LoadingOperationActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -249,21 +260,21 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
     public void btnHomeClicked() {
 
-        Intent intentHome = new Intent(context, DashboardActivity.class);
+        Intent intentHome = new Intent(this, DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
-        Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
+        Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
-        Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
+        Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
@@ -282,7 +293,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
-                        Intent intentCheckIn = new Intent(context, CheckInActivity.class);
+                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         finish();
                         startActivity(intentCheckIn);
                         return true;
@@ -292,7 +303,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.settingsMenuCheckOut:
-                        Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
+                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
                         finish();
                         startActivity(intentCheckOut);
                         return true;
@@ -314,39 +325,48 @@ public class LoadingOperationActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
 
-        // if button is clicked, close the custom dialog
+        //region button confirm
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exitDialog.dismiss();
-                SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear();
-                editor.commit();
 
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                //close exit dialog
+                exitDialog.dismiss();
+
+                //clear all shared preferences
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.clear().apply();
+
+                //delete all loading bay
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+                loadingBayDetailDataSource.deleteAllLoadingBay();
+
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLogin);
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exitDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert exitDialog.getWindow() != null;
         exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         exitDialog.show();
@@ -354,13 +374,13 @@ public class LoadingOperationActivity extends AppCompatActivity {
     //endregion
 
     public void btnScanLoadingArmClicked() {
+
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_LOADING_ARM);
-        editor.commit();
+        editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_LOADING_ARM).apply();
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(Constant.SCAN_MSG_PROMPT_SCAN_LOADING_ARM);
+        integrator.setPrompt(SCAN_MSG_PROMPT_SCAN_LOADING_ARM);
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
@@ -376,22 +396,27 @@ public class LoadingOperationActivity extends AppCompatActivity {
             String scanContent = scanningIntentResult.getContents();
 
             if (scanContent != null) {
-                String returnScanValue = sharedPref.getString(Constant.SHARED_PREF_SCAN_VALUE, "");
+
+                String returnScanValue = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.remove(Constant.SHARED_PREF_SCAN_VALUE);
+                editor.remove(SHARED_PREF_SCAN_VALUE);
                 editor.apply();
 
-                if (returnScanValue.equals(Constant.SCAN_VALUE_LOADING_ARM)) {
+                if (returnScanValue.equals(SCAN_VALUE_LOADING_ARM)) {
 
-					LoadingArmWSAsync task = new LoadingArmWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
+					LoadingArmWSAsync task = new LoadingArmWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
 					task.execute();
 
                 } else {
+
                     Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
                 }
+
             } else {
+
                 Common.shortToast(this, Constant.SCAN_MSG_NO_DATA_RECEIVED);
             }
+
         } else {
             // If scan data is not received (for example, if the user cancels the scan by pressing the back button),
             // we can simply output a message.
@@ -452,9 +477,8 @@ public class LoadingOperationActivity extends AppCompatActivity {
         });
         //endregion
 
-        //region button confrim
+        //region button confirm
         Button btnConfirm = (Button) batchControllerDialog.findViewById(R.id.btnConfirm);
-        // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -467,13 +491,13 @@ public class LoadingOperationActivity extends AppCompatActivity {
                     String litre = etLitre.getText().toString();
 					String metric = tvMetricTon.getText().toString();
 
-                    editor.putString(Constant.SHARED_PREF_BATCH_CONTROLLER_LITRE, litre).commit();
-					editor.putString(SHARED_PREF_BATCH_CONTROLLER, metric).commit();
-                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_BATCH_CONTROLLER).commit();
+                    editor.putString(Constant.SHARED_PREF_BATCH_CONTROLLER_LITRE, litre).apply();
+					editor.putString(SHARED_PREF_BATCH_CONTROLLER, metric).apply();
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_BATCH_CONTROLLER).apply();
 
-                    jobDetailDataSource = new JobDetailDataSource(context);
+                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
                     jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_BATCH_CONTROLLER);
+                    jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_BATCH_CONTROLLER);
                     jobDetailDataSource.close();
                     //endregion
 
@@ -494,7 +518,6 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
         //region button cancel
         Button btnCancel = (Button) batchControllerDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -508,9 +531,10 @@ public class LoadingOperationActivity extends AppCompatActivity {
         int dividerId = batchControllerDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = batchControllerDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
 
+        assert batchControllerDialog.getWindow() != null;
         batchControllerDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         batchControllerDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         batchControllerDialog.show();
@@ -527,19 +551,18 @@ public class LoadingOperationActivity extends AppCompatActivity {
 		    pumpStartDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		    pumpStartDialog.setContentView(R.layout.dialog_pump_start);
 
-            //region button confrim
+            //region button confirm
 		    Button btnConfirm = (Button) pumpStartDialog.findViewById(R.id.btnConfirm);
-		    // if button is clicked, close the custom dialog
 		    btnConfirm.setOnClickListener(new View.OnClickListener() {
 			    @Override
 			    public void onClick(View view) {
 
-                    String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+                    String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
                     String loginName = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 
-                    if (Common.isNetworkAvailable(context)) {
+                    if (isNetworkAvailable(getApplicationContext())) {
 
-                        PumpStartWSAsync task = new PumpStartWSAsync(context, pumpStartDialog, jobID, loginName);
+                        PumpStartWSAsync task = new PumpStartWSAsync(LoadingOperationActivity.this, pumpStartDialog, jobID, loginName);
                         task.execute();
 
                     } else {
@@ -553,7 +576,6 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
             //region button cancel
 		    Button btnCancel = (Button) pumpStartDialog.findViewById(R.id.btnCancel);
-		    // if button is clicked, close the custom dialog
 		    btnCancel.setOnClickListener(new View.OnClickListener() {
 			    @Override
 			    public void onClick(View view) {
@@ -565,9 +587,9 @@ public class LoadingOperationActivity extends AppCompatActivity {
 		    int dividerId = pumpStartDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
 		    View divider = pumpStartDialog.findViewById(dividerId);
 		    if (divider != null) {
-			    divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+			    divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
 		    }
-
+            assert pumpStartDialog.getWindow() != null;
 		    pumpStartDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 		    pumpStartDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		    pumpStartDialog.show();

@@ -30,6 +30,7 @@ import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
 import static com.bizconnectivity.tismobile.Common.shortToast;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_NO_TRUCK_BAY_CHECKED_IN;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.TRUCK_BAY_CHECKED_OUT;
 
 public class CheckOutActivity extends AppCompatActivity {
@@ -53,7 +54,7 @@ public class CheckOutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_out);
 
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
         assert getSupportActionBar() != null;
