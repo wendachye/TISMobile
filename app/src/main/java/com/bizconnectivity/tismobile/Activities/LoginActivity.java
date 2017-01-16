@@ -21,16 +21,23 @@ import com.scottyab.aescrypt.AESCrypt;
 
 import java.security.GeneralSecurityException;
 
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_INCORRECT_PASSWORD;
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_INCORRECT_USERNAME;
+import static com.bizconnectivity.tismobile.Constant.MSG_LOGIN_CORRECT;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 import static com.bizconnectivity.tismobile.Constant.TEST_PASSWORD;
 import static com.bizconnectivity.tismobile.Constant.TEST_USERNAME;
 
 public class LoginActivity extends AppCompatActivity  {
 
+    //region declaration
     TextInputEditText mUsernameView, mPasswordView;
     UserDetail userDetail;
     UserDetailDataSource userDetailDataSource;
     SharedPreferences sharedPref;
+    View focusView;
+    String username, password, message;
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,26 +65,27 @@ public class LoginActivity extends AppCompatActivity  {
             }
         });
 
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
         // clear all values in shared preference
         sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.clear();
-        editor.commit();
+        editor.clear().apply();
     }
 
     private void attemptLogin() {
 
+        SharedPreferences.Editor editor = sharedPref.edit();
+
         // Reset errors.
         mUsernameView.setError(null);
         mPasswordView.setError(null);
-        View focusView = null;
 
         // Store values at the time of the login attempt.
-        String username = mUsernameView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        username = mUsernameView.getText().toString();
+        password = mPasswordView.getText().toString();
 
         if(TextUtils.isEmpty(username)) {
 
@@ -97,10 +105,9 @@ public class LoginActivity extends AppCompatActivity  {
 
                 if (username.equals(TEST_USERNAME) && password.equals(TEST_PASSWORD)) {
 
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString(SHARED_PREF_LOGINNAME, TEST_USERNAME).commit();
+                    editor.putString(SHARED_PREF_LOGINNAME, TEST_USERNAME).apply();
 
-                    //navigate to dashboard
+                    //navigate to dashboard activity
                     Intent intent = new Intent(this, DashboardActivity.class);
                     finish();
                     startActivity(intent);
@@ -116,17 +123,16 @@ public class LoginActivity extends AppCompatActivity  {
 
                 if (username.equals(TEST_USERNAME) && password.equals(TEST_PASSWORD)) {
 
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString(SHARED_PREF_LOGINNAME, TEST_USERNAME).commit();
+                    editor.putString(SHARED_PREF_LOGINNAME, TEST_USERNAME).apply();
 
-                    //navigate to dashboard
+                    //navigate to dashboard activity
                     Intent intent = new Intent(this, DashboardActivity.class);
                     finish();
                     startActivity(intent);
 
                 } else {
 
-                    //check sqlite database
+                    //region check with database
                     try {
 
                         //encrypt password
@@ -140,15 +146,13 @@ public class LoginActivity extends AppCompatActivity  {
                     } catch (GeneralSecurityException e) {
                         e.printStackTrace();
                     }
-
+                    //endregion
                 }
             }
         }
     }
 
     private void cancelLogin() {
-
-        View focusView = null;
 
         // Reset errors and clear value.
         mUsernameView.setError(null);
@@ -165,36 +169,34 @@ public class LoginActivity extends AppCompatActivity  {
         // Reset errors.
         mUsernameView.setError(null);
         mPasswordView.setError(null);
-        View focusView = null;
 
+        //region retrieve user login details from database
         userDetailDataSource = new UserDetailDataSource(this);
-        //open database
+
         userDetailDataSource.open();
-        //retrieve user details
-        String message = userDetailDataSource.retrieveUserDetails(userDetail);
-        //close databse
+        message = userDetailDataSource.retrieveUserDetails(userDetail);
         userDetailDataSource.close();
 
-        if (message.equals(Constant.MSG_LOGIN_CORRECT)) {
+        if (message.equals(MSG_LOGIN_CORRECT)) {
 
             //navigate to dashboard
             Intent intent = new Intent(this, DashboardActivity.class);
             finish();
             startActivity(intent);
 
-        } else if (message.equals(Constant.ERR_MSG_INCORRECT_USERNAME)) {
+        } else if (message.equals(ERR_MSG_INCORRECT_USERNAME)) {
 
-            mUsernameView.setError(Constant.ERR_MSG_INCORRECT_USERNAME);
+            mUsernameView.setError(ERR_MSG_INCORRECT_USERNAME);
             focusView = mUsernameView;
             focusView.requestFocus();
 
         } else {
 
-            mPasswordView.setError(Constant.ERR_MSG_INCORRECT_PASSWORD);
+            mPasswordView.setError(ERR_MSG_INCORRECT_PASSWORD);
             focusView = mPasswordView;
             focusView.requestFocus();
         }
+        //endregion
     }
-
 }
 
