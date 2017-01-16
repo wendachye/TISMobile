@@ -120,7 +120,5 @@ public class UserDetailDataSource {
 
 			return Constant.ERR_MSG_INCORRECT_USERNAME;
 		}
-
 	}
-
 }
