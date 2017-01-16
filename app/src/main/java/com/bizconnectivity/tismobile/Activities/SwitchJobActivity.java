@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -21,7 +22,6 @@ import android.widget.TextView;
 import com.bizconnectivity.tismobile.adapters.CustomExpandableListAdapter;
 import com.bizconnectivity.tismobile.classes.JobDetail;
 import com.bizconnectivity.tismobile.classes.LoadingBayList;
-import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
@@ -29,6 +29,7 @@ import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_CUSTOMER_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_DATE;
@@ -36,6 +37,7 @@ import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_BAY;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_START_TIME;
@@ -58,9 +60,11 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
 public class SwitchJobActivity extends AppCompatActivity {
 
+    //region declaration
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage;
+    TextView headerMessage, tvLoadingBayOrderId;
     Dialog exitDialog;
+    RelativeLayout footerLayout;
     SharedPreferences sharedPref;
     ExpandableListView expandableListView;
     CustomExpandableListAdapter customExpandableListAdapter;
@@ -71,6 +75,8 @@ public class SwitchJobActivity extends AppCompatActivity {
     JobDetailDataSource jobDetailDataSource;
     LoadingBayList loadingBayList;
     JobDetail jobDetail;
+    String jobID;
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +86,7 @@ public class SwitchJobActivity extends AppCompatActivity {
 
         sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
+        //region expandable list view settings
         expandableListView = (ExpandableListView) findViewById(R.id.expandable_list_view);
 
         loadingBayArrayList = new ArrayList<>();
@@ -94,23 +101,21 @@ public class SwitchJobActivity extends AppCompatActivity {
 
             expandableListView.expandGroup(i);
         }
+        //endregion
 
         //region list view child onclick
         expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View view, int groupPostion, int childPosition, long id) {
 
-                TextView tvLoadingBayOrderId = (TextView) view.findViewById(R.id.tvLoadingBayOrderId);
-                String jobID = tvLoadingBayOrderId.getText().toString();
+                tvLoadingBayOrderId = (TextView) view.findViewById(R.id.tvLoadingBayOrderId);
+                jobID = tvLoadingBayOrderId.getText().toString();
 
                 jobDetail = new JobDetail();
-
                 jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-                //open database
+
                 jobDetailDataSource.open();
-                //retrieve job details by job ID
                 jobDetail = jobDetailDataSource.retrieveJobDetails(jobID);
-                //close database
                 jobDetailDataSource.close();
 
                 //store shared preferences
@@ -144,6 +149,7 @@ public class SwitchJobActivity extends AppCompatActivity {
         //endregion
 
         //region Header and Footer
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
@@ -157,30 +163,28 @@ public class SwitchJobActivity extends AppCompatActivity {
 
     public ArrayList<LoadingBayList> retrieveAllLoadingBay() {
 
-        groupArrayList = new ArrayList<>();
         loadingBayArrayList = new ArrayList<>();
 
+        //region retrieve all loading bay
+        groupArrayList = new ArrayList<>();
         loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
-        //open database
-        loadingBayDetailDataSource.open();
-        //retrieve all loading bay no
-        groupArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
-        //close database
-        loadingBayDetailDataSource.close();
 
+        loadingBayDetailDataSource.open();
+        groupArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
+        loadingBayDetailDataSource.close();
+        //endregion
+
+        //region retrieve all job details
         if (groupArrayList.size() > 0) {
 
             for (int i=0; i<groupArrayList.size(); i++) {
 
                 childArrayList = new ArrayList<>();
                 loadingBayList = new LoadingBayList();
-
                 jobDetailDataSource = new JobDetailDataSource(this);
-                //open database
+
                 jobDetailDataSource.open();
-                //retrieve all the started job details
                 childArrayList = jobDetailDataSource.retrieveAllStartedJobDetails(groupArrayList.get(i));
-                //close database
                 jobDetailDataSource.close();
 
                 //group title setter
@@ -192,6 +196,7 @@ public class SwitchJobActivity extends AppCompatActivity {
                 loadingBayArrayList.add(loadingBayList);
             }
         }
+        //endregion
 
         return loadingBayArrayList;
     }
@@ -317,14 +322,16 @@ public class SwitchJobActivity extends AppCompatActivity {
 
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-        headerMessage.setText(Common.formatWelcomeMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
+
+        headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
     }
     //endregion
 
     //region Footer
     public void setFooterMenu() {
 
-        RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -360,21 +367,21 @@ public class SwitchJobActivity extends AppCompatActivity {
 
     public void btnHomeClicked() {
 
-        Intent intentHome = new Intent(getApplicationContext(), DashboardActivity.class);
+        Intent intentHome = new Intent(this, DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
-        Intent intentSearchJob = new Intent(getApplicationContext(), SearchJobActivity.class);
+        Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
-        Intent intentSwitchTruckBay = new Intent(getApplicationContext(), SwitchJobActivity.class);
+        Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
@@ -427,39 +434,47 @@ public class SwitchJobActivity extends AppCompatActivity {
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
 
+        //region button confirm
         Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
-
-        // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exitDialog.dismiss();
-                SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear();
-                editor.apply();
 
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                //close exit dialog
+                exitDialog.dismiss();
+
+                //clear all shared preferences
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.clear().apply();
+
+                //delete all loading bay
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+                loadingBayDetailDataSource.deleteAllLoadingBay();
+
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLogin);
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exitDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert exitDialog.getWindow() != null;
         exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         exitDialog.show();

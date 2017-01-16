@@ -52,7 +52,7 @@ public class DashboardActivity extends AppCompatActivity {
 
     //region declaration
     ImageButton btnHome, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage, tvTruckBayTitle;
+    TextView headerMessage, tvTruckBayTitle, tvLoadingBayOrderId;
     Dialog exitDialog;
     RelativeLayout footerLayout;
     LinearLayout headerLayout;
@@ -99,7 +99,7 @@ public class DashboardActivity extends AppCompatActivity {
             public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
 
                 //region retrieve job details
-                TextView tvLoadingBayOrderId = (TextView) view.findViewById(R.id.tvLoadingBayOrderId);
+                tvLoadingBayOrderId = (TextView) view.findViewById(R.id.tvLoadingBayOrderId);
                 jobID = tvLoadingBayOrderId.getText().toString();
 
                 jobDetail = new JobDetail();
