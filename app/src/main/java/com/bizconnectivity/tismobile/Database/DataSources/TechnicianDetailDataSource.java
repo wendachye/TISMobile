@@ -63,7 +63,9 @@ public class TechnicianDetailDataSource {
 		cursor.close();
 	}
 
-	public String retrieveTechnicianNRIC (CheckIn checkIn) {
+	public boolean retrieveTechnicianNRIC (CheckIn checkIn) {
+
+		boolean returnResult = false;
 
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
@@ -85,18 +87,12 @@ public class TechnicianDetailDataSource {
 
 		if (cursor.getCount() > 0) {
 
-			cursor.close();
-
-			return Constant.MSG_CORRECT_TECHNICIAN_NRIC;
-
-		} else {
-
-			cursor.close();
-
-			return Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC;
-
+			returnResult = true;
 		}
 
+		cursor.close();
+
+		return returnResult;
 	}
 
 }

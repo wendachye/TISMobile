@@ -70,7 +70,9 @@ public class LoadingBayDetailDataSource {
 		return returnResult;
 	}
 
-	public String checkLoadingBayNo(CheckIn checkIn) {
+	public boolean checkLoadingBayNo(CheckIn checkIn) {
+
+		boolean returnResult = false;
 
 		// Define a projection that specifies which columns from the database
 		// you will actually use after this query.
@@ -92,17 +94,12 @@ public class LoadingBayDetailDataSource {
 
 		if (cursor.getCount() > 0) {
 
-			cursor.close();
-
-			return Constant.MSG_CORRECT_LOADING_BAY_NO;
-
-		} else {
-
-			cursor.close();
-
-			return Constant.ERR_MSG_INVALID_TRUCK_BAY;
-
+			returnResult = true;
 		}
+
+		cursor.close();
+
+		return returnResult;
 	}
 
 	public ArrayList<String> retrieveAllLoadingBay () {

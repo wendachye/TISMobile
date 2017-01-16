@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
@@ -30,35 +31,39 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_TECHNICIAN_ID;
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_TRUCK_LOADING_BAY;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_TECHNICIAN_ID;
 
 
 public class CheckInActivity extends AppCompatActivity {
 
-    Context context;
+    //region declaration
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage, tvTruckBayId, tvTechnicianId;
     Dialog exitDialog;
     Button btnScanTechnician, btnScanTruckBay;
-
     SharedPreferences sharedPref;
-
     TechnicianDetailDataSource technicianDetailDataSource;
     LoadingBayDetailDataSource loadingBayDetailDataSource;
-
     CheckIn checkIn;
-
     ArrayList<String> loadingBayArrayList;
+    String technicianID, trunkBayString;
+    boolean returnResult;
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
 
-        context = this;
         sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
@@ -75,6 +80,7 @@ public class CheckInActivity extends AppCompatActivity {
         btnScanTechnician.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnScanTechnicianClicked();
             }
         });
@@ -87,24 +93,22 @@ public class CheckInActivity extends AppCompatActivity {
         btnScanTruckBay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnScanTruckBayClicked();
             }
         });
         //endregion
 
-        //region check loading bay no & technician nric
-
-        String technicianID = sharedPref.getString(Constant.SHARED_PREF_TECHNICIAN_ID, "");
+        //region check and set technician nric & loading bay no
+        technicianID = sharedPref.getString(SHARED_PREF_TECHNICIAN_ID, "");
 
         loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
-        //open database
+
         loadingBayDetailDataSource.open();
-        //retrieve all loading bay
         loadingBayArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
-        //close database
         loadingBayDetailDataSource.close();
 
-        String trunkBayString = "";
+        trunkBayString = "";
 
         for (int i=0; i<loadingBayArrayList.size(); i++) {
 
@@ -119,42 +123,46 @@ public class CheckInActivity extends AppCompatActivity {
 
         }
 
-        //endregion
-
-        //region status settings
-
         if (!technicianID.isEmpty() && loadingBayArrayList.size() > 0){
 
-            btnScanTechnician.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanTechnician.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            btnScanTechnician.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+            btnScanTechnician.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
             tvTechnicianId.setText(technicianID);
 
+            btnScanTruckBay.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+            btnScanTruckBay.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
             tvTruckBayId.setText(trunkBayString);
-            btnScanTruckBay.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanTruckBay.setBackgroundColor(getResources().getColor(R.color.colorGreen));
             btnScanTruckBay.setEnabled(true);
 
         } else if (!technicianID.isEmpty()) {
 
-            btnScanTechnician.setTextColor(getResources().getColor(R.color.colorWhite));
-            btnScanTechnician.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+            btnScanTechnician.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+            btnScanTechnician.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
             tvTechnicianId.setText(technicianID);
 
             btnScanTruckBay.setEnabled(true);
-        }
 
+        } else {
+
+            btnScanTechnician.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+            btnScanTechnician.getBackground().clearColorFilter();
+            tvTechnicianId.setText("");
+
+            btnScanTruckBay.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+            btnScanTruckBay.getBackground().clearColorFilter();
+            tvTruckBayId.setText("");
+        }
         //endregion
     }
 
     public void btnScanTechnicianClicked() {
 
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_TECHNICIAN_ID);
-        editor.commit();
+        editor.putString(SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_TECHNICIAN_ID).apply();
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(Constant.SCAN_MSG_PROMPT_TECHNICIAN_ID);
+        integrator.setPrompt(SCAN_MSG_PROMPT_TECHNICIAN_ID);
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
@@ -162,12 +170,11 @@ public class CheckInActivity extends AppCompatActivity {
     public void btnScanTruckBayClicked() {
 
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(Constant.SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_TRUCK_LOADING_BAY);
-        editor.commit();
+        editor.putString(SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_TRUCK_LOADING_BAY).apply();
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(Constant.SCAN_MSG_PROMPT_TRUCK_LOADING_BAY);
+        integrator.setPrompt(SCAN_MSG_PROMPT_TRUCK_LOADING_BAY);
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
@@ -185,9 +192,9 @@ public class CheckInActivity extends AppCompatActivity {
 
             if (scanContent != null) {
 
-                String returnScanValue = sharedPref.getString(Constant.SHARED_PREF_SCAN_VALUE, "");
+                String returnScanValue = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.remove(Constant.SHARED_PREF_SCAN_VALUE);
+                editor.remove(SHARED_PREF_SCAN_VALUE);
                 editor.apply();
 
                 if (returnScanValue.equals(Constant.SCAN_VALUE_TECHNICIAN_ID)) {
@@ -204,7 +211,7 @@ public class CheckInActivity extends AppCompatActivity {
                         checkIn = new CheckIn();
                         checkIn.setTechnicianNRIC(scanContent);
 
-                        checkTechnicialNRIC(checkIn);
+                        checkTechnicianNRIC(checkIn);
                     }
 
                 } else if (returnScanValue.equals(Constant.SCAN_VALUE_TRUCK_LOADING_BAY)) {
@@ -225,14 +232,19 @@ public class CheckInActivity extends AppCompatActivity {
                     }
 
                 } else {
+
                     //invalid scan type
                     Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
                 }
+
             } else {
+
                 //no data received
                 Common.shortToast(this, Constant.SCAN_MSG_NO_DATA_RECEIVED);
             }
+
         } else {
+
             // If scan data is not received (for example, if the user cancels the scan by pressing the back button),
             // we can simply output a message.
             Common.shortToast(this, Constant.SCAN_MSG_CANCEL_SCANNING);
@@ -240,20 +252,18 @@ public class CheckInActivity extends AppCompatActivity {
     }
     //endregion
 
-    public void checkTechnicialNRIC(CheckIn checkIn) {
+    public void checkTechnicianNRIC(CheckIn checkIn) {
+
+        SharedPreferences.Editor editor = sharedPref.edit();
 
         technicianDetailDataSource = new TechnicianDetailDataSource(this);
-        //open database
         technicianDetailDataSource.open();
-        //retrieve technician nric
-        String message = technicianDetailDataSource.retrieveTechnicianNRIC(checkIn);
-        //close database
+        returnResult = technicianDetailDataSource.retrieveTechnicianNRIC(checkIn);
         technicianDetailDataSource.close();
 
-        if (message.equals(Constant.MSG_CORRECT_TECHNICIAN_NRIC)) {
+        if (returnResult) {
 
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, checkIn.getTechnicianNRIC()).commit();
+            editor.putString(SHARED_PREF_TECHNICIAN_ID, checkIn.getTechnicianNRIC()).apply();
 
             Intent intent = new Intent(this, CheckInActivity.class);
             finish();
@@ -261,8 +271,7 @@ public class CheckInActivity extends AppCompatActivity {
 
         } else {
 
-            SharedPreferences.Editor editor = sharedPref.edit();
-            editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, "").commit();
+            editor.putString(SHARED_PREF_TECHNICIAN_ID, "").apply();
 
             Common.shortToast(this, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
 
@@ -275,14 +284,11 @@ public class CheckInActivity extends AppCompatActivity {
     public void checkLoadingBayNo(CheckIn checkIn) {
 
         loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
-        //open database
         loadingBayDetailDataSource.open();
-        //retrieve loading bay no
-        String message = loadingBayDetailDataSource.checkLoadingBayNo(checkIn);
-        //close database
+        returnResult = loadingBayDetailDataSource.checkLoadingBayNo(checkIn);
         loadingBayDetailDataSource.close();
 
-        if (message.equals(Constant.MSG_CORRECT_LOADING_BAY_NO)) {
+        if (returnResult) {
 
             Intent intent = new Intent(this, CheckInActivity.class);
             finish();
@@ -291,7 +297,6 @@ public class CheckInActivity extends AppCompatActivity {
         } else {
 
             Common.shortToast(this, Constant.ERR_MSG_INVALID_TRUCK_BAY);
-
         }
     }
 
@@ -314,6 +319,7 @@ public class CheckInActivity extends AppCompatActivity {
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnHomeClicked();
             }
         });
@@ -322,6 +328,7 @@ public class CheckInActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnSearchClicked();
             }
         });
@@ -330,6 +337,7 @@ public class CheckInActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnSwitchClicked();
             }
         });
@@ -338,6 +346,7 @@ public class CheckInActivity extends AppCompatActivity {
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnSettingsClicked(view);
             }
         });
@@ -345,21 +354,21 @@ public class CheckInActivity extends AppCompatActivity {
 
     public void btnHomeClicked() {
 
-        Intent intent = new Intent(context, DashboardActivity.class);
+        Intent intent = new Intent(this, DashboardActivity.class);
         finish();
         startActivity(intent);
     }
 
     public void btnSearchClicked() {
 
-        Intent intent = new Intent(context, SearchJobActivity.class);
+        Intent intent = new Intent(this, SearchJobActivity.class);
         finish();
         startActivity(intent);
     }
 
     public void btnSwitchClicked() {
 
-        Intent intent = new Intent(context, SwitchJobActivity.class);
+        Intent intent = new Intent(this, SwitchJobActivity.class);
         finish();
         startActivity(intent);
     }
@@ -388,7 +397,7 @@ public class CheckInActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.settingsMenuCheckOut:
-                        Intent intent = new Intent(context, CheckOutActivity.class);
+                        Intent intent = new Intent(getApplicationContext(), CheckOutActivity.class);
                         finish();
                         startActivity(intent);
                         return true;
@@ -417,16 +426,21 @@ public class CheckInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                //close exit dialog
                 exitDialog.dismiss();
 
-                SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+                //clear all shared preferences
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear();
-                editor.commit();
+                editor.clear().apply();
 
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                //delete all loading bay
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+                loadingBayDetailDataSource.deleteAllLoadingBay();
+
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLogin);
             }
         });
 
@@ -443,9 +457,9 @@ public class CheckInActivity extends AppCompatActivity {
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert exitDialog.getWindow() != null;
         exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         exitDialog.show();

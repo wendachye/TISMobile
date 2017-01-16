@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -19,19 +20,21 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
+import static com.bizconnectivity.tismobile.Common.shortToast;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_NO_TRUCK_BAY_CHECKED_IN;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 import static com.bizconnectivity.tismobile.Constant.TRUCK_BAY_CHECKED_OUT;
 
 public class CheckOutActivity extends AppCompatActivity {
 
-    //region Data types Declaration
+    //region declaration
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage;
     Dialog exitDialog;
@@ -39,18 +42,21 @@ public class CheckOutActivity extends AppCompatActivity {
     SharedPreferences sharedPref;
     Spinner spLoadingBay;
     ArrayList<String> loadingBayArrayList;
+    String message;
     //endregion
 
     LoadingBayDetailDataSource loadingBayDetailDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_out);
 
         sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
@@ -65,11 +71,8 @@ public class CheckOutActivity extends AppCompatActivity {
         loadingBayArrayList = new ArrayList<>();
 
         loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
-        //open database
         loadingBayDetailDataSource.open();
-        //retrieve all loading bay no
         loadingBayArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
-        //close database
         loadingBayDetailDataSource.close();
         //endregion
 
@@ -93,8 +96,8 @@ public class CheckOutActivity extends AppCompatActivity {
                     loadingBayDetailDataSource.deleteSelectedLoadingBay(spLoadingBay.getSelectedItem().toString());
 
                     //check out message
-                    String msg = spLoadingBay.getSelectedItem().toString() + TRUCK_BAY_CHECKED_OUT;
-                    Common.shortToast(getApplicationContext(), msg);
+                    message = spLoadingBay.getSelectedItem().toString() + TRUCK_BAY_CHECKED_OUT;
+                    shortToast(getApplicationContext(), message);
 
                     Intent intent = new Intent(getApplicationContext(), CheckOutActivity.class);
                     finish();
@@ -102,7 +105,7 @@ public class CheckOutActivity extends AppCompatActivity {
 
                 } else {
 
-                    Common.shortToast(getApplicationContext(), ERR_MSG_NO_TRUCK_BAY_CHECKED_IN);
+                    shortToast(getApplicationContext(), ERR_MSG_NO_TRUCK_BAY_CHECKED_IN);
                 }
             }
         });
@@ -116,7 +119,7 @@ public class CheckOutActivity extends AppCompatActivity {
         LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
 
-        headerMessage.setText(Common.formatWelcomeMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
+        headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
     }
     //endregion
 
@@ -128,6 +131,7 @@ public class CheckOutActivity extends AppCompatActivity {
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnHomeClicked();
             }
         });
@@ -136,6 +140,7 @@ public class CheckOutActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnSearchClicked();
             }
         });
@@ -144,6 +149,7 @@ public class CheckOutActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnSwitchClicked();
             }
         });
@@ -152,6 +158,7 @@ public class CheckOutActivity extends AppCompatActivity {
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 btnSettingsClicked(view);
             }
         });
@@ -159,21 +166,21 @@ public class CheckOutActivity extends AppCompatActivity {
 
     public void btnHomeClicked() {
 
-        Intent intentHome = new Intent(getApplicationContext(), DashboardActivity.class);
+        Intent intentHome = new Intent(this, DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
-        Intent intentSearchJob = new Intent(getApplicationContext(), SearchJobActivity.class);
+        Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
-        Intent intentSwitchTruckBay = new Intent(getApplicationContext(), SwitchJobActivity.class);
+        Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
@@ -228,14 +235,22 @@ public class CheckOutActivity extends AppCompatActivity {
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                exitDialog.dismiss();
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear();
-                editor.commit();
 
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
+                //close exit dialog
+                exitDialog.dismiss();
+
+                //clear all shared preferences
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.clear().apply();
+
+                //delete all loading bay
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+                loadingBayDetailDataSource.deleteAllLoadingBay();
+
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLogin);
             }
         });
 
@@ -251,9 +266,9 @@ public class CheckOutActivity extends AppCompatActivity {
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert exitDialog.getWindow() != null;
         exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         exitDialog.show();
