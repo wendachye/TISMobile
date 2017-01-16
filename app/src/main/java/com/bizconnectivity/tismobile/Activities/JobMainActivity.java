@@ -1,11 +1,11 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -27,6 +27,7 @@ import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.webservices.PPEWSAsync;
 import com.bizconnectivity.tismobile.webservices.SDSWSAsync;
 import com.squareup.picasso.Picasso;
@@ -45,24 +46,31 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
 public class JobMainActivity extends AppCompatActivity {
 
-    Context context;
+    //region declaration
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     Dialog exitDialog, scanPPEDialog, safetyChecksDialog;
     Button btnPPE, btnSDS, btnScanDetails, btnSafetyCheck;
+    RelativeLayout footerLayout;
+    LoadingBayDetailDataSource loadingBayDetailDataSource;
+    String jobStatus, welcomeMessage, jobID, customerName, loadingBay, loadingArm;
+    ArrayList<LinearLayout> linearLayoutArrayGHS;
+    ArrayList<LinearLayout> linearLayoutArrayPPE;
+    //endregion
 
     JobDetailDataSource jobDetailDataSource;
     public SharedPreferences sharedPref;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_job_main);
 
-        context = this;
         sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
@@ -79,9 +87,9 @@ public class JobMainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (Common.isNetworkAvailable(context)) {
+                if (Common.isNetworkAvailable(getApplicationContext())) {
 
-                    PPEWSAsync task = new PPEWSAsync(context, btnPPE, sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
+                    PPEWSAsync task = new PPEWSAsync(getApplicationContext(), btnPPE, sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
                     task.execute();
 
                 } else {
@@ -100,11 +108,11 @@ public class JobMainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                if (Common.isNetworkAvailable(context)) {
+                if (Common.isNetworkAvailable(getApplicationContext())) {
 
                     btnScanDetails.setEnabled(true);
 
-                    SDSWSAsync task = new SDSWSAsync(context, btnSDS, sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                    SDSWSAsync task = new SDSWSAsync(getApplicationContext(), btnSDS, sharedPref.getString(SHARED_PREF_JOB_ID, ""));
                     task.execute();
 
                 } else {
@@ -122,7 +130,7 @@ public class JobMainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                Intent intent = new Intent(context, ScanDetailsActivity.class);
+                Intent intent = new Intent(getApplicationContext(), ScanDetailsActivity.class);
                 finish();
                 startActivity(intent);
             }
@@ -135,6 +143,7 @@ public class JobMainActivity extends AppCompatActivity {
         btnSafetyCheck.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 safetyChecks();
             }
         });
@@ -143,244 +152,73 @@ public class JobMainActivity extends AppCompatActivity {
         //region status settings
 
         //retrieve job status from shared preferences
-        String jobStatus = sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "");
+        jobStatus = sharedPref.getString(SHARED_PREF_JOB_STATUS, "");
 
         switch (jobStatus) {
 
             case STATUS_PENDING:
-                btnPPE.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnPPE.getBackground().clearColorFilter();
 
-                btnSDS.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnSDS.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnSDS.getBackground().clearColorFilter();
 
-                btnScanDetails.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanDetails.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnScanDetails.getBackground().clearColorFilter();
 
-                btnSafetyCheck.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnSafetyCheck.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnSafetyCheck.getBackground().clearColorFilter();
                 break;
 
             case STATUS_PPE:
-                btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
                 btnSDS.setEnabled(true);
                 break;
 
             case STATUS_SDS:
-                btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnSDS.setEnabled(true);
 
                 btnScanDetails.setEnabled(true);
                 break;
 
             case STATUS_WORK_INSTRUCTION:
-                btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnSDS.setEnabled(true);
 
-                btnScanDetails.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanDetails.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanDetails.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanDetails.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnScanDetails.setEnabled(true);
 
                 btnSafetyCheck.setEnabled(true);
                 break;
 
             default:
-                btnPPE.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnPPE.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                btnSDS.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnSDS.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                btnScanDetails.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanDetails.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanDetails.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanDetails.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                btnSafetyCheck.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnSafetyCheck.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnSafetyCheck.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnSafetyCheck.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 break;
         }
         //endregion
     }
-
-    //region Header
-    /*-------- Set User Login Details --------*/
-    public void setUserLoginDetails() {
-
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
-        headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-        tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
-        tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
-        tv_loadingBay = (TextView) headerLayout.findViewById(R.id.tvBay);
-        tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
-
-        //retrieve shared preferences
-        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
-        String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
-        String customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
-        String loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
-        String loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
-
-        headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
-        tv_jobID.setText(jobID);
-        tv_customerName.setText(customerName);
-        tv_loadingBay.setText(loadingArm);
-        tv_loadingArm.setText(loadingBay);
-
-    }
-    //endregion
-
-    //region Footer
-    public void setFooterMenu() {
-
-        RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
-        btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
-        btnAlert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnHomeClicked();
-            }
-        });
-
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.btnSearch);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSearchClicked();
-            }
-        });
-
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.btnSwitch);
-        btnSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSwitchClicked();
-            }
-        });
-
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.btnSettings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSettingsClicked(view);
-            }
-        });
-    }
-
-    public void btnHomeClicked() {
-
-        Intent intent = new Intent(context, DashboardActivity.class);
-        finish();
-        startActivity(intent);
-    }
-
-    public void btnSearchClicked() {
-
-        Intent intent = new Intent(context, SearchJobActivity.class);
-        finish();
-        startActivity(intent);
-    }
-
-    public void btnSwitchClicked() {
-
-        Intent intent = new Intent(context, SwitchJobActivity.class);
-        finish();
-        startActivity(intent);
-    }
-
-    public void btnSettingsClicked(View view) {
-
-        settingsMenuOptions(view);
-    }
-
-    public void settingsMenuOptions(View view) {
-
-        PopupMenu popup = new PopupMenu(this, view);
-
-        // This activity implements OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.settingsMenuCheckIn:
-                        Intent intentCheckIn = new Intent(context, CheckInActivity.class);
-                        finish();
-                        startActivity(intentCheckIn);
-                        return true;
-
-                    case R.id.settingsMenuExitApp:
-                        exitApplication();
-                        return true;
-
-                    case R.id.settingsMenuCheckOut:
-                        Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
-                        finish();
-                        startActivity(intentCheckOut);
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
-        });
-        popup.inflate(R.menu.settings_menu);
-        popup.show();
-    }
-
-    public void exitApplication() {
-
-        if (exitDialog != null && exitDialog.isShowing())
-            return;
-
-        exitDialog = new Dialog(this);
-        exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
-
-        // if button is clicked, close the custom dialog
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitDialog.dismiss();
-                SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear();
-                editor.commit();
-
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-            }
-        });
-
-        Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitDialog.dismiss();
-            }
-        });
-
-        int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
-        View divider = exitDialog.findViewById(dividerId);
-        if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
-        }
-
-        exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        exitDialog.show();
-    }
-    //endregion
 
     public void ppeDialog(ArrayList<PPE> ppeArrayList, ArrayList<GHS> ghsArrayList) {
 
@@ -417,49 +255,52 @@ public class JobMainActivity extends AppCompatActivity {
 
         int totalLinearLayoutGHS = (int) Math.ceil(ghsArrayList.size() / 4.0);
         int totalLinearLayoutPPE = (int) Math.ceil(ppeArrayList.size() / 4.0);
-	    int imagePerRow = 4;
-	    int countGHS = 0;
+        int imagePerRow = 4;
+        int countGHS = 0;
         int countPPE = 0;
         int countLinearLayoutGHS = 0;
         int countLinearLayoutPPE = 0;
-        ArrayList<LinearLayout> linearLayoutArrayGHS = new ArrayList<>();
-        ArrayList<LinearLayout> linearLayoutArrayPPE = new ArrayList<>();
+        linearLayoutArrayGHS = new ArrayList<>();
+        linearLayoutArrayPPE = new ArrayList<>();
 
-	    for (int i=0; i<totalLinearLayoutGHS; i++) {
+        //region ghs
+        for (int i=0; i<totalLinearLayoutGHS; i++) {
 
             LinearLayout linearLayout = new LinearLayout(this);
-		    linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-		    linearLayout.setGravity(Gravity.LEFT);
-		    linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            linearLayout.setGravity(Gravity.START);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
             linearLayoutArrayGHS.add(linearLayout);
 
             linearLayoutGHS.addView(linearLayoutArrayGHS.get(i));
-	    }
+        }
 
-	    for (int j=0; j<ghsArrayList.size(); j++) {
+        for (int j=0; j<ghsArrayList.size(); j++) {
 
-		    ImageView image = new ImageView(this);
-		    String ghsPictureUrl = Constant.GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
-		    Picasso.with(this)
+            ImageView image = new ImageView(this);
+            String ghsPictureUrl = Constant.GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
+            Picasso.with(this)
                     .load(ghsPictureUrl)
                     .resize(100, 100)
                     .into(image);
 
-		    linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
+            linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
 
-		    countGHS++;
+            countGHS++;
 
-		    if ((countGHS % imagePerRow) == 0) {
+            if ((countGHS % imagePerRow) == 0) {
 
-			    countLinearLayoutGHS++;
-		    }
-	    }
+                countLinearLayoutGHS++;
+            }
+        }
+        //endregion
 
+        //region ppe
         for (int i=0; i<totalLinearLayoutPPE; i++) {
 
             LinearLayout linearLayout = new LinearLayout(this);
             linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            linearLayout.setGravity(Gravity.LEFT);
+            linearLayout.setGravity(Gravity.START);
             linearLayout.setOrientation(LinearLayout.HORIZONTAL);
             linearLayoutArrayPPE.add(linearLayout);
 
@@ -484,12 +325,12 @@ public class JobMainActivity extends AppCompatActivity {
                 countLinearLayoutPPE++;
             }
         }
+        //endregion
 
         //endregion
 
         //region button confirm
         Button btnConfirm = (Button) scanPPEDialog.findViewById(R.id.btnConfirm);
-        // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -499,9 +340,9 @@ public class JobMainActivity extends AppCompatActivity {
                 if (rbtnHandleProduct.isChecked() && rbtnHavePPE.isChecked()) {
 
                     //region set job status
-                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_PPE).commit();
+                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_PPE).apply();
 
-                    jobDetailDataSource = new JobDetailDataSource(context);
+                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
                     jobDetailDataSource.open();
                     jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
                     jobDetailDataSource.close();
@@ -523,7 +364,6 @@ public class JobMainActivity extends AppCompatActivity {
 
         //region button cancel
         Button btnCancel = (Button) scanPPEDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -535,9 +375,9 @@ public class JobMainActivity extends AppCompatActivity {
         int dividerId = scanPPEDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = scanPPEDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert scanPPEDialog.getWindow() != null;
         scanPPEDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         scanPPEDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         scanPPEDialog.show();
@@ -556,7 +396,7 @@ public class JobMainActivity extends AppCompatActivity {
         final RadioButton rbtnBondingWire = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnBondingWire);
 
         //region set radio button status
-        if (sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "").equals(STATUS_SAFETY_CHECKS)) {
+        if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_SAFETY_CHECKS)) {
 
             rbtnWheelChocked.setChecked(true);
             rbtnBondingWire.setChecked(true);
@@ -570,7 +410,6 @@ public class JobMainActivity extends AppCompatActivity {
 
         //region button confirm
         Button btnConfirm = (Button) safetyChecksDialog.findViewById(R.id.btnConfirm);
-        // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -580,9 +419,9 @@ public class JobMainActivity extends AppCompatActivity {
                 if (rbtnWheelChocked.isChecked() && rbtnBondingWire.isChecked()) {
 
                     //region set job status
-                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SAFETY_CHECKS).commit();
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SAFETY_CHECKS).apply();
 
-                    jobDetailDataSource = new JobDetailDataSource(context);
+                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
                     jobDetailDataSource.open();
                     jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SAFETY_CHECKS);
                     jobDetailDataSource.close();
@@ -604,7 +443,6 @@ public class JobMainActivity extends AppCompatActivity {
 
         //region button cancel
         Button btnCancel = (Button) safetyChecksDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -616,12 +454,194 @@ public class JobMainActivity extends AppCompatActivity {
         int dividerId = safetyChecksDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = safetyChecksDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert safetyChecksDialog.getWindow() != null;
         safetyChecksDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         safetyChecksDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         safetyChecksDialog.show();
     }
 
+    //region Header
+    /*-------- Set User Login Details --------*/
+    public void setUserLoginDetails() {
+
+        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
+        headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
+        tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
+        tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
+        tv_loadingBay = (TextView) headerLayout.findViewById(R.id.tvBay);
+        tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
+
+        //retrieve shared preferences
+        welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+        customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
+        loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
+        loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
+
+        headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
+        tv_jobID.setText(jobID);
+        tv_customerName.setText(customerName);
+        tv_loadingBay.setText(loadingArm);
+        tv_loadingArm.setText(loadingBay);
+
+    }
+    //endregion
+
+    //region Footer
+    public void setFooterMenu() {
+
+        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+
+        btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
+        btnAlert.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnHomeClicked();
+            }
+        });
+
+        btnSearch = (ImageButton) footerLayout.findViewById(R.id.btnSearch);
+        btnSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnSearchClicked();
+            }
+        });
+
+        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.btnSwitch);
+        btnSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnSwitchClicked();
+            }
+        });
+
+        btnSettings = (ImageButton) footerLayout.findViewById(R.id.btnSettings);
+        btnSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                btnSettingsClicked(view);
+            }
+        });
+    }
+
+    public void btnHomeClicked() {
+
+        Intent intent = new Intent(this, DashboardActivity.class);
+        finish();
+        startActivity(intent);
+    }
+
+    public void btnSearchClicked() {
+
+        Intent intent = new Intent(this, SearchJobActivity.class);
+        finish();
+        startActivity(intent);
+    }
+
+    public void btnSwitchClicked() {
+
+        Intent intent = new Intent(this, SwitchJobActivity.class);
+        finish();
+        startActivity(intent);
+    }
+
+    public void btnSettingsClicked(View view) {
+
+        settingsMenuOptions(view);
+    }
+
+    public void settingsMenuOptions(View view) {
+
+        PopupMenu popup = new PopupMenu(this, view);
+
+        // This activity implements OnMenuItemClickListener
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.settingsMenuCheckIn:
+                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
+                        finish();
+                        startActivity(intentCheckIn);
+                        return true;
+
+                    case R.id.settingsMenuExitApp:
+                        exitApplication();
+                        return true;
+
+                    case R.id.settingsMenuCheckOut:
+                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
+                        finish();
+                        startActivity(intentCheckOut);
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+        popup.inflate(R.menu.settings_menu);
+        popup.show();
+    }
+
+    public void exitApplication() {
+
+        if (exitDialog != null && exitDialog.isShowing())
+            return;
+
+        exitDialog = new Dialog(this);
+        exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        exitDialog.setContentView(R.layout.dialog_exit_app);
+
+        //region button confirm
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //close exit dialog
+                exitDialog.dismiss();
+
+                //clear all shared preferences
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.clear().apply();
+
+                //delete all loading bay
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+                loadingBayDetailDataSource.deleteAllLoadingBay();
+
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLogin);
+            }
+        });
+        //endregion
+
+        //region button cancel
+        Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
+        // if button is clicked, close the custom dialog
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                exitDialog.dismiss();
+            }
+        });
+        //endregion
+
+        int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
+        View divider = exitDialog.findViewById(dividerId);
+        if (divider != null) {
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
+        }
+        assert exitDialog.getWindow() != null;
+        exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        exitDialog.show();
+    }
+    //endregion
 }
