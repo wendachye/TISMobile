@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.database.DataSources;
+package com.bizconnectivity.tismobile.database.datasources;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -6,8 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.bizconnectivity.tismobile.classes.CheckIn;
-import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.Contracts.LoadingBayDetailContract.LoadingBayDetails;
+import com.bizconnectivity.tismobile.database.contracts.LoadingBayDetailContract.LoadingBayDetails;
 import com.bizconnectivity.tismobile.database.DatabaseSQLHelper;
 
 import java.util.ArrayList;

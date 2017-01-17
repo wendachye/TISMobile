@@ -8,8 +8,8 @@ import com.bizconnectivity.tismobile.classes.GHS;
 import com.bizconnectivity.tismobile.classes.GHSDetail;
 import com.bizconnectivity.tismobile.classes.PPE;
 import com.bizconnectivity.tismobile.classes.PPEDetail;
-import com.bizconnectivity.tismobile.database.DataSources.GHSDetailDataSource;
-import com.bizconnectivity.tismobile.database.DataSources.PPEDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.GHSDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.PPEDetailDataSource;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.database.DataSources;
+package com.bizconnectivity.tismobile.database.datasources;
 
 import android.database.sqlite.SQLiteDatabase;
 

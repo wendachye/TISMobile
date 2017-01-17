@@ -10,7 +10,7 @@ import android.os.AsyncTask;
 import android.widget.Button;
 
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 
 public class SDSWSAsync extends AsyncTask<String, Void, Void> {

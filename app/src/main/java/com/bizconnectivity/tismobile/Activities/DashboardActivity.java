@@ -22,9 +22,8 @@ import android.widget.TextView;
 import com.bizconnectivity.tismobile.adapters.CustomExpandableListAdapter;
 import com.bizconnectivity.tismobile.classes.JobDetail;
 import com.bizconnectivity.tismobile.classes.LoadingBayList;
-import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
-import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 
 import java.util.ArrayList;

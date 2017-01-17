@@ -1,7 +1,6 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
@@ -17,23 +16,22 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.Common;
-import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
+
+import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 
 public class SearchJobActivity extends AppCompatActivity {
 
-    //region Header and Footer
-    Context context;
-
-    //footer buttons
+    //region declaration
+    LinearLayout headerLayout;
+    RelativeLayout footerLayout;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-
-    //TextViews
     TextView headerMessage;
-
-    //Dialog boxes
     Dialog exitDialog;
+    SharedPreferences sharedPref;
+    LoadingBayDetailDataSource loadingBayDetailDataSource;
     //endregion
 
     @Override
@@ -42,10 +40,10 @@ public class SearchJobActivity extends AppCompatActivity {
         setContentView(R.layout.activity_search_job);
 
         //region Header and Footer
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        context = this;
 
         /*-------- Set User Login Details --------*/
         setUserLoginDetails();
@@ -58,24 +56,24 @@ public class SearchJobActivity extends AppCompatActivity {
     //region Header
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
+
+        headerLayout = (LinearLayout) findViewById(R.id.header);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
 
-        SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, 0);
-        sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
-
-        headerMessage.setText(Common.formatWelcomeMsg(sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "")));
+        headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
     }
     //endregion
 
     //region Footer
     public void setFooterMenu() {
-        RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
+
+        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnHomeClicked(view);
+                btnHomeClicked();
             }
         });
 
@@ -83,7 +81,7 @@ public class SearchJobActivity extends AppCompatActivity {
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSearchClicked(view);
+                btnSearchClicked();
             }
         });
 
@@ -91,7 +89,7 @@ public class SearchJobActivity extends AppCompatActivity {
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                btnSwitchClicked(view);
+                btnSwitchClicked();
             }
         });
 
@@ -104,20 +102,23 @@ public class SearchJobActivity extends AppCompatActivity {
         });
     }
 
-    public void btnHomeClicked(View view) {
-        Intent intentHome = new Intent(context, DashboardActivity.class);
+    public void btnHomeClicked() {
+
+        Intent intentHome = new Intent(this, DashboardActivity.class);
         finish();
         startActivity(intentHome);
     }
 
-    public void btnSearchClicked(View view) {
-        Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
+    public void btnSearchClicked() {
+
+        Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
         finish();
         startActivity(intentSearchJob);
     }
 
-    public void btnSwitchClicked(View view) {
-        Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
+    public void btnSwitchClicked() {
+
+        Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
         finish();
         startActivity(intentSwitchTruckBay);
     }
@@ -126,8 +127,7 @@ public class SearchJobActivity extends AppCompatActivity {
         settingsMenuOptions(view);
     }
 
-    public void settingsMenuOptions(View view)
-    {
+    public void settingsMenuOptions(View view) {
         PopupMenu popup = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
@@ -136,18 +136,21 @@ public class SearchJobActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
-                        Intent intentCheckIn = new Intent(context, CheckInActivity.class);
+                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         finish();
                         startActivity(intentCheckIn);
                         return true;
+
                     case R.id.settingsMenuExitApp:
                         exitApplication();
                         return true;
+
                     case R.id.settingsMenuCheckOut:
-                        Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
+                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
                         finish();
                         startActivity(intentCheckOut);
                         return true;
+
                     default:
                         return false;
                 }
@@ -157,51 +160,56 @@ public class SearchJobActivity extends AppCompatActivity {
         popup.show();
     }
 
-    public void exitApplication()
-    {
+    public void exitApplication() {
+
         if (exitDialog != null && exitDialog.isShowing())
             return;
 
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
 
-        // if button is clicked, close the custom dialog
+        //region button confirm
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //close exit dialog
                 exitDialog.dismiss();
-                SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+
+                //clear all shared preferences
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear();
-                editor.commit();
+                editor.clear().apply();
 
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                //v.getContext().finish();
+                //delete all loading bay
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+                loadingBayDetailDataSource.deleteAllLoadingBay();
 
-                /*((Activity) context).finish();*/
-                System.exit(0);
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intentLogin);
             }
         });
+        //endregion
 
+        //region button cancel
         Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 exitDialog.dismiss();
             }
         });
+        //endregion
 
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
         if (divider != null) {
             divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
         }
-
+        assert exitDialog.getWindow() != null;
         exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         exitDialog.show();

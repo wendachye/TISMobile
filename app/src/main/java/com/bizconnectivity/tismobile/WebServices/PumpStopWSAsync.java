@@ -9,7 +9,7 @@ import android.os.AsyncTask;
 
 import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
 import static com.bizconnectivity.tismobile.Constant.calendar;

@@ -9,7 +9,7 @@ import com.bizconnectivity.tismobile.activities.CheckInActivity;
 import com.bizconnectivity.tismobile.classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN;
 

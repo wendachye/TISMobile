@@ -10,7 +10,7 @@ import android.os.AsyncTask;
 import com.bizconnectivity.tismobile.activities.DashboardActivity;
 import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
 public class DepartureWSAsync extends AsyncTask<String, Void, Void> {
 

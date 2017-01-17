@@ -4,15 +4,15 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.bizconnectivity.tismobile.database.Contracts.GHSDetailContract.GHSDetails;
-import com.bizconnectivity.tismobile.database.Contracts.JobDetailContract.JobDetails;
-import com.bizconnectivity.tismobile.database.Contracts.LoadingBayDetailContract.LoadingBayDetails;
-import com.bizconnectivity.tismobile.database.Contracts.PPEContract.PPE;
-import com.bizconnectivity.tismobile.database.Contracts.GHSContract.GHS;
-import com.bizconnectivity.tismobile.database.Contracts.PPEDetailContract.PPEDetails;
-import com.bizconnectivity.tismobile.database.Contracts.SealDetailContract.SealDetails;
-import com.bizconnectivity.tismobile.database.Contracts.TechnicianDetailContract.TechnicianDetails;
-import com.bizconnectivity.tismobile.database.Contracts.UserDetailContract.UserDetails;
+import com.bizconnectivity.tismobile.database.contracts.GHSDetailContract.GHSDetails;
+import com.bizconnectivity.tismobile.database.contracts.JobDetailContract.JobDetails;
+import com.bizconnectivity.tismobile.database.contracts.LoadingBayDetailContract.LoadingBayDetails;
+import com.bizconnectivity.tismobile.database.contracts.PPEContract.PPE;
+import com.bizconnectivity.tismobile.database.contracts.GHSContract.GHS;
+import com.bizconnectivity.tismobile.database.contracts.PPEDetailContract.PPEDetails;
+import com.bizconnectivity.tismobile.database.contracts.SealDetailContract.SealDetails;
+import com.bizconnectivity.tismobile.database.contracts.TechnicianDetailContract.TechnicianDetails;
+import com.bizconnectivity.tismobile.database.contracts.UserDetailContract.UserDetails;
 
 public class DatabaseSQLHelper extends SQLiteOpenHelper{
 

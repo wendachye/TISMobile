@@ -1,4 +1,4 @@
-package com.bizconnectivity.tismobile.database.Contracts;
+package com.bizconnectivity.tismobile.database.contracts;
 
 import android.provider.BaseColumns;
 

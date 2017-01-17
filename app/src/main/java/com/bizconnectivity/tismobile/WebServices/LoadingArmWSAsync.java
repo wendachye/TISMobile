@@ -9,7 +9,7 @@ import android.os.AsyncTask;
 import com.bizconnectivity.tismobile.activities.LoadingOperationActivity;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;

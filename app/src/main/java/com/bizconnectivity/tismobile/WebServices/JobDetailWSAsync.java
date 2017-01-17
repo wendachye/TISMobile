@@ -4,7 +4,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 
 import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
 import java.util.ArrayList;
 import java.util.Date;

@@ -20,9 +20,9 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.database.DataSources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.webservices.DriverIDWSAsync;
 import com.bizconnectivity.tismobile.webservices.WorkInstructionWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;

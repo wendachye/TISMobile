@@ -10,7 +10,7 @@ import com.bizconnectivity.tismobile.activities.CheckInActivity;
 import com.bizconnectivity.tismobile.classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.TechnicianDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.TechnicianDetailDataSource;
 
 public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 

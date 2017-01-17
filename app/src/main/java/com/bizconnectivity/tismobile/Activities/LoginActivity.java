@@ -14,7 +14,7 @@ import android.widget.Button;
 import com.bizconnectivity.tismobile.classes.UserDetail;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.DataSources.UserDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.UserDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.webservices.UserWSAsync;
 import com.scottyab.aescrypt.AESCrypt;
