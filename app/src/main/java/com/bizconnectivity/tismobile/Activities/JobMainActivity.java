@@ -44,6 +44,8 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_PPE;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.GHS_FILE_LOCATION;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.PPE_FILE_LOCATION;
 
 public class JobMainActivity extends AppCompatActivity {
 
@@ -90,7 +92,7 @@ public class JobMainActivity extends AppCompatActivity {
 
                 if (Common.isNetworkAvailable(getApplicationContext())) {
 
-                    PPEWSAsync task = new PPEWSAsync(getApplicationContext(), btnPPE, sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
+                    PPEWSAsync task = new PPEWSAsync(JobMainActivity.this, btnPPE, sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
                     task.execute();
 
                 } else {
@@ -113,7 +115,7 @@ public class JobMainActivity extends AppCompatActivity {
 
                     btnScanDetails.setEnabled(true);
 
-                    SDSWSAsync task = new SDSWSAsync(getApplicationContext(), btnSDS, sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                    SDSWSAsync task = new SDSWSAsync(JobMainActivity.this, btnSDS, sharedPref.getString(SHARED_PREF_JOB_ID, ""));
                     task.execute();
 
                 } else {
@@ -279,7 +281,7 @@ public class JobMainActivity extends AppCompatActivity {
         for (int j=0; j<ghsArrayList.size(); j++) {
 
             ImageView image = new ImageView(this);
-            String ghsPictureUrl = Constant.GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
+            String ghsPictureUrl = GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
             Picasso.with(this)
                     .load(ghsPictureUrl)
                     .resize(100, 100)
@@ -311,7 +313,7 @@ public class JobMainActivity extends AppCompatActivity {
         for (int j=0; j<ppeArrayList.size(); j++) {
 
             ImageView image = new ImageView(this);
-            String ppePictureUrl = Constant.PPE_FILE_LOCATION + ppeArrayList.get(j).getPpePictureURL();
+            String ppePictureUrl = PPE_FILE_LOCATION + ppeArrayList.get(j).getPpePictureURL();
             Picasso.with(this)
                     .load(ppePictureUrl)
                     .resize(100, 100)

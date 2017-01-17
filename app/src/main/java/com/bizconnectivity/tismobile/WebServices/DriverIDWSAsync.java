@@ -17,7 +17,8 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
 public class DriverIDWSAsync extends AsyncTask<String, Void, Void> {
 
 	Context context;
-	String jobID, driverID, response;
+	String jobID, driverID;
+	boolean response;
 	JobDetailDataSource jobDetailDataSource;
 	ProgressDialog progressDialog;
 
@@ -32,6 +33,7 @@ public class DriverIDWSAsync extends AsyncTask<String, Void, Void> {
 	protected Void doInBackground(String... params) {
 
 		response = DriverIDWS.invokeRetrieveDriverID(jobID, driverID);
+
 		return null;
 	}
 
@@ -41,10 +43,10 @@ public class DriverIDWSAsync extends AsyncTask<String, Void, Void> {
 		SharedPreferences sharedPref = context.getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 		SharedPreferences.Editor editor = sharedPref.edit();
 
-		if (!response.isEmpty()) {
+		if (response) {
 
 			//update job status
-			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).commit();
+			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).apply();
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();

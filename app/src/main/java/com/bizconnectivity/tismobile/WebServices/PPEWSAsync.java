@@ -52,7 +52,7 @@ public class PPEWSAsync extends AsyncTask<String, Void, Void> {
 
 		} else {
 
-			//end progress dialog
+			//close progress dialog
 			progressDialog.dismiss();
 
 			AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);

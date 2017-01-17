@@ -139,4 +139,5 @@ public class JobDetail implements Serializable{
 	public void setJobDate(String jobDate) {
 		this.jobDate = jobDate;
 	}
+
 }

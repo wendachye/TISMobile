@@ -1,9 +1,16 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -18,9 +25,15 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.fragments.SearchByCustomerNameFragment;
+import com.bizconnectivity.tismobile.fragments.SearchByOrderIDFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 
 public class SearchJobActivity extends AppCompatActivity {
 
@@ -32,12 +45,16 @@ public class SearchJobActivity extends AppCompatActivity {
     Dialog exitDialog;
     SharedPreferences sharedPref;
     LoadingBayDetailDataSource loadingBayDetailDataSource;
+    ViewPager viewPager;
+    TabLayout tabLayout;
     //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search_job);
+
+        sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
         assert getSupportActionBar() != null;
@@ -51,6 +68,58 @@ public class SearchJobActivity extends AppCompatActivity {
         /*-------- footer buttons --------*/
         setFooterMenu();
         //endregion
+
+
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
+        setupViewPager(viewPager);
+
+        tabLayout = (TabLayout) findViewById(R.id.tabs);
+        tabLayout.setupWithViewPager(viewPager);
+    }
+
+    private void setupViewPager(ViewPager viewPager) {
+
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+        adapter.addFragment(new SearchByOrderIDFragment(), "Order ID");
+        adapter.addFragment(new SearchByCustomerNameFragment(), "Customer Name");
+
+        viewPager.setAdapter(adapter);
+    }
+
+    class ViewPagerAdapter extends FragmentPagerAdapter {
+
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+        private ViewPagerAdapter(FragmentManager manager) {
+
+            super(manager);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+
+            return mFragmentList.size();
+        }
+
+        private void addFragment(Fragment fragment, String title) {
+
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+
+            return mFragmentTitleList.get(position);
+        }
     }
 
     //region Header
@@ -207,7 +276,7 @@ public class SearchJobActivity extends AppCompatActivity {
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
         assert exitDialog.getWindow() != null;
         exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
@@ -215,4 +284,10 @@ public class SearchJobActivity extends AppCompatActivity {
         exitDialog.show();
     }
     //endregion
+
+    @Override
+    public void onBackPressed() {
+
+        exitApplication();
+    }
 }

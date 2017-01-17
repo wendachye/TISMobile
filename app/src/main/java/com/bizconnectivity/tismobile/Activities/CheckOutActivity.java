@@ -274,4 +274,10 @@ public class CheckOutActivity extends AppCompatActivity {
         exitDialog.show();
     }
     //endregion
+
+    @Override
+    public void onBackPressed() {
+
+        exitApplication();
+    }
 }

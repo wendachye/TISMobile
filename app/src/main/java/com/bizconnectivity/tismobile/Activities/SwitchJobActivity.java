@@ -480,4 +480,10 @@ public class SwitchJobActivity extends AppCompatActivity {
         exitDialog.show();
     }
     //endregion
+
+    @Override
+    public void onBackPressed() {
+
+        exitApplication();
+    }
 }

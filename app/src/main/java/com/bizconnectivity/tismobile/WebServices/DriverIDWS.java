@@ -13,9 +13,9 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class DriverIDWS {
 
-	public static String invokeRetrieveDriverID(String timeslotId, String idNumber) {
+	public static boolean invokeRetrieveDriverID(String timeslotId, String idNumber) {
 
-		String driverID = "";
+		boolean returnResult = false;
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_GET_TIMESLOT);
 
@@ -55,9 +55,11 @@ public class DriverIDWS {
 				SoapObject table = (SoapObject) newDataSet.getProperty(0);
 
 				if (!table.getProperty("IDNumber").toString().equals("anyType{}")) {
-					driverID = table.getProperty("IDNumber").toString();
-				} else {
-					driverID = "";
+
+					if (idNumber.equals(table.getProperty("IDNumber").toString())) {
+
+						returnResult = true;
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -65,17 +67,6 @@ public class DriverIDWS {
 			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
-		if (!driverID.isEmpty()) {
-
-			if (driverID.equals(idNumber)) {
-				return driverID;
-			} else {
-				driverID = "";
-				return driverID;
-			}
-
-		} else {
-			return driverID;
-		}
+		return returnResult;
 	}
 }

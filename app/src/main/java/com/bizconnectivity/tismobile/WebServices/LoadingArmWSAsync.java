@@ -55,7 +55,7 @@ public class LoadingArmWSAsync extends AsyncTask<String, Void, Void> {
 			jobDetailDataSource.close();
 			//endregion
 
-			//end progress dialog
+			//close progress dialog
 			progressDialog.dismiss();
 
 			Intent intent = new Intent(context, LoadingOperationActivity.class);
@@ -64,7 +64,7 @@ public class LoadingArmWSAsync extends AsyncTask<String, Void, Void> {
 
 		} else {
 
-			//end progress dialog
+			//close progress dialog
 			progressDialog.dismiss();
 
 			Common.shortToast(context, Constant.ERR_MSG_INVALID_LOADING_ARM);

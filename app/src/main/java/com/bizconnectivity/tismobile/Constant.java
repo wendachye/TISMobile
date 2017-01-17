@@ -43,17 +43,6 @@ public class Constant {
     public static final String STATUS_PUMP_STOP = "Pump Stop Completed";
     public static final String STATUS_SCAN_SEAL = "Scan Seal Completed";
 
-    /*--------BCPL Development Server--------*/
-//    public static String SDS_FILE_LOCATION = "http://192.168.2.91/tis/Core/MSDS Files/";
-//    public static String GHS_FILE_LOCATION = "http://192.168.2.91/tis/Images/GHS/";
-//    public static String PPE_FILE_LOCATION = "http://192.168.2.91/tis/Images/PPE/";
-    public static boolean DEBUG = true;
-
-    /*--------Live Server--------*/
-    public static String SDS_FILE_LOCATION = "http://10.129.114.48/Penjuru_UAT/Core/MSDS Files/";
-    public static String GHS_FILE_LOCATION = "http://10.129.114.48/Penjuru_UAT/Images/GHS/";
-    public static String PPE_FILE_LOCATION = "http://10.129.114.48/Penjuru_UAT/Images/PPE/";
-
     /*--------Login--------*/
     public static String TEST_USERNAME = "test";
     public static String TEST_PASSWORD = "test";
@@ -66,8 +55,8 @@ public class Constant {
     public static String ERR_MSG_INCORRECT_USERNAME = "Incorrect Username.";
     public static String ERR_MSG_INCORRECT_PASSWORD = "Incorrect Password.";
     public static String MSG_LOGIN_CORRECT = "Success Login";
-    public static String MSG_CORRECT_TECHNICIAN_NRIC = "Technician Verified";
-    public static String MSG_CORRECT_LOADING_BAY_NO = "Truck Loading Bay Verified";
+    public static String MSG_ORDER_ID_REQUIRED = "Order ID is required";
+    public static String MSG_CUSTOMER_NAME_REQUIRED = "Customer Name is required";
 
     //CheckIn
     public static String ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN = "Truck loading bay was already checked in before.";

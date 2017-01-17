@@ -1,5 +1,7 @@
 package com.bizconnectivity.tismobile.webservices;
 
+import android.util.Log;
+
 import com.bizconnectivity.tismobile.classes.PPE;
 
 import org.ksoap2.SoapEnvelope;
@@ -40,7 +42,7 @@ public class PPEWS {
 		HttpTransportSE androidHttpTransport = new HttpTransportSE(ConstantWS.URL);
 
 		try {
-			//invole web service
+			//invoke web service
 			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_GET_PRODUCT_PPE, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
@@ -51,7 +53,6 @@ public class PPEWS {
 
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				ppeArrayList = getElementFromPPE(response);
-
 			}
 
 		} catch (Exception e) {
@@ -70,8 +71,10 @@ public class PPEWS {
 
 		//retrieve diffgram from property
 		SoapObject diffGram = (SoapObject) soapObject.getProperty("diffgram");
+
 		//retrieve document element from diffgram
 		SoapObject documentElement = (SoapObject) diffGram.getProperty("DocumentElement");
+
 		//get the number of dataset
 		int newDataSetCount = documentElement.getPropertyCount();
 

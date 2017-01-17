@@ -1,0 +1,27 @@
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.bizconnectivity.tismobile.fragments.SearchByCustomerNameFragment">
+
+    <EditText
+        android:id="@+id/etCustomerName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/big_spacing"
+        android:layout_marginLeft="@dimen/big_spacing"
+        android:layout_marginRight="@dimen/big_spacing"
+        android:hint="@string/customer_name"/>
+
+    <Button
+        android:id="@+id/btnSearch"
+        android:layout_width="@dimen/button_width"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/big_spacing"
+        android:layout_gravity="center"
+        android:text="@string/search"
+        android:textSize="@dimen/default_app_text"/>
+
+</LinearLayout>

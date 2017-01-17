@@ -6,19 +6,24 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.androidifygeeks.library.fragment.PageFragment;
+import com.androidifygeeks.library.fragment.TabDialogFragment;
 import com.bizconnectivity.tismobile.adapters.CustomExpandableListAdapter;
 import com.bizconnectivity.tismobile.classes.JobDetail;
 import com.bizconnectivity.tismobile.classes.LoadingBayList;
@@ -66,7 +71,7 @@ public class DashboardActivity extends AppCompatActivity {
     ArrayList<LoadingBayList> loadingBayArraylist;
     ArrayList<JobDetail> childArrayList;
     ArrayList<String> groupArrayList;
-    String jobID, loginName, loadingBay;
+    String jobID, loadingBay;
     //endregion
 
     @Override
@@ -225,10 +230,8 @@ public class DashboardActivity extends AppCompatActivity {
 
         headerLayout = (LinearLayout) findViewById(R.id.header);
 
-        loginName = sharedPref.getString(SHARED_PREF_LOGINNAME, "");
-
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-        headerMessage.setText(formatWelcomeMsg(loginName));
+        headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
     }
 
     public void setLoadingBayNo() {
@@ -421,4 +424,6 @@ public class DashboardActivity extends AppCompatActivity {
 
         exitApplication();
     }
+
+
 }

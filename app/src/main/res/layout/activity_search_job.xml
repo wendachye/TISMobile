@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_search_job"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.bizconnectivity.tismobile.activities.SearchJobActivity">
+                xmlns:tools="http://schemas.android.com/tools"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/activity_search_job"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                tools:context="com.bizconnectivity.tismobile.activities.SearchJobActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,6 +18,47 @@
             layout="@layout/header_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvTruckBayTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/header_title_text_spacing"
+            android:layout_marginTop="@dimen/header_title_text_spacing"
+            android:gravity="center_horizontal"
+            android:text="@string/search"
+            android:textStyle="bold"
+            android:textSize="@dimen/header_title_text" />
+
+        <TextView
+            android:id="@+id/hDivider1"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/separator_width"
+            android:background="@color/colorBlack" />
+
+        <android.support.design.widget.AppBarLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:theme="@style/TabTheme">
+
+            <android.support.design.widget.TabLayout
+                android:id="@+id/tabs"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                app:tabSelectedTextColor="@color/colorWhite"
+                app:tabTextAppearance="@style/TabLayoutTextAppearance"
+                app:tabMode="fixed"
+                app:tabGravity="fill"/>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/viewpager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"  />
+
     </LinearLayout>
 
     <RelativeLayout
@@ -29,6 +71,7 @@
             layout="@layout/footer_menu"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
+
     </RelativeLayout>
 
 </RelativeLayout>

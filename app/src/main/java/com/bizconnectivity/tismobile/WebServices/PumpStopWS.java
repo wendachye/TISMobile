@@ -14,7 +14,7 @@ public class PumpStopWS {
 
 		boolean returnResult = false;
 
-		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CREATE_PUMPSTOP_TIME);
+		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CREATE_PUMP_STOP_TIME);
 
 		// Property which holds input parameters
 		PropertyInfo propertyInfoTSID = new PropertyInfo();
@@ -48,7 +48,7 @@ public class PumpStopWS {
 		HttpTransportSE androidHttpTransport = new HttpTransportSE(ConstantWS.URL);
 
 		try {
-			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_CREATE_PUMPSTOP_TIME, envelope);
+			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_CREATE_PUMP_STOP_TIME, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
 

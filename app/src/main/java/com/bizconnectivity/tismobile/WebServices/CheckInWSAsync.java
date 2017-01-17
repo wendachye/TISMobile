@@ -58,11 +58,10 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 			if (!returnResult) {
 
 				Common.shortToast(context, ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN);
-
 			}
 
 			//get all the job details from web service
-			JobDetailWSAsync task = new JobDetailWSAsync(context, Constant.calendar.getTime(), rackNo);
+			JobDetailWSAsync task = new JobDetailWSAsync(context, rackNo);
         	task.execute();
 
 			//end progress dialog

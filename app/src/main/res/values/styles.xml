@@ -9,6 +9,18 @@
         <item name="actionBarStyle">@style/MyActionBar</item>
     </style>
 
+    <style name="TabTheme" parent="android:Widget">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorAccent</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/list_view_color_grey</item>
+    </style>
+
+    <style name="TabLayoutTextAppearance" parent="TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
     <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
         <item name="android:icon">@mipmap/ic_launcher</item>
         <item name="titleTextStyle">@style/MyTitleTextStyle</item>

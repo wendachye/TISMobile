@@ -1,13 +1,9 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import android.util.Log;
-
 import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.Constant;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
-import org.ksoap2.serialization.MarshalDate;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
@@ -18,26 +14,29 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.WS_TS_GET_JOB_DETAIL_BY_CUSTOMER_NAME;
 
-public class JobDetailWS {
+public class CustomerNameSearchWS {
 
-	public static ArrayList<JobDetail> invokeRetrieveAllJobs (String trunkRackNo) {
+	public static ArrayList<JobDetail> invokeRetrieveJobDetailByCustomerName (String customerName) {
 
 		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
 
 		//create request
-		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_GET_ALL_JOB_DETAILS);
+		SoapObject request = new SoapObject(NAMESPACE, WS_TS_GET_JOB_DETAIL_BY_CUSTOMER_NAME);
 
 		//property which holds input parameters
-		PropertyInfo propertyInfoTRN = new PropertyInfo();
+		PropertyInfo propertyInfoTI = new PropertyInfo();
 		//set name
-		propertyInfoTRN.setName("truckRackNo");
+		propertyInfoTI.setName("customerName");
 		//set value
-		propertyInfoTRN.setValue(trunkRackNo);
+		propertyInfoTI.setValue(customerName);
 		//set datatype
-		propertyInfoTRN.setType(String.class);
+		propertyInfoTI.setType(String.class);
 		//add the property to request object
-		request.addProperty(propertyInfoTRN);
+		request.addProperty(propertyInfoTI);
 
 		//create envelope
 		SoapSerializationEnvelope envelope = new SoapSerializationEnvelope(SoapEnvelope.VER11);
@@ -48,10 +47,9 @@ public class JobDetailWS {
 		//create HTTP call object
 		HttpTransportSE androidHTTPTransport = new HttpTransportSE(ConstantWS.URL);
 
-
 		try {
 			//invoke web service
-			androidHTTPTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_GET_ALL_JOB_DETAILS, envelope);
+			androidHTTPTransport.call(SOAP_ACTION + WS_TS_GET_JOB_DETAIL_BY_CUSTOMER_NAME, envelope);
 
 			if(envelope.bodyIn instanceof SoapFault) {
 
@@ -72,7 +70,7 @@ public class JobDetailWS {
 		return jobDetailArrayList;
 	}
 
-	public static ArrayList<JobDetail> getElementFromJobDetail (SoapObject response) {
+	private static ArrayList<JobDetail> getElementFromJobDetail (SoapObject response) {
 
 		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
 
@@ -159,6 +157,7 @@ public class JobDetailWS {
 					jobDetail.setJobDate(bookingDate);
 
 				} catch (ParseException e) {
+
 					e.printStackTrace();
 				}
 

@@ -13,6 +13,8 @@ import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.SDS_FILE_LOCATION;
+
 public class SDSWSAsync extends AsyncTask<String, Void, Void> {
 
 	Context context;
@@ -64,7 +66,7 @@ public class SDSWSAsync extends AsyncTask<String, Void, Void> {
 			progressDialog.dismiss();
 
 			//full url path of sds file
-			String URL = Constant.SDS_FILE_LOCATION + SDSPDFURL;
+			String URL = SDS_FILE_LOCATION + SDSPDFURL;
 
 			Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(URL));
 			context.startActivity(browserIntent);
