@@ -2,8 +2,8 @@ package com.bizconnectivity.tismobile.classes;
 
 public class PPEDetail {
 
-	String jobID;
-	int ppeID;
+	private String jobID;
+	private int ppeID;
 
 	public String getJobID() {
 		return jobID;

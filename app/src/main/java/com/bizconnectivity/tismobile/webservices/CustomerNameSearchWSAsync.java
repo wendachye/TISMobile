@@ -12,6 +12,9 @@ import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Common.shortToast;
+import static com.bizconnectivity.tismobile.Constant.MSG_CUSTOMER_NAME_NOT_FOUND;
+
 public class CustomerNameSearchWSAsync extends AsyncTask<String, Void, Void> {
 
 	Context context;
@@ -57,6 +60,13 @@ public class CustomerNameSearchWSAsync extends AsyncTask<String, Void, Void> {
 			((SearchJobActivity) context).finish();
 			intent.putExtra("jobDetailArrayList", jobDetailArrayList);
 			context.startActivity(intent);
+
+		} else {
+
+			//close progress dialog
+			progressDialog.dismiss();
+
+			shortToast(context, MSG_CUSTOMER_NAME_NOT_FOUND);
 		}
 	}
 

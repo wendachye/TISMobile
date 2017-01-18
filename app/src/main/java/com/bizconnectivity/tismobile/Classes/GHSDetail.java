@@ -2,8 +2,8 @@ package com.bizconnectivity.tismobile.classes;
 
 public class GHSDetail {
 
-	String jobID;
-	int ghsID;
+	private String jobID;
+	private int ghsID;
 
 	public String getJobID() {
 		return jobID;

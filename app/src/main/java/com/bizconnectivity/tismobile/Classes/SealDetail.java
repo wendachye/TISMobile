@@ -2,8 +2,8 @@ package com.bizconnectivity.tismobile.classes;
 
 public class SealDetail {
 
-	int jobID;
-	int sealNo;
+	private int jobID;
+	private int sealNo;
 
 	public int getJobID() {
 		return jobID;

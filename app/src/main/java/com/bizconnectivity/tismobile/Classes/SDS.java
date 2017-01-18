@@ -2,7 +2,7 @@ package com.bizconnectivity.tismobile.classes;
 
 public class SDS {
 
-	String sdsFileURL;
+	private String sdsFileURL;
 
 	public String getSdsFileURL() {
 		return sdsFileURL;

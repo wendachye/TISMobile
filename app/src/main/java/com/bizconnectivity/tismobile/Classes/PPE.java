@@ -2,7 +2,7 @@ package com.bizconnectivity.tismobile.classes;
 
 public class PPE {
 
-	String ppePictureURL;
+	private String ppePictureURL;
 
 	public void setPpePictureURL(String ppePictureURL) {
 		this.ppePictureURL = ppePictureURL;

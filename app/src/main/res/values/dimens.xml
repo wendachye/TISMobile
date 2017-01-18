@@ -4,7 +4,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
 
-    <dimen name="default_app_text">16dp</dimen>
+    <dimen name="default_app_text">16sp</dimen>
 
     <dimen name="summary_spacing">10dp</dimen>
     <dimen name="big_spacing">30dp</dimen>
@@ -30,6 +30,7 @@
     <dimen name="header_title_text">18dp</dimen>
     <dimen name="header_title_text_spacing">5dp</dimen>
     <dimen name="header_green_bar_height">15dp</dimen>
+    <dimen name="small_margin">3dp</dimen>
 
     <dimen name="dialog_header_title_text_spacing">15dp</dimen>
     <dimen name="dialog_header_content_spacing">15dp</dimen>

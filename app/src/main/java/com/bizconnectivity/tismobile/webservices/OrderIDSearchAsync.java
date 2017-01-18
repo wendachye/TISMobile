@@ -6,12 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
+import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.activities.SearchJobActivity;
 import com.bizconnectivity.tismobile.activities.SearchResultActivity;
 import com.bizconnectivity.tismobile.classes.JobDetail;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
 import java.util.ArrayList;
+
+import static com.bizconnectivity.tismobile.Common.shortToast;
+import static com.bizconnectivity.tismobile.Constant.MSG_ORDER_ID_NOT_FOUND;
 
 public class OrderIDSearchAsync extends AsyncTask<String, Void, Void> {
 
@@ -58,6 +62,12 @@ public class OrderIDSearchAsync extends AsyncTask<String, Void, Void> {
 			((SearchJobActivity) context).finish();
 			intent.putExtra("jobDetailArrayList", jobDetailArrayList);
 			context.startActivity(intent);
+		} else {
+
+			//close progress dislog
+			progressDialog.dismiss();
+
+			shortToast(context, MSG_ORDER_ID_NOT_FOUND);
 		}
 	}
 

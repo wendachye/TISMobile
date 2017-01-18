@@ -52,12 +52,14 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
 public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder>{
 
+	//region declaration
 	Context context;
 	List<JobDetail> items;
 	int itemLayout;
 	AdapterCallBack adapterCallBack;
 	JobDetailDataSource jobDetailDataSource;
 	JobDetail jobDetail;
+	//endregion
 
 	public SearchResultAdapter(Context context, List<JobDetail> items, int itemLayout, AdapterCallBack adapterCallBack) {
 

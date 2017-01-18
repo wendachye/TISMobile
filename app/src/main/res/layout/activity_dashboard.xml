@@ -54,6 +54,7 @@
                 android:layout_weight="0.17"
                 android:padding="@dimen/list_item_padding"
                 android:text="@string/order"
+                android:textStyle="bold"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -73,6 +74,7 @@
                 android:layout_weight="0.35"
                 android:padding="@dimen/list_item_padding"
                 android:text="@string/customer"
+                android:textStyle="bold"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -92,6 +94,7 @@
                 android:layout_weight="0.33"
                 android:padding="@dimen/list_item_padding"
                 android:text="@string/product"
+                android:textStyle="bold"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -111,6 +114,7 @@
                 android:layout_weight="0.15"
                 android:padding="@dimen/list_item_padding"
                 android:text="@string/tank_no"
+                android:textStyle="bold"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 

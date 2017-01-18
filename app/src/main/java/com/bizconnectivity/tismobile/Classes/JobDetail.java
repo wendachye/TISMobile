@@ -4,21 +4,21 @@ import java.io.Serializable;
 
 public class JobDetail implements Serializable{
 
-	String jobID;
-	String customerName;
-	String productName;
-	String tankNo;
-	String loadingBayNo;
-	String loadingArm;
-	String sdsFilePath;
-	String operatorID;
-	String driverID;
-	String workInstruction;
-	String pumpStartTime;
-	String pumpStopTime;
-	String rackOutTime;
-	String jobStatus;
-	String jobDate;
+	private String jobID;
+	private String customerName;
+	private String productName;
+	private String tankNo;
+	private String loadingBayNo;
+	private String loadingArm;
+	private String sdsFilePath;
+	private String operatorID;
+	private String driverID;
+	private String workInstruction;
+	private String pumpStartTime;
+	private String pumpStopTime;
+	private String rackOutTime;
+	private String jobStatus;
+	private String jobDate;
 
 	public String getJobID() {
 		return jobID;

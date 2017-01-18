@@ -2,8 +2,8 @@ package com.bizconnectivity.tismobile.classes;
 
 public class CheckIn {
 
-	String technicianNRIC;
-	String loadingBayNo;
+	private String technicianNRIC;
+	private String loadingBayNo;
 
 	public String getTechnicianNRIC() {
 		return technicianNRIC;

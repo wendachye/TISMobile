@@ -57,6 +57,9 @@ public class Constant {
     public static String MSG_LOGIN_CORRECT = "Success Login";
     public static String MSG_ORDER_ID_REQUIRED = "Order ID is required";
     public static String MSG_CUSTOMER_NAME_REQUIRED = "Customer Name is required";
+    public static String MSG_ORDER_ID_NOT_FOUND = "Order ID not found.";
+    public static String MSG_CUSTOMER_NAME_NOT_FOUND = "Customer Name not found.";
+
 
     //CheckIn
     public static String ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN = "Truck loading bay was already checked in before.";

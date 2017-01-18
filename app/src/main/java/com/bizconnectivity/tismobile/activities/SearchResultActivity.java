@@ -107,9 +107,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 			@Override
 			public void onClick(View view) {
 
-				Intent intent = getIntent();
-				finish();
-				startActivity(intent);
+				btnSearchClicked();
 			}
 		});
 
@@ -130,6 +128,13 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 				btnSettingsClicked(view);
 			}
 		});
+	}
+
+	public void btnSearchClicked() {
+
+		Intent intent = new Intent(this, SearchJobActivity.class);
+		finish();
+		startActivity(intent);
 	}
 
 	public void btnHomeClicked() {
@@ -248,7 +253,9 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 	@Override
 	public void onBackPressed() {
 
-		exitApplication();
+		Intent intent = new Intent(this, SearchJobActivity.class);
+		finish();
+		startActivity(intent);
 	}
 
 	@Override

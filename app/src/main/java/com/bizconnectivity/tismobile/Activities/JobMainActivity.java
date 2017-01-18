@@ -647,4 +647,12 @@ public class JobMainActivity extends AppCompatActivity {
         exitDialog.show();
     }
     //endregion
+
+    @Override
+    public void onBackPressed() {
+
+        Intent intent = new Intent(this, DashboardActivity.class);
+        finish();
+        startActivity(intent);
+    }
 }

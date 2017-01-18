@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public class LoadingBayList {
 
-	String groupTitle;
-	ArrayList<JobDetail> jobDetails;
+	private String groupTitle;
+	private ArrayList<JobDetail> jobDetails;
 
 	public String getGroupTitle() {
 		return groupTitle;

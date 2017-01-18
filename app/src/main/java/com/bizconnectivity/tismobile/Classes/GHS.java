@@ -2,7 +2,7 @@ package com.bizconnectivity.tismobile.classes;
 
 public class GHS {
 
-	String ghsPictureURL;
+	private String ghsPictureURL;
 
 	public String getGhsPictureURL() {
 		return ghsPictureURL;
