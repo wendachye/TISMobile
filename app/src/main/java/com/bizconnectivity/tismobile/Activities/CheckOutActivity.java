@@ -16,7 +16,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -39,6 +38,7 @@ public class CheckOutActivity extends AppCompatActivity {
     TextView headerMessage;
     Dialog exitDialog;
     Button btnConfirm;
+    LinearLayout footerLayout;
     SharedPreferences sharedPref;
     Spinner spLoadingBay;
     ArrayList<String> loadingBayArrayList;
@@ -116,7 +116,7 @@ public class CheckOutActivity extends AppCompatActivity {
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
 
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
+        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.headerCheckOut);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
 
         headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
@@ -126,7 +126,7 @@ public class CheckOutActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (LinearLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override

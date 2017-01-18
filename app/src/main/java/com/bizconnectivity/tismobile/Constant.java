@@ -2,6 +2,7 @@ package com.bizconnectivity.tismobile;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class Constant {
     public static String KEY_ENCRYPT = "TISMOBILE";
@@ -112,7 +113,7 @@ public class Constant {
     public static String SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL = "Please scan Bottom Seal";
 
 
-    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
-    public static SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH:mm");
+    public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    public static SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH:mm", Locale.US);
     public static Calendar calendar = Calendar.getInstance();
 }

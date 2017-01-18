@@ -128,13 +128,11 @@ public class LoadingBayDetailDataSource {
 				loadingBayArrayList.add(truckLoadingBay);
 
 			}
-
-			return loadingBayArrayList;
-
-		} else {
-
-			return loadingBayArrayList;
 		}
+
+		cursor.close();
+
+		return loadingBayArrayList;
 	}
 
 	public void deleteAllLoadingBay() {

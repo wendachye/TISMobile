@@ -44,7 +44,7 @@ public class TechnicianIDWSAsync extends AsyncTask<String, Void, Void> {
 
 		if (response) {
 
-			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, nric).commit();
+			editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, nric).apply();
 
 			//insert into sqlite database
 			checkIn = new CheckIn();

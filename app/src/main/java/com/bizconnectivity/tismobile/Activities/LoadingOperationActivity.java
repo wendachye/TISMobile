@@ -18,7 +18,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Common;
@@ -51,7 +50,8 @@ public class LoadingOperationActivity extends AppCompatActivity {
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage, tvScanLoadingArm, tvBatchController, tvPumpStart, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     Dialog exitDialog, batchControllerDialog, pumpStartDialog;
-    RelativeLayout footerLayout;
+    LinearLayout footerLayout;
+    LinearLayout headerLayout;
     Button btnScanLoadingArm, btnBatchController, btnPumpStart;
     SharedPreferences sharedPref;
     JobDetailDataSource jobDetailDataSource;
@@ -197,7 +197,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
 
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
+        headerLayout = (LinearLayout) findViewById(R.id.headerLO);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
         tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
         tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
@@ -223,7 +223,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (LinearLayout) findViewById(R.id.footer);
 
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
@@ -461,12 +461,18 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+
                 String litre = etLitre.getText().toString();
+
                 if (litre.length() > 0) {
-                    Float metricTon = Float.parseFloat(litre) / 1000;
-                    tvMetricTon.setText(metricTon.toString() + " MT");
+
+                    Float calculation = Float.parseFloat(litre) / 1000;
+                    String metricTon = getString(R.string.metric_ton_message, calculation.toString());
+                    tvMetricTon.setText(metricTon);
+
                 } else {
-                    tvMetricTon.setText("Metric Ton");
+
+                    tvMetricTon.setText(R.string.metric_ton);
                 }
             }
 

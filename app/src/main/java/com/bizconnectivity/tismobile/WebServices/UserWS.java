@@ -12,7 +12,7 @@ public class UserWS {
 
     public static boolean invokeLoginWS (String username,String password) {
 
-        boolean result = false;
+        boolean returnResult = false;
 
         SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_VALIDATE_AD_USER);
 
@@ -49,7 +49,7 @@ public class UserWS {
 
             if(envelope.bodyIn instanceof SoapFault) {
 
-                SoapFault response = (SoapFault)envelope.bodyIn;
+                returnResult = false;
 
             } else {
 
@@ -58,11 +58,7 @@ public class UserWS {
 
                 if (responseProperty.toString().equals("True")) {
 
-                    result = true;
-
-                } else {
-
-                    result = false;
+                    returnResult = true;
                 }
             }
 
@@ -70,7 +66,7 @@ public class UserWS {
             e.printStackTrace();
         }
 
-        return result;
+        return returnResult;
     }
 
 }

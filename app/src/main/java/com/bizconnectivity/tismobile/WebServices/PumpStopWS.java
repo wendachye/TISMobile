@@ -52,7 +52,7 @@ public class PumpStopWS {
 
 			if (envelope.bodyIn instanceof SoapFault) {
 
-				SoapFault response = (SoapFault) envelope.bodyIn;
+				returnResult = false;
 
 			} else {
 				SoapObject response = (SoapObject) envelope.bodyIn;

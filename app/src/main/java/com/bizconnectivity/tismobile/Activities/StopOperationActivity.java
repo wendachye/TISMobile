@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
@@ -14,7 +15,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Common;
@@ -39,13 +39,16 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
 
 public class StopOperationActivity extends AppCompatActivity {
 
+    //region declaration
     Context context;
+    LinearLayout footerLayout;
+    LinearLayout headerLayout;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage, tvPumpStop, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     Dialog exitDialog, pumpStopDialog, scanSealDialog, departureDialog;
     Button btnPumpStop, btnScanSeal, btnDeparture;
-
-    public SharedPreferences sharedPref;
+    SharedPreferences sharedPref;
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +59,7 @@ public class StopOperationActivity extends AppCompatActivity {
         sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
@@ -110,20 +114,20 @@ public class StopOperationActivity extends AppCompatActivity {
         switch (jobStatus) {
 
             case STATUS_PUMP_START:
-                btnPumpStop.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnPumpStop.getBackground().clearColorFilter();
                 tvPumpStop.setText("");
 
-                btnScanSeal.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnScanSeal.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnScanSeal.getBackground().clearColorFilter();
 
-                btnDeparture.setTextColor(getResources().getColor(R.color.colorBlack));
+                btnDeparture.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
                 btnDeparture.getBackground().clearColorFilter();
                 break;
 
             case STATUS_PUMP_STOP:
-                btnPumpStop.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnPumpStop.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnPumpStop.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnPumpStop.setEnabled(false);
                 tvPumpStop.setText(pumpStopTime);
 
@@ -131,13 +135,13 @@ public class StopOperationActivity extends AppCompatActivity {
                 break;
 
             case STATUS_SCAN_SEAL:
-                btnPumpStop.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnPumpStop.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnPumpStop.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnPumpStop.setEnabled(false);
                 tvPumpStop.setText(pumpStopTime);
 
-                btnScanSeal.setTextColor(getResources().getColor(R.color.colorWhite));
-                btnScanSeal.setBackgroundColor(getResources().getColor(R.color.colorGreen));
+                btnScanSeal.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                btnScanSeal.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 btnScanSeal.setEnabled(true);
 
                 btnDeparture.setEnabled(true);
@@ -154,7 +158,8 @@ public class StopOperationActivity extends AppCompatActivity {
     //region Header
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
+
+        headerLayout = (LinearLayout) findViewById(R.id.headerSO);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
         tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
         tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
@@ -180,7 +185,7 @@ public class StopOperationActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (LinearLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -311,9 +316,9 @@ public class StopOperationActivity extends AppCompatActivity {
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert exitDialog.getWindow() != null;
         exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         exitDialog.show();
@@ -366,9 +371,9 @@ public class StopOperationActivity extends AppCompatActivity {
         int dividerId = pumpStopDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = pumpStopDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert pumpStopDialog.getWindow() != null;
         pumpStopDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         pumpStopDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         pumpStopDialog.show();
@@ -380,7 +385,7 @@ public class StopOperationActivity extends AppCompatActivity {
 
         if (sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "").isEmpty()) {
 
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL1).commit();
+            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL1).apply();
 
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
@@ -514,9 +519,9 @@ public class StopOperationActivity extends AppCompatActivity {
         int dividerId = scanSealDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = scanSealDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert scanSealDialog.getWindow() != null;
         scanSealDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         scanSealDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         scanSealDialog.show();
@@ -532,15 +537,15 @@ public class StopOperationActivity extends AppCompatActivity {
 
         if (seal2.isEmpty()) {
 
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL2).commit();
+            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL2).apply();
 
         } else if (seal3.isEmpty()) {
 
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL3).commit();
+            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL3).apply();
 
         } else if (seal4.isEmpty()) {
 
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL4).commit();
+            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL4).apply();
         }
 
         IntentIntegrator integrator = new IntentIntegrator(this);
@@ -590,9 +595,9 @@ public class StopOperationActivity extends AppCompatActivity {
         int dividerId = departureDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = departureDialog.findViewById(dividerId);
         if (divider != null) {
-            divider.setBackgroundColor(getResources().getColor(R.color.colorTransparent));
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         }
-
+        assert departureDialog.getWindow() != null;
         departureDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         departureDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         departureDialog.show();

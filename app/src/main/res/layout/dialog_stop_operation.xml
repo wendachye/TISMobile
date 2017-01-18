@@ -29,8 +29,6 @@
             android:id="@+id/tvPumpStop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btnPumpStop"
-            android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:textSize="@dimen/default_app_text" />
 
@@ -48,8 +46,6 @@
             android:id="@+id/tvScanSeal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/btnScanSeal"
-            android:layout_centerHorizontal="true"
             android:layout_gravity="center_horizontal"
             android:textSize="@dimen/default_app_text" />
 

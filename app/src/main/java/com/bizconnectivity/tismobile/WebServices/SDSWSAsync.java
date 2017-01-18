@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.widget.Button;
 
 import com.bizconnectivity.tismobile.Constant;
@@ -51,8 +52,8 @@ public class SDSWSAsync extends AsyncTask<String, Void, Void> {
 
 			//button sds setup
 			buttonSDS.setEnabled(true);
-			buttonSDS.setTextColor(context.getResources().getColor(R.color.colorWhite));
-			buttonSDS.setBackgroundColor(context.getResources().getColor(R.color.colorGreen));
+			buttonSDS.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
+			buttonSDS.setBackgroundColor(ContextCompat.getColor(context, R.color.colorGreen));
 
 			//update job status
 			editor.putString(Constant.SHARED_PREF_JOB_STATUS, Constant.STATUS_SDS).apply();
@@ -83,8 +84,8 @@ public class SDSWSAsync extends AsyncTask<String, Void, Void> {
 			alertDialog.setPositiveButton("OK", null);
 			alertDialog.show();
 
-			buttonSDS.setTextColor(context.getResources().getColor(R.color.colorWhite));
-			buttonSDS.setBackgroundColor(context.getResources().getColor(R.color.colorGreen));
+			buttonSDS.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
+			buttonSDS.setBackgroundColor(ContextCompat.getColor(context, R.color.colorGreen));
 
 		}
 

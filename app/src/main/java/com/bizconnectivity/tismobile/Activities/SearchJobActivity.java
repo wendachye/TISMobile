@@ -20,7 +20,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
@@ -39,7 +38,7 @@ public class SearchJobActivity extends AppCompatActivity {
 
     //region declaration
     LinearLayout headerLayout;
-    RelativeLayout footerLayout;
+    LinearLayout footerLayout;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage;
     Dialog exitDialog;
@@ -126,7 +125,7 @@ public class SearchJobActivity extends AppCompatActivity {
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
 
-        headerLayout = (LinearLayout) findViewById(R.id.header);
+        headerLayout = (LinearLayout) findViewById(R.id.headerSearch);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
 
         headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
@@ -136,7 +135,7 @@ public class SearchJobActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (LinearLayout) findViewById(R.id.footer);
 
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {

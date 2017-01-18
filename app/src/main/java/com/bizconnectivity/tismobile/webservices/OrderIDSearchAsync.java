@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
-import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.activities.SearchJobActivity;
 import com.bizconnectivity.tismobile.activities.SearchResultActivity;
 import com.bizconnectivity.tismobile.classes.JobDetail;

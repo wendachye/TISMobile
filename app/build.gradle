@@ -13,12 +13,18 @@ android {
         multiDexEnabled true
     }
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
+            shrinkResources false
+        }
+        release {
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-
     }
+
+    return void
 }
 
 dependencies {
@@ -37,7 +43,6 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile 'net.zetetic:android-database-sqlcipher:3.5.4@aar'
     compile 'com.scottyab:aescrypt:0.0.1'
-    compile 'com.github.ashishbhandari:AndroidTabbedDialog:v1.1'
     compile 'com.android.support:support-v4:25.1.0'
     testCompile 'junit:junit:4.12'
 }

@@ -29,8 +29,6 @@
         android:id="@+id/tvOperatorId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnScanOperatorId"
-        android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal"
         android:textSize="@dimen/default_app_text" />
 
@@ -48,8 +46,6 @@
         android:id="@+id/tvDriverId"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/btnScanDriverId"
-        android:layout_centerHorizontal="true"
         android:layout_gravity="center_horizontal"
         android:textSize="@dimen/default_app_text" />
 

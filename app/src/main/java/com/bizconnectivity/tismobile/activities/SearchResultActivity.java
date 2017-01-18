@@ -11,20 +11,17 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.adapters.SearchResultAdapter;
 import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 
 import java.util.ArrayList;
@@ -40,11 +37,10 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 	TextView headerMessage;
 	Dialog exitDialog;
 	RecyclerView recyclerView;
-	RelativeLayout footerLayout;
+	LinearLayout footerLayout;
 	LinearLayout headerLayout;
 	SharedPreferences sharedPref;
 	SearchResultAdapter searchResultAdapter;
-	JobDetailDataSource jobDetailDataSource;
 	LoadingBayDetailDataSource loadingBayDetailDataSource;
 	ArrayList<JobDetail> jobDetailArrayList;
 	//endregion
@@ -81,7 +77,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
     /*-------- Set User Login Details --------*/
 	public void setUserLoginDetails() {
 
-		headerLayout = (LinearLayout) findViewById(R.id.header);
+		headerLayout = (LinearLayout) findViewById(R.id.headerResult);
 
 		headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
 		headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
@@ -91,7 +87,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 	//region Footer
 	public void setFooterMenu() {
 
-		footerLayout = (RelativeLayout) findViewById(R.id.footer);
+		footerLayout = (LinearLayout) findViewById(R.id.footer);
 
 		btnHome = (ImageButton) footerLayout.findViewById(R.id.btnHome);
 		btnHome.setOnClickListener(new View.OnClickListener() {

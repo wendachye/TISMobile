@@ -28,6 +28,7 @@ import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.TEST_PASSWORD;
 import static com.bizconnectivity.tismobile.Constant.TEST_USERNAME;
+import static com.bizconnectivity.tismobile.webservices.TechnicianIDWS.invokeTechnicianIDWS;
 
 public class LoginActivity extends AppCompatActivity  {
 
@@ -42,6 +43,7 @@ public class LoginActivity extends AppCompatActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 

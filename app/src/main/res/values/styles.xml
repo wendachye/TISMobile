@@ -21,6 +21,14 @@
         <item name="android:textStyle">bold</item>
     </style>
 
+    <style name="AppTheme.LoadingBayTitle">
+        <item name="android:background">@color/colorBlack</item>
+    </style>
+
+    <style name="AppTheme.Footer">
+        <item name="android:background">@color/colorGrey</item>
+    </style>
+
     <style name="MyActionBar" parent="@style/Widget.AppCompat.ActionBar.Solid">
         <item name="android:icon">@mipmap/ic_launcher</item>
         <item name="titleTextStyle">@style/MyTitleTextStyle</item>

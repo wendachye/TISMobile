@@ -1,9 +1,7 @@
 package com.bizconnectivity.tismobile;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
-import android.util.DisplayMetrics;
 import android.widget.Toast;
 
 public class Common {

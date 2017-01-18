@@ -16,6 +16,8 @@ public class LoadingArmWS {
 
 	public static boolean invokeCheckLoadingArmWS(String timeslotId, String truckRackArmNo) {
 
+		boolean returnResult = false;
+
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_CHECK_LOADING_ARM);
 
 		// Property which holds input parameters
@@ -53,17 +55,19 @@ public class LoadingArmWS {
 			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_CHECK_LOADING_ARM, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
-				SoapFault response = (SoapFault) envelope.bodyIn;
-				Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
+
+				returnResult = false;
+
 			} else {
+
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
 
 				String result = responseProperty.toString();
+
 				if (result.equals("true")) {
-					return true;
-				} else {
-					return false;
+
+					returnResult = true;
 				}
 			}
 		} catch (Exception e) {
@@ -71,6 +75,6 @@ public class LoadingArmWS {
 			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
-		return false;
+		return returnResult;
 	}
 }

@@ -1,13 +1,9 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import android.util.Log;
-
 import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.Constant;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
-import org.ksoap2.serialization.MarshalDate;
 import org.ksoap2.serialization.PropertyInfo;
 import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;

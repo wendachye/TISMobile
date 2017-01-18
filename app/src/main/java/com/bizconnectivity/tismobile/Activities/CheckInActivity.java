@@ -15,7 +15,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.classes.CheckIn;
@@ -45,6 +44,7 @@ public class CheckInActivity extends AppCompatActivity {
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage, tvTruckBayId, tvTechnicianId;
     Dialog exitDialog;
+    LinearLayout footerLayout;
     Button btnScanTechnician, btnScanTruckBay;
     SharedPreferences sharedPref;
     TechnicianDetailDataSource technicianDetailDataSource;
@@ -305,7 +305,7 @@ public class CheckInActivity extends AppCompatActivity {
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
 
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
+        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.headerCheckIn);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
 
         headerMessage.setText(Common.formatCheckInMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
@@ -315,7 +315,7 @@ public class CheckInActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        RelativeLayout footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (LinearLayout) findViewById(R.id.footer);
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -47,7 +47,7 @@ public class LoadingArmWSAsync extends AsyncTask<String, Void, Void> {
 		if (response) {
 
 			//region set job status
-			editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_LOADING_ARM).commit();
+			editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_LOADING_ARM).apply();
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();

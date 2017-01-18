@@ -39,7 +39,7 @@
             android:layout_height="40dp"
             android:layout_margin="@dimen/big_spacing"
             android:text="@string/prompt_metric_ton"
-            android:textSize="17dp"
+            android:textSize="17sp"
             android:textAlignment="center"
             android:padding="@dimen/summary_spacing"
             android:background="@drawable/dialog_outline"
@@ -63,6 +63,15 @@
             android:orientation="horizontal">
 
             <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textSize="@dimen/default_app_text" />
+
+            <Button
                 android:id="@+id/btnConfirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -71,14 +80,6 @@
                 android:text="OK"
                 android:textSize="@dimen/default_app_text" />
 
-            <Button
-                android:id="@+id/btnCancel"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:layout_weight="1"
-                android:text="Cancel"
-                android:textSize="@dimen/default_app_text" />
         </LinearLayout>
 
     </LinearLayout>

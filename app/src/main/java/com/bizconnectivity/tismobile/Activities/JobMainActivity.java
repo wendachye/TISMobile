@@ -18,7 +18,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.classes.GHS;
@@ -54,7 +53,8 @@ public class JobMainActivity extends AppCompatActivity {
     TextView headerMessage, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     Dialog exitDialog, scanPPEDialog, safetyChecksDialog;
     Button btnPPE, btnSDS, btnScanDetails, btnSafetyCheck;
-    RelativeLayout footerLayout;
+    LinearLayout footerLayout;
+    LinearLayout headerLayout;
     LoadingBayDetailDataSource loadingBayDetailDataSource;
     String jobStatus, welcomeMessage, jobID, customerName, loadingBay, loadingArm;
     ArrayList<LinearLayout> linearLayoutArrayGHS;
@@ -469,7 +469,7 @@ public class JobMainActivity extends AppCompatActivity {
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
 
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
+        headerLayout = (LinearLayout) findViewById(R.id.headerJobMain);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
         tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
         tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
@@ -495,7 +495,7 @@ public class JobMainActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (LinearLayout) findViewById(R.id.footer);
 
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {

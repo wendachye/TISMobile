@@ -15,7 +15,6 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.Common;
@@ -49,7 +48,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
     TextView headerMessage, tvOperatorId, tvDriverId, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
     ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
     Dialog exitDialog;
-    RelativeLayout footerLayout;
+    LinearLayout footerLayout;
+    LinearLayout headerLayout;
     Button btnScanOperatorId, btnScanDriverId, btnScanWorkInstruction;
     SharedPreferences sharedPref;
     JobDetailDataSource jobDetailDataSource;
@@ -178,7 +178,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
 
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.header);
+        headerLayout = (LinearLayout) findViewById(R.id.headerSD);
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
         tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
         tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
@@ -204,7 +204,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (LinearLayout) findViewById(R.id.footer);
 
         btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnAlert.setOnClickListener(new View.OnClickListener() {

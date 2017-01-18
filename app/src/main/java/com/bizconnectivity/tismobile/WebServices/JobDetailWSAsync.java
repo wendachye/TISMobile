@@ -7,7 +7,6 @@ import com.bizconnectivity.tismobile.classes.JobDetail;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 public class JobDetailWSAsync extends AsyncTask<String, Void, Void> {
 

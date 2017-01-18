@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/header_menu"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -12,7 +12,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/header_title_text_spacing"
         android:layout_marginRight="@dimen/header_title_text_spacing"
-        android:layout_marginTop="@dimen/header_title_text_spacing"
         android:text="WELCOME MR X. YOU ARE LOGGED IN. PLEASE ENSURE YOU CHECK-IN TO YOUR TRUCK LOADING BAY"
         android:textSize="@dimen/header_menu_text" />
 
@@ -45,7 +44,7 @@
             android:id="@+id/tvOrderId"
             android:layout_width="@dimen/no_width"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/header_title_text_spacing"
+            android:layout_marginEnd="@dimen/header_title_text_spacing"
             android:layout_weight="0.25"
             android:text="JOB"
             android:layout_gravity="center"
@@ -56,7 +55,7 @@
             android:id="@+id/tvCustomer"
             android:layout_width="@dimen/no_width"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/header_title_text_spacing"
+            android:layout_marginEnd="@dimen/header_title_text_spacing"
             android:layout_weight="0.45"
             android:text="CUSTOMER"
             android:layout_gravity="center"
@@ -67,7 +66,7 @@
             android:id="@+id/tvBay"
             android:layout_width="@dimen/no_width"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/header_title_text_spacing"
+            android:layout_marginEnd="@dimen/header_title_text_spacing"
             android:layout_weight="0.15"
             android:text="BAY"
             android:layout_gravity="center"
@@ -78,7 +77,7 @@
             android:id="@+id/tvArm"
             android:layout_width="@dimen/no_width"
             android:layout_height="wrap_content"
-            android:layout_marginRight="@dimen/header_title_text_spacing"
+            android:layout_marginEnd="@dimen/header_title_text_spacing"
             android:layout_weight="0.15"
             android:text="ARM"
             android:layout_gravity="center"

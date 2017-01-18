@@ -2,8 +2,6 @@ package com.bizconnectivity.tismobile.webservices;
 
 import android.util.Log;
 
-import com.bizconnectivity.tismobile.Constant;
-
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
@@ -12,13 +10,16 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.WS_CHECK_TECHNICIAN_NRIC;
+
 public class TechnicianIDWS {
 
 	public static boolean invokeTechnicianIDWS(String nric)
 	{
-		boolean result = false;
+		boolean returnResult = false;
 
-		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_CHECK_TECHNICIAN_NRIC);
+		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, WS_CHECK_TECHNICIAN_NRIC);
 
 		PropertyInfo nricPI = new PropertyInfo();
 		// Set Name
@@ -39,34 +40,30 @@ public class TechnicianIDWS {
 		HttpTransportSE androidHttpTransport = new HttpTransportSE(ConstantWS.URL);
 
 		try {
-			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_CHECK_TECHNICIAN_NRIC, envelope);
+			androidHttpTransport.call(SOAP_ACTION + WS_CHECK_TECHNICIAN_NRIC, envelope);
 
 			if(envelope.bodyIn instanceof SoapFault)
 			{
-				SoapFault response = (SoapFault)envelope.bodyIn;
-				Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
+				returnResult = false;
 			}
 			else
 			{
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
-
+				Log.d("aa", response.toString());
 				String responseWS = responseProperty.toString();
 
 				if (responseWS.equals("true")) {
 
-					result = true;
-
-				} else {
-
-					result = false;
+					returnResult = true;
 				}
 			}
+
 		} catch (Exception e) {
+
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
-		return result;
+		return returnResult;
 	}
 }

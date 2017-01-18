@@ -57,7 +57,7 @@ public class AddSealWSAsync extends AsyncTask<String, Void, Void> {
 		if (response) {
 
 			//region set job status
-			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).commit();
+			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();

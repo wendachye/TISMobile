@@ -64,7 +64,7 @@ public class PPEDetailDataSource {
 				database.insert(PPEDetails.TABLE_NAME, null, values);
 			}
 
+			cursor.close();
 		}
-
 	}
 }

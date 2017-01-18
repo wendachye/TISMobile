@@ -54,7 +54,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 			LayoutInflater layoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-			convertView = layoutInflater.inflate(R.layout.dashboard_truck_bay_order_list, null);
+			convertView = layoutInflater.inflate(R.layout.dashboard_truck_bay_order_list, parent, false);
 		}
 
 		TextView tvLoadingBayTitle = (TextView) convertView.findViewById(R.id.tvLoadingBayTitle);
@@ -98,7 +98,7 @@ public class CustomExpandableListAdapter extends BaseExpandableListAdapter {
 
 			LayoutInflater layoutInflater = (LayoutInflater) this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-			convertView = layoutInflater.inflate(R.layout.dashboard_truck_bay_order_item, null);
+			convertView = layoutInflater.inflate(R.layout.dashboard_truck_bay_order_item, parent, false);
 		}
 
 		TextView tvLoadingBayOrderId = (TextView) convertView.findViewById(R.id.tvLoadingBayOrderId);

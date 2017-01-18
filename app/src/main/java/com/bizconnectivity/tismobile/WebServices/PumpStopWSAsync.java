@@ -49,7 +49,7 @@ public class PumpStopWSAsync extends AsyncTask<String, Void, Void> {
 		if (response) {
 
 			//region set job status and pump stop time
-			editor.putString(Constant.SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime())).commit();
+			editor.putString(Constant.SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime())).apply();
 			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_PUMP_STOP).commit();
 
 			jobDetailDataSource = new JobDetailDataSource(context);

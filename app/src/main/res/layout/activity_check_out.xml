@@ -13,7 +13,7 @@
         android:orientation="vertical">
 
         <include
-            android:id="@+id/header"
+            android:id="@+id/headerCheckOut"
             layout="@layout/header_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -26,14 +26,14 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
         <include
             android:id="@+id/footer"
             layout="@layout/footer_menu"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </RelativeLayout>
 

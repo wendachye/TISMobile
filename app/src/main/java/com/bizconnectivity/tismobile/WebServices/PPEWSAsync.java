@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.content.ContextCompat;
 import android.widget.Button;
 
 import com.bizconnectivity.tismobile.activities.JobMainActivity;
@@ -62,8 +63,8 @@ public class PPEWSAsync extends AsyncTask<String, Void, Void> {
 			alertDialog.setPositiveButton("OK", null);
 			alertDialog.show();
 
-			buttonPPE.setTextColor(context.getResources().getColor(R.color.colorWhite));
-			buttonPPE.setBackgroundColor(context.getResources().getColor(R.color.colorGreen));
+			buttonPPE.setTextColor(ContextCompat.getColor(context, R.color.colorWhite));
+			buttonPPE.setBackgroundColor(ContextCompat.getColor(context, R.color.colorGreen));
 		}
 	}
 

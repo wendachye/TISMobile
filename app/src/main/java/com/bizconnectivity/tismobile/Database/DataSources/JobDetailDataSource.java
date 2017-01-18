@@ -89,6 +89,8 @@ public class JobDetailDataSource {
 			// Insert the new row, returning the primary key value of the new row
 			database.insert(JobDetails.TABLE_NAME, null, values);
 		}
+
+		cursor.close();
 	}
 
 	public ArrayList<JobDetail> retrieveAllPendingJobDetails(String loadingBayNo) {
@@ -135,6 +137,8 @@ public class JobDetailDataSource {
 			}
 
 		}
+
+		cursor.close();
 
 		return jobDetailArrayList;
 	}
@@ -184,6 +188,8 @@ public class JobDetailDataSource {
 
 		}
 
+		cursor.close();
+
 		return jobDetailArrayList;
 	}
 
@@ -223,6 +229,8 @@ public class JobDetailDataSource {
 			jobDetail.setJobStatus(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_STATUS)));
 			jobDetail.setJobDate(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_DATE)));
 		}
+
+		cursor.close();
 
 		return jobDetail;
 	}

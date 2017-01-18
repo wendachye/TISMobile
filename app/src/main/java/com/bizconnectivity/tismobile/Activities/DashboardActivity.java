@@ -6,24 +6,18 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ExpandableListView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.androidifygeeks.library.fragment.PageFragment;
-import com.androidifygeeks.library.fragment.TabDialogFragment;
 import com.bizconnectivity.tismobile.adapters.CustomExpandableListAdapter;
 import com.bizconnectivity.tismobile.classes.JobDetail;
 import com.bizconnectivity.tismobile.classes.LoadingBayList;
@@ -59,7 +53,7 @@ public class DashboardActivity extends AppCompatActivity {
     ImageButton btnHome, btnSearch, btnSwitch, btnSettings;
     TextView headerMessage, tvTruckBayTitle, tvLoadingBayOrderId;
     Dialog exitDialog;
-    RelativeLayout footerLayout;
+    LinearLayout footerLayout;
     LinearLayout headerLayout;
     SharedPreferences sharedPref;
     ExpandableListView expandableListView;
@@ -228,7 +222,7 @@ public class DashboardActivity extends AppCompatActivity {
     /*-------- Set User Login Details --------*/
     public void setUserLoginDetails() {
 
-        headerLayout = (LinearLayout) findViewById(R.id.header);
+        headerLayout = (LinearLayout) findViewById(R.id.headerDashboard);
 
         headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
         headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
@@ -265,7 +259,7 @@ public class DashboardActivity extends AppCompatActivity {
     //region Footer
     public void setFooterMenu() {
 
-        footerLayout = (RelativeLayout) findViewById(R.id.footer);
+        footerLayout = (LinearLayout) findViewById(R.id.footer);
 
         btnHome = (ImageButton) footerLayout.findViewById(R.id.btnHome);
         btnHome.setOnClickListener(new View.OnClickListener() {
