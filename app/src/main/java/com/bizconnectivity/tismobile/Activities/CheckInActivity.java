@@ -200,20 +200,26 @@ public class CheckInActivity extends AppCompatActivity {
 
                 if (returnScanValue.equals(Constant.SCAN_VALUE_TECHNICIAN_ID)) {
 
-                    if (Common.isNetworkAvailable(this)) {
+//                    if (Common.isNetworkAvailable(this)) {
+//
+//                        //check technician nric with web service
+//                        TechnicianIDWSAsync task = new TechnicianIDWSAsync(this, scanContent);
+//                        task.execute();
+//
+//                    } else {
+//
+//                        //check technician nric with sqlite database
+//                        checkIn = new CheckIn();
+//                        checkIn.setTechnicianNRIC(scanContent);
+//
+//                        checkTechnicianNRIC(checkIn);
+//                    }
 
-                        //check technician nric with web service
-                        TechnicianIDWSAsync task = new TechnicianIDWSAsync(this, scanContent);
-                        task.execute();
+                    editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, scanContent).apply();
 
-                    } else {
-
-                        //check technician nric with sqlite database
-                        checkIn = new CheckIn();
-                        checkIn.setTechnicianNRIC(scanContent);
-
-                        checkTechnicianNRIC(checkIn);
-                    }
+                    Intent intent = new Intent(this, CheckInActivity.class);
+                    finish();
+                    startActivity(intent);
 
                 } else if (returnScanValue.equals(Constant.SCAN_VALUE_TRUCK_LOADING_BAY)) {
 

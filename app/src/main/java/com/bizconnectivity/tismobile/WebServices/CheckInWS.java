@@ -12,13 +12,18 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.URL;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.WS_CHECK_TRUCK_RACK_EXISTS;
+
 public class CheckInWS {
 
 	public static boolean invokeCheckTruckRack(String rackNo) {
 
 		boolean result = false;
 
-		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_CHECK_TRUCK_RACK_EXISTS);
+		SoapObject request = new SoapObject(NAMESPACE, WS_CHECK_TRUCK_RACK_EXISTS);
 
 		PropertyInfo propertyInfo = new PropertyInfo();
 		// Set Name
@@ -36,21 +41,28 @@ public class CheckInWS {
 		// Set output SOAP object
 		envelope.setOutputSoapObject(request);
 		// Create HTTP call object
-		HttpTransportSE androidHttpTransport = new HttpTransportSE(ConstantWS.URL);
+		HttpTransportSE androidHttpTransport = new HttpTransportSE(URL);
 
 		try {
-			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_CHECK_TRUCK_RACK_EXISTS, envelope);
+			androidHttpTransport.call(SOAP_ACTION + WS_CHECK_TRUCK_RACK_EXISTS, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
-				SoapFault response = (SoapFault) envelope.bodyIn;
-				Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
+
+				result = false;
+
 			} else {
+
 				SoapObject response = (SoapObject) envelope.bodyIn;
-				result = Boolean.valueOf(response.getProperty(0).toString());
+
+				if (response.getProperty(0).toString().equals("true")) {
+
+					result = true;
+				}
 			}
+
 		} catch (Exception e) {
+
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
 		return result;
