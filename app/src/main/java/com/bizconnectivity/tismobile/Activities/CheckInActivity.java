@@ -1,10 +1,12 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,18 +22,36 @@ import android.widget.TextView;
 import com.bizconnectivity.tismobile.classes.CheckIn;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.classes.GHS;
+import com.bizconnectivity.tismobile.classes.GHSDetail;
+import com.bizconnectivity.tismobile.classes.JobDetail;
+import com.bizconnectivity.tismobile.classes.PPE;
+import com.bizconnectivity.tismobile.classes.PPEDetail;
+import com.bizconnectivity.tismobile.database.datasources.GHSDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.PPEDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.TechnicianDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.webservices.CheckInWSAsync;
-import com.bizconnectivity.tismobile.webservices.TechnicianIDWSAsync;
+import com.bizconnectivity.tismobile.webservices.CheckInWS;
+import com.bizconnectivity.tismobile.webservices.GHSWS;
+import com.bizconnectivity.tismobile.webservices.JobDetailWS;
+import com.bizconnectivity.tismobile.webservices.PPEWS;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Common.shortToast;
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_INVALID_TRUCK_BAY;
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN;
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_CANCEL_SCANNING;
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_INVALID_DATA_RECEIVED;
+import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_NO_DATA_RECEIVED;
 import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_TECHNICIAN_ID;
 import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_TRUCK_LOADING_BAY;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_TECHNICIAN_ID;
+import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_TRUCK_LOADING_BAY;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
@@ -159,7 +179,7 @@ public class CheckInActivity extends AppCompatActivity {
     public void btnScanTechnicianClicked() {
 
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_TECHNICIAN_ID).apply();
+        editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_TECHNICIAN_ID).apply();
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
@@ -171,7 +191,7 @@ public class CheckInActivity extends AppCompatActivity {
     public void btnScanTruckBayClicked() {
 
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putString(SHARED_PREF_SCAN_VALUE, Constant.SCAN_VALUE_TRUCK_LOADING_BAY).apply();
+        editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_TRUCK_LOADING_BAY).apply();
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
@@ -198,7 +218,7 @@ public class CheckInActivity extends AppCompatActivity {
                 editor.remove(SHARED_PREF_SCAN_VALUE);
                 editor.apply();
 
-                if (returnScanValue.equals(Constant.SCAN_VALUE_TECHNICIAN_ID)) {
+                if (returnScanValue.equals(SCAN_VALUE_TECHNICIAN_ID)) {
 
 //                    if (Common.isNetworkAvailable(this)) {
 //
@@ -221,17 +241,16 @@ public class CheckInActivity extends AppCompatActivity {
                     finish();
                     startActivity(intent);
 
-                } else if (returnScanValue.equals(Constant.SCAN_VALUE_TRUCK_LOADING_BAY)) {
+                } else if (returnScanValue.equals(SCAN_VALUE_TRUCK_LOADING_BAY)) {
 
                     if (Common.isNetworkAvailable(this)) {
 
                         //check loading bay no with web service
-                        CheckInWSAsync task = new CheckInWSAsync(this, scanContent);
-                        task.execute();
+                        new loadingBayAsync(scanContent).execute();
 
                     } else {
 
-                        //check loading bay no with sqlite database
+                        //check loading bay no with database
                         checkIn = new CheckIn();
                         checkIn.setLoadingBayNo(scanContent);
 
@@ -241,20 +260,20 @@ public class CheckInActivity extends AppCompatActivity {
                 } else {
 
                     //invalid scan type
-                    Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
+                    shortToast(this, SCAN_MSG_INVALID_DATA_RECEIVED);
                 }
 
             } else {
 
                 //no data received
-                Common.shortToast(this, Constant.SCAN_MSG_NO_DATA_RECEIVED);
+                shortToast(this, SCAN_MSG_NO_DATA_RECEIVED);
             }
 
         } else {
 
             // If scan data is not received (for example, if the user cancels the scan by pressing the back button),
             // we can simply output a message.
-            Common.shortToast(this, Constant.SCAN_MSG_CANCEL_SCANNING);
+            shortToast(this, SCAN_MSG_CANCEL_SCANNING);
         }
     }
     //endregion
@@ -280,7 +299,7 @@ public class CheckInActivity extends AppCompatActivity {
 
             editor.putString(SHARED_PREF_TECHNICIAN_ID, "").apply();
 
-            Common.shortToast(this, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
+            shortToast(this, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
 
             Intent intent = new Intent(this, CheckInActivity.class);
             finish();
@@ -303,7 +322,7 @@ public class CheckInActivity extends AppCompatActivity {
 
         } else {
 
-            Common.shortToast(this, Constant.ERR_MSG_INVALID_TRUCK_BAY);
+            shortToast(this, ERR_MSG_INVALID_TRUCK_BAY);
         }
     }
 
@@ -477,5 +496,329 @@ public class CheckInActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         exitApplication();
+    }
+
+    private class loadingBayAsync extends AsyncTask<String, Void, Void> {
+
+        ProgressDialog progressDialog;
+        String rackNo;
+        boolean response;
+
+        private loadingBayAsync(String rackNo) {
+
+            this.rackNo = rackNo;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(CheckInActivity.this, "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            response = CheckInWS.invokeCheckTruckRack(rackNo);
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (response) {
+
+                //region insert loading bay to database
+                checkIn = new CheckIn();
+                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
+
+                checkIn.setLoadingBayNo(rackNo);
+                loadingBayDetailDataSource.open();
+                returnResult = loadingBayDetailDataSource.insertLoadingBayNo(getApplicationContext(), checkIn);
+                loadingBayDetailDataSource.close();
+
+                if (!returnResult) {
+
+                    shortToast(getApplicationContext(), ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN);
+                }
+                //endregion
+
+                //get all the job details from web service
+                new jobDetailsAsync(rackNo).execute();
+
+                //new thread for button settings
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+                        if (trunkBayString.isEmpty()) {
+
+                            trunkBayString = rackNo;
+                            tvTruckBayId.setText(trunkBayString);
+
+                        } else {
+
+                            trunkBayString = trunkBayString + ", " + rackNo;
+                            tvTruckBayId.setText(trunkBayString);
+                        }
+
+                        btnScanTruckBay.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                        btnScanTruckBay.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                        btnScanTruckBay.setEnabled(true);
+                    }
+                });
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+            } else {
+
+
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //prompt error message
+                shortToast(getApplicationContext(), ERR_MSG_INVALID_TRUCK_BAY);
+            }
+        }
+    }
+
+    private class jobDetailsAsync extends AsyncTask<String, Void, Void> {
+
+        String rackNo;
+        ArrayList<JobDetail> jobDetailArrayList;
+        JobDetailDataSource jobDetailDataSource;
+
+        private  jobDetailsAsync(String rackNo) {
+
+            this.rackNo = rackNo;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            jobDetailArrayList = new ArrayList<>();
+            jobDetailArrayList = JobDetailWS.invokeRetrieveAllJobs(rackNo);
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (jobDetailArrayList.size() > 0) {
+
+                for (int i=0; i<jobDetailArrayList.size(); i++) {
+
+                    //insert or update database
+                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
+                    jobDetailDataSource.open();
+                    jobDetailDataSource.insertOrUpdateJobDetails(jobDetailArrayList.get(i));
+                    jobDetailDataSource.close();
+
+                    //retrieve all the ppe and ghs from web service
+                    new PPEGHSAsync(jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getProductName());
+                }
+            }
+        }
+    }
+
+    private class PPEGHSAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID, productName, ppeURL, ppeName, ghsURL, ghsName;
+        ArrayList<PPE> ppeArrayList;
+        ArrayList<GHS> ghsArrayList;
+        ArrayList<PPEDetail> ppeDetailArrayList;
+        ArrayList<GHSDetail> ghsDetailArrayList;
+        PPEDetail ppeDetail;
+        GHSDetail ghsDetail;
+        PPEDetailDataSource ppeDetailDataSource;
+        GHSDetailDataSource ghsDetailDataSource;
+
+        private PPEGHSAsync(String jobID, String productName) {
+
+            this.jobID = jobID;
+            this.productName = productName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            ppeArrayList = new ArrayList<>();
+            ppeArrayList = PPEWS.invokeRetrievePPEWS(productName);
+
+            ghsArrayList = new ArrayList<>();
+            ghsArrayList = GHSWS.invokeRetrieveGHSWS(productName);
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            //insert ppe details to database
+            if (ppeArrayList.size() > 0) {
+
+                ppeDetailArrayList = new ArrayList<>();
+
+                for (int i = 0; i < ppeArrayList.size(); i++) {
+
+                    ppeDetail = new PPEDetail();
+                    ppeURL = ppeArrayList.get(i).getPpePictureURL();
+                    ppeName = ppeURL.substring(0, ppeURL.indexOf("."));
+
+                    ppeDetail.setJobID(jobID);
+
+                    switch (ppeName) {
+
+                        case "ear_protection":
+                            ppeDetail.setPpeID(1);
+                            break;
+
+                        case "face_shield":
+                            ppeDetail.setPpeID(2);
+                            break;
+
+                        case "foot_protection":
+                            ppeDetail.setPpeID(3);
+                            break;
+
+                        case "hand_protection":
+                            ppeDetail.setPpeID(4);
+                            break;
+
+                        case "head_protection":
+                            ppeDetail.setPpeID(5);
+                            break;
+
+                        case "mandatory_instruction":
+                            ppeDetail.setPpeID(6);
+                            break;
+
+                        case "pedestrian_route":
+                            ppeDetail.setPpeID(7);
+                            break;
+
+                        case "protective_clothing":
+                            ppeDetail.setPpeID(8);
+                            break;
+
+                        case "respirator":
+                            ppeDetail.setPpeID(9);
+                            break;
+
+                        case "safety_glasses":
+                            ppeDetail.setPpeID(10);
+                            break;
+
+                        case "safety_harness":
+                            ppeDetail.setPpeID(11);
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    ppeDetailArrayList.add(ppeDetail);
+                }
+
+                ppeDetailDataSource = new PPEDetailDataSource(getApplicationContext());
+                ppeDetailDataSource.open();
+                ppeDetailDataSource.insertOrUpdatePPE(ppeDetailArrayList);
+                ppeDetailDataSource.close();
+            }
+
+            //insert ghs details into to database
+            if (ghsArrayList.size() > 0) {
+
+                ghsDetailArrayList = new ArrayList<>();
+
+                for (int i=0; i<ghsArrayList.size(); i++) {
+
+                    ghsDetail = new GHSDetail();
+                    ghsURL = ghsArrayList.get(i).getGhsPictureURL();
+                    ghsName = ghsURL.substring(0, ghsURL.indexOf("."));
+
+                    ghsDetail.setJobID(jobID);
+
+                    switch (ghsName) {
+
+                        case "AcuteToxicity":
+                            ghsDetail.setGhsID(1);
+                            break;
+
+                        case "AspirationToxicity":
+                            ghsDetail.setGhsID(2);
+                            break;
+
+                        case "Corrosive":
+                            ghsDetail.setGhsID(3);
+                            break;
+
+                        case "EnvironmentToxicity":
+                            ghsDetail.setGhsID(4);
+                            break;
+
+                        case "Explosive":
+                            ghsDetail.setGhsID(5);
+                            break;
+
+                        case "Flammable":
+                            ghsDetail.setGhsID(6);
+                            break;
+
+                        case "GasesUnderPressure":
+                            ghsDetail.setGhsID(7);
+                            break;
+
+                        case "Irritant":
+                            ghsDetail.setGhsID(8);
+                            break;
+
+                        case "Oxidiser":
+                            ghsDetail.setGhsID(9);
+                            break;
+
+                        default:
+                            break;
+                    }
+
+                    ghsDetailArrayList.add(ghsDetail);
+                }
+
+                ghsDetailDataSource = new GHSDetailDataSource(getApplicationContext());
+                ghsDetailDataSource.open();
+                ghsDetailDataSource.insertOrUpdateGHS(ghsDetailArrayList);
+                ghsDetailDataSource.close();
+            }
+
+        }
     }
 }
