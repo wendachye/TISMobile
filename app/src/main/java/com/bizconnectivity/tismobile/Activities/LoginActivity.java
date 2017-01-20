@@ -1,12 +1,15 @@
 package com.bizconnectivity.tismobile.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.text.method.TextKeyListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -16,11 +19,12 @@ import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.datasources.UserDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.webservices.UserWSAsync;
+import com.bizconnectivity.tismobile.webservices.UserWS;
 import com.scottyab.aescrypt.AESCrypt;
 
 import java.security.GeneralSecurityException;
 
+import static com.bizconnectivity.tismobile.Common.shortToast;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_INCORRECT_PASSWORD;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_INCORRECT_USERNAME;
 import static com.bizconnectivity.tismobile.Constant.MSG_LOGIN_CORRECT;
@@ -28,12 +32,12 @@ import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.TEST_PASSWORD;
 import static com.bizconnectivity.tismobile.Constant.TEST_USERNAME;
-import static com.bizconnectivity.tismobile.webservices.TechnicianIDWS.invokeTechnicianIDWS;
 
 public class LoginActivity extends AppCompatActivity  {
 
     //region declaration
     TextInputEditText mUsernameView, mPasswordView;
+    Button mUserSignInButton, mUserSignInCancelButton;
     UserDetail userDetail;
     UserDetailDataSource userDetailDataSource;
     SharedPreferences sharedPref;
@@ -50,7 +54,7 @@ public class LoginActivity extends AppCompatActivity  {
         mUsernameView = (TextInputEditText) findViewById(R.id.tbUsername);
         mPasswordView = (TextInputEditText) findViewById(R.id.tbPassword);
 
-        Button mUserSignInButton = (Button) findViewById(R.id.btnSignIn);
+        mUserSignInButton = (Button) findViewById(R.id.btnSignIn);
         mUserSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -59,7 +63,7 @@ public class LoginActivity extends AppCompatActivity  {
             }
         });
 
-        Button mUserSignInCancelButton = (Button) findViewById(R.id.btnSignInCancel);
+        mUserSignInCancelButton = (Button) findViewById(R.id.btnSignInCancel);
         mUserSignInCancelButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,91 +84,110 @@ public class LoginActivity extends AppCompatActivity  {
 
     private void attemptLogin() {
 
-        SharedPreferences.Editor editor = sharedPref.edit();
+        runOnUiThread (new Runnable() {
+            @Override
+            public void run() {
 
-        // Reset errors.
-        mUsernameView.setError(null);
-        mPasswordView.setError(null);
+                // Reset errors.
+                mUsernameView.setError(null);
+                mPasswordView.setError(null);
 
-        // Store values at the time of the login attempt.
-        username = mUsernameView.getText().toString();
-        password = mPasswordView.getText().toString();
+                // Store values at the time of the login attempt.
+                username = mUsernameView.getText().toString();
 
-        if(TextUtils.isEmpty(username)) {
+                password = mPasswordView.getText().toString();
 
-            mUsernameView.setError(Constant.ERR_MSG_USERNAME_REQUIRED);
-            focusView = mUsernameView;
-            focusView.requestFocus();
+                if (TextUtils.isEmpty(username)) {
 
-        } else if(TextUtils.isEmpty(password)) {
+                    mUsernameView.setError(Constant.ERR_MSG_USERNAME_REQUIRED);
+                    focusView = mUsernameView;
+                    focusView.requestFocus();
 
-            mPasswordView.setError(Constant.ERR_MSG_PASSWORD_REQUIRED);
-            focusView = mPasswordView;
-            focusView.requestFocus();
+                } else if (TextUtils.isEmpty(password)) {
 
-        } else {
-
-            if (Common.isNetworkAvailable(this)) {
-
-                if (username.equals(TEST_USERNAME) && password.equals(TEST_PASSWORD)) {
-
-                    editor.putString(SHARED_PREF_LOGINNAME, TEST_USERNAME).apply();
-
-                    //navigate to dashboard activity
-                    Intent intent = new Intent(this, DashboardActivity.class);
-                    finish();
-                    startActivity(intent);
+                    mPasswordView.setError(Constant.ERR_MSG_PASSWORD_REQUIRED);
+                    focusView = mPasswordView;
+                    focusView.requestFocus();
 
                 } else {
 
-                    //check with webservice
-                    UserWSAsync task = new UserWSAsync(this, username, password);
-                    task.execute();
-                }
+                    if (Common.isNetworkAvailable(getApplicationContext())) {
 
-            } else {
+                        if (username.equals(TEST_USERNAME) && password.equals(TEST_PASSWORD)) {
 
-                if (username.equals(TEST_USERNAME) && password.equals(TEST_PASSWORD)) {
+                            //save login username
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(SHARED_PREF_LOGINNAME, TEST_USERNAME).apply();
 
-                    editor.putString(SHARED_PREF_LOGINNAME, TEST_USERNAME).apply();
+                            //navigate to dashboard activity
+                            Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                            finish();
+                            startActivity(intent);
 
-                    //navigate to dashboard activity
-                    Intent intent = new Intent(this, DashboardActivity.class);
-                    finish();
-                    startActivity(intent);
+                        } else {
 
-                } else {
+                            //check with webservice
+                            new loginAsync(username, password).execute();
+                        }
 
-                    //region check with database
-                    try {
+                    } else {
 
-                        //encrypt password
-                        String encryptedPassword = AESCrypt.encrypt(password, Constant.KEY_ENCRYPT);
-                        userDetail = new UserDetail();
-                        userDetail.setUsername(username);
-                        userDetail.setPassword(encryptedPassword);
+                        if (username.equals(TEST_USERNAME) && password.equals(TEST_PASSWORD)) {
 
-                        checkUserLogin(userDetail);
+                            //save login username
+                            SharedPreferences.Editor editor = sharedPref.edit();
+                            editor.putString(SHARED_PREF_LOGINNAME, TEST_USERNAME).apply();
 
-                    } catch (GeneralSecurityException e) {
-                        e.printStackTrace();
+                            //navigate to dashboard activity
+                            Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                            finish();
+                            startActivity(intent);
+
+                        } else {
+
+                            try {
+                                //encrypt password
+                                String encryptedPassword = AESCrypt.encrypt(password, Constant.KEY_ENCRYPT);
+                                userDetail = new UserDetail();
+                                userDetail.setUsername(username);
+                                userDetail.setPassword(encryptedPassword);
+
+                                checkUserLogin(userDetail);
+
+                            } catch (GeneralSecurityException e) {
+
+                                e.printStackTrace();
+                            }
+                        }
                     }
-                    //endregion
                 }
             }
-        }
+        });
     }
 
     private void cancelLogin() {
 
-        // Reset errors and clear value.
-        mUsernameView.setError(null);
-        mPasswordView.setError(null);
-        mUsernameView.setText(null);
-        mPasswordView.setText(null);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
 
-        focusView = mUsernameView;
-        focusView.requestFocus();
+                // Reset errors and clear value.
+                mUsernameView.setError(null);
+                mPasswordView.setError(null);
+
+                if (mUsernameView.length() > 0) {
+
+                    TextKeyListener.clear(mUsernameView.getText());
+                }
+                if (mPasswordView.length() > 0) {
+
+                    TextKeyListener.clear(mPasswordView.getText());
+                }
+
+                focusView = mUsernameView;
+                focusView.requestFocus();
+            }
+        });
     }
 
     private void checkUserLogin(UserDetail userDetail) {
@@ -181,6 +204,10 @@ public class LoginActivity extends AppCompatActivity  {
         userDetailDataSource.close();
 
         if (message.equals(MSG_LOGIN_CORRECT)) {
+
+            //save login username
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(SHARED_PREF_LOGINNAME, userDetail.getUsername()).apply();
 
             //navigate to dashboard
             Intent intent = new Intent(this, DashboardActivity.class);
@@ -200,6 +227,84 @@ public class LoginActivity extends AppCompatActivity  {
             focusView.requestFocus();
         }
         //endregion
+    }
+
+    private class loginAsync extends AsyncTask<String, Void, Void> {
+
+        ProgressDialog progressDialog;
+        String username, password;
+        boolean response;
+
+        private loginAsync(String username, String password) {
+
+            this.username = username;
+            this.password = password;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            response = UserWS.invokeLoginWS(username, password);
+
+            return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (response) {
+
+                //save login username
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(SHARED_PREF_LOGINNAME, username).apply();
+
+                //insert or update login details to database
+                try {
+                    //encrypt password
+                    String encryptedPassword = AESCrypt.encrypt(password, Constant.KEY_ENCRYPT);
+                    userDetail = new UserDetail();
+                    userDetail.setUsername(username);
+                    userDetail.setPassword(encryptedPassword);
+
+                    userDetailDataSource = new UserDetailDataSource(getApplicationContext());
+                    userDetailDataSource.open();
+                    userDetailDataSource.insertOrUpdateUserDetails(userDetail);
+                    userDetailDataSource.close();
+
+                } catch (GeneralSecurityException e) {
+
+                    e.printStackTrace();
+                }
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //navigate to dashboard activity
+                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                finish();
+                startActivity(intent);
+
+            } else {
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //prompt error message
+                shortToast(getApplicationContext(), Constant.ERR_MSG_LOGIN_INCORRECT);
+            }
+        }
     }
 }
 

@@ -60,7 +60,7 @@ public class SDSWSAsync extends AsyncTask<String, Void, Void> {
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();
-			jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), Constant.STATUS_SDS);
+			jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), Constant.STATUS_SDS);
 			jobDetailDataSource.close();
 
 			//end progress dialog

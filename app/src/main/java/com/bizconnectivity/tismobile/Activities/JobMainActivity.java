@@ -347,7 +347,7 @@ public class JobMainActivity extends AppCompatActivity {
 
                     jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
                     jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
+                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
                     jobDetailDataSource.close();
                     //endregion
 
@@ -426,7 +426,7 @@ public class JobMainActivity extends AppCompatActivity {
 
                     jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
                     jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SAFETY_CHECKS);
+                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SAFETY_CHECKS);
                     jobDetailDataSource.close();
                     //endregion
 

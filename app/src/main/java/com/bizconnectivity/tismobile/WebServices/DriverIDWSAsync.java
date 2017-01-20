@@ -50,7 +50,7 @@ public class DriverIDWSAsync extends AsyncTask<String, Void, Void> {
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();
-			jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_DRIVER_ID);
+			jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_DRIVER_ID);
 			jobDetailDataSource.close();
 
 			//end progress dialog

@@ -54,7 +54,7 @@ public class PumpStopWSAsync extends AsyncTask<String, Void, Void> {
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();
-			jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_PUMP_STOP);
+			jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_PUMP_STOP);
 			jobDetailDataSource.close();
 			//endregion
 

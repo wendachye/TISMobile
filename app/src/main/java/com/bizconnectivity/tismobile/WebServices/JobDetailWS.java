@@ -16,6 +16,9 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.WS_GET_ALL_JOB_DETAILS;
 
 public class JobDetailWS {
 
@@ -24,7 +27,7 @@ public class JobDetailWS {
 		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
 
 		//create request
-		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_GET_ALL_JOB_DETAILS);
+		SoapObject request = new SoapObject(NAMESPACE, WS_GET_ALL_JOB_DETAILS);
 
 		//property which holds input parameters
 		PropertyInfo propertyInfoTRN = new PropertyInfo();
@@ -49,7 +52,7 @@ public class JobDetailWS {
 
 		try {
 			//invoke web service
-			androidHTTPTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_GET_ALL_JOB_DETAILS, envelope);
+			androidHTTPTransport.call(SOAP_ACTION + WS_GET_ALL_JOB_DETAILS, envelope);
 
 			if(envelope.bodyIn instanceof SoapFault) {
 
@@ -80,91 +83,94 @@ public class JobDetailWS {
 		//retrieve diffgram from property
 		SoapObject diffGram = (SoapObject) soapObject.getProperty("diffgram");
 
-		//retrieve document element from diffgram
-		SoapObject documentElement = (SoapObject) diffGram.getProperty("DocumentElement");
+		if (!soapObject.getProperty("diffgram").toString().equals("anyType{}")) {
 
-		//get the number of dataset
-		int newDataSetCount = documentElement.getPropertyCount();
+			//retrieve document element from diffgram
+			SoapObject documentElement = (SoapObject) diffGram.getProperty("DocumentElement");
 
-		for (int i = 0; i < newDataSetCount; i++) {
+			//get the number of dataset
+			int newDataSetCount = documentElement.getPropertyCount();
 
-			JobDetail jobDetail = new JobDetail();
+			for (int i = 0; i < newDataSetCount; i++) {
 
-			//retrieve data from dataset
-			SoapObject table = (SoapObject) documentElement.getProperty(i);
+				JobDetail jobDetail = new JobDetail();
 
-			if (!table.getProperty("TimeSlotID").toString().equals("anyType{}")) {
-				jobDetail.setJobID(table.getProperty("TimeSlotID").toString());
-			} else {
-				jobDetail.setJobID("");
-			}
+				//retrieve data from dataset
+				SoapObject table = (SoapObject) documentElement.getProperty(i);
 
-			if (!table.getProperty("CustomerName").toString().equals("anyType{}")) {
-				jobDetail.setCustomerName(table.getProperty("CustomerName").toString());
-			} else {
-				jobDetail.setCustomerName("");
-			}
-
-			if (!table.getProperty("ProductName").toString().equals("anyType{}")) {
-				jobDetail.setProductName(table.getProperty("ProductName").toString());
-			} else {
-				jobDetail.setProductName("");
-			}
-
-			if (!table.getProperty("TankNo").toString().equals("anyType{}")) {
-				jobDetail.setTankNo(table.getProperty("TankNo").toString());
-			} else {
-				jobDetail.setTankNo("");
-			}
-
-			if (!table.getProperty("LoadingBayNo").toString().equals("anyType{}")) {
-				jobDetail.setLoadingBayNo(table.getProperty("LoadingBayNo").toString());
-			} else {
-				jobDetail.setLoadingBayNo("");
-			}
-
-			if (!table.getProperty("LoadingArm").toString().equals("anyType{}")) {
-				jobDetail.setLoadingArm(table.getProperty("LoadingArm").toString());
-			} else {
-				jobDetail.setLoadingArm("");
-			}
-
-			if (!table.getProperty("SDSFile").toString().equals("anyType{}")) {
-				jobDetail.setSdsFilePath(table.getProperty("SDSFile").toString());
-			} else {
-				jobDetail.setSdsFilePath("");
-			}
-
-			if (!table.getProperty("DriverID").toString().equals("anyType{}")) {
-				jobDetail.setDriverID(table.getProperty("DriverID").toString());
-			} else {
-				jobDetail.setDriverID("");
-			}
-
-			if (!table.getProperty("OperatorID").toString().equals("anyType{}")) {
-				jobDetail.setOperatorID(table.getProperty("OperatorID").toString());
-			} else {
-				jobDetail.setOperatorID("");
-			}
-
-			if (!table.getProperty("BookingDate").toString().equals("anyType{}")) {
-
-				try {
-
-					Date date = simpleDateFormat.parse(table.getProperty("BookingDate").toString());
-					String bookingDate = simpleDateFormat.format(date);
-
-					jobDetail.setJobDate(bookingDate);
-
-				} catch (ParseException e) {
-					e.printStackTrace();
+				if (!table.getProperty("TimeSlotID").toString().equals("anyType{}")) {
+					jobDetail.setJobID(table.getProperty("TimeSlotID").toString());
+				} else {
+					jobDetail.setJobID("");
 				}
 
-			} else {
-				jobDetail.setJobDate("");
-			}
+				if (!table.getProperty("CustomerName").toString().equals("anyType{}")) {
+					jobDetail.setCustomerName(table.getProperty("CustomerName").toString());
+				} else {
+					jobDetail.setCustomerName("");
+				}
 
-			jobDetailArrayList.add(jobDetail);
+				if (!table.getProperty("ProductName").toString().equals("anyType{}")) {
+					jobDetail.setProductName(table.getProperty("ProductName").toString());
+				} else {
+					jobDetail.setProductName("");
+				}
+
+				if (!table.getProperty("TankNo").toString().equals("anyType{}")) {
+					jobDetail.setTankNo(table.getProperty("TankNo").toString());
+				} else {
+					jobDetail.setTankNo("");
+				}
+
+				if (!table.getProperty("LoadingBayNo").toString().equals("anyType{}")) {
+					jobDetail.setLoadingBayNo(table.getProperty("LoadingBayNo").toString());
+				} else {
+					jobDetail.setLoadingBayNo("");
+				}
+
+				if (!table.getProperty("LoadingArm").toString().equals("anyType{}")) {
+					jobDetail.setLoadingArm(table.getProperty("LoadingArm").toString());
+				} else {
+					jobDetail.setLoadingArm("");
+				}
+
+				if (!table.getProperty("SDSFile").toString().equals("anyType{}")) {
+					jobDetail.setSdsFilePath(table.getProperty("SDSFile").toString());
+				} else {
+					jobDetail.setSdsFilePath("");
+				}
+
+				if (!table.getProperty("DriverID").toString().equals("anyType{}")) {
+					jobDetail.setDriverID(table.getProperty("DriverID").toString());
+				} else {
+					jobDetail.setDriverID("");
+				}
+
+				if (!table.getProperty("OperatorID").toString().equals("anyType{}")) {
+					jobDetail.setOperatorID(table.getProperty("OperatorID").toString());
+				} else {
+					jobDetail.setOperatorID("");
+				}
+
+				if (!table.getProperty("BookingDate").toString().equals("anyType{}")) {
+
+					try {
+
+						Date date = simpleDateFormat.parse(table.getProperty("BookingDate").toString());
+						String bookingDate = simpleDateFormat.format(date);
+
+						jobDetail.setJobDate(bookingDate);
+
+					} catch (ParseException e) {
+						e.printStackTrace();
+					}
+
+				} else {
+					jobDetail.setJobDate("");
+				}
+
+				jobDetailArrayList.add(jobDetail);
+			}
 		}
 
 		return jobDetailArrayList;

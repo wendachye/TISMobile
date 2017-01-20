@@ -503,7 +503,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                     jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
                     jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_BATCH_CONTROLLER);
+                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_BATCH_CONTROLLER);
                     jobDetailDataSource.close();
                     //endregion
 

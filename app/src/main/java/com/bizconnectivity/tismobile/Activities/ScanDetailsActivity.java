@@ -415,7 +415,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                     jobDetailDataSource = new JobDetailDataSource(this);
                     jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobDetails(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_OPERATOR_ID);
+                    jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_OPERATOR_ID);
                     jobDetailDataSource.close();
                     //endregion
 

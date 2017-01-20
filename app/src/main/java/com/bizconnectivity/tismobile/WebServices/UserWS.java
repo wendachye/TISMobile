@@ -10,13 +10,17 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.NAMESPACE;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.SOAP_ACTION;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.WS_VALIDATE_AD_USER;
+
 public class UserWS {
 
     public static boolean invokeLoginWS (String username,String password) {
 
         boolean returnResult = false;
 
-        SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_VALIDATE_AD_USER);
+        SoapObject request = new SoapObject(NAMESPACE, WS_VALIDATE_AD_USER);
 
         PropertyInfo usernamePI = new PropertyInfo();
         // Set Name
@@ -47,7 +51,7 @@ public class UserWS {
         HttpTransportSE androidHttpTransport = new HttpTransportSE(ConstantWS.URL);
 
         try {
-            androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_VALIDATE_AD_USER, envelope);
+            androidHttpTransport.call(SOAP_ACTION + WS_VALIDATE_AD_USER, envelope);
 
             if(envelope.bodyIn instanceof SoapFault) {
 

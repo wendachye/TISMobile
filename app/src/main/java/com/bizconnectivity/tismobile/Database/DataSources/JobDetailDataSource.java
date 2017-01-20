@@ -235,7 +235,7 @@ public class JobDetailDataSource {
 		return jobDetail;
 	}
 
-	public void updateJobDetails(String jobID, String jobStatus) {
+	public void updateJobStatus(String jobID, String jobStatus) {
 
 		// New value for one column
 		ContentValues values = new ContentValues();

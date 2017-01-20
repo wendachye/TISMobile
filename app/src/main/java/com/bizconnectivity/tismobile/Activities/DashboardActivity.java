@@ -166,6 +166,7 @@ public class DashboardActivity extends AppCompatActivity {
         loadingBayDetailDataSource.open();
         groupArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
         loadingBayDetailDataSource.close();
+
         //endregion
 
         //region retrieve all job details

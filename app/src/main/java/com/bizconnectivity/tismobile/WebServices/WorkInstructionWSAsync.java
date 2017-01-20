@@ -51,7 +51,7 @@ public class WorkInstructionWSAsync extends AsyncTask<String, Void, Void> {
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();
-			jobDetailDataSource.updateJobDetails(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_WORK_INSTRUCTION);
+			jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_WORK_INSTRUCTION);
 			jobDetailDataSource.close();
 
 			//end progress dialog

@@ -97,7 +97,7 @@ public class UserDetailDataSource {
 				null                                      // The sort order
 		);
 
-		if (cursor.getCount() > 0) {
+		if (cursor.moveToFirst()) {
 
 			String password = cursor.getString(cursor.getColumnIndex(UserDetails.COLUMN_PASSWORD));
 

@@ -43,28 +43,26 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 
 		if (response) {
 
-			//insert into sqlite database
+			//region insert loading bay to database
 			checkIn = new CheckIn();
-			checkIn.setLoadingBayNo(rackNo);
-
 			loadingBayDetailDataSource = new LoadingBayDetailDataSource(context);
-			//open database
+
+			checkIn.setLoadingBayNo(rackNo);
 			loadingBayDetailDataSource.open();
-			//insert loading bay no into sqlite
 			returnResult = loadingBayDetailDataSource.insertLoadingBayNo(context, checkIn);
-			//close database
 			loadingBayDetailDataSource.close();
 
 			if (!returnResult) {
 
 				Common.shortToast(context, ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN);
 			}
+			//endregion
 
 			//get all the job details from web service
 			JobDetailWSAsync task = new JobDetailWSAsync(context, rackNo);
         	task.execute();
 
-			//end progress dialog
+			//close progress dialog
 			progressDialog.dismiss();
 
 			//navigate back to checkIn Activity
@@ -74,7 +72,7 @@ public class CheckInWSAsync extends AsyncTask<String, Void, Void> {
 
 		} else {
 
-			//end progress dialog
+			//close progress dialog
 			progressDialog.dismiss();
 
 			Common.shortToast(context, Constant.ERR_MSG_INVALID_TRUCK_BAY);
