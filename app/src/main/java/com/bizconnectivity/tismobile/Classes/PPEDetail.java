@@ -3,7 +3,7 @@ package com.bizconnectivity.tismobile.classes;
 public class PPEDetail {
 
 	private String jobID;
-	private int ppeID;
+	private String ppeID;
 
 	public String getJobID() {
 		return jobID;
@@ -13,11 +13,11 @@ public class PPEDetail {
 		this.jobID = jobID;
 	}
 
-	public int getPpeID() {
+	public String getPpeID() {
 		return ppeID;
 	}
 
-	public void setPpeID(int ppeID) {
+	public void setPpeID(String ppeID) {
 		this.ppeID = ppeID;
 	}
 }

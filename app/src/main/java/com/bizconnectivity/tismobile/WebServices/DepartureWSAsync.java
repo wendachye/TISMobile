@@ -12,6 +12,11 @@ import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
+import static com.bizconnectivity.tismobile.Common.shortToast;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
+import static com.bizconnectivity.tismobile.Constant.calendar;
+import static com.bizconnectivity.tismobile.Constant.simpleDateFormat3;
+
 public class DepartureWSAsync extends AsyncTask<String, Void, Void> {
 
 	Context context;
@@ -33,9 +38,11 @@ public class DepartureWSAsync extends AsyncTask<String, Void, Void> {
 	@Override
 	protected Void doInBackground(String... params) {
 
-		response = DepartureWS.invokeAddDepartureWS(jobID, updatedBy);
-		return null;
+		String time = simpleDateFormat3.format(calendar.getTime());
 
+		response = DepartureWS.invokeAddDepartureWS(jobID, time, updatedBy);
+
+		return null;
 	}
 
 	@Override
@@ -46,15 +53,15 @@ public class DepartureWSAsync extends AsyncTask<String, Void, Void> {
 
 		if (response) {
 
-			//region remove job in sqlite
+			//region remove job from database
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();
-			jobDetailDataSource.deleteFinishedJob(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""));
+			jobDetailDataSource.deleteFinishedJob(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
 			jobDetailDataSource.close();
 			//endregion
 
 			//region remove job details shared pref
-			editor.remove(Constant.SHARED_PREF_JOB_ID);
+			editor.remove(SHARED_PREF_JOB_ID);
 			editor.remove(Constant.SHARED_PREF_CUSTOMER_NAME);
 			editor.remove(Constant.SHARED_PREF_PRODUCT_NAME);
 			editor.remove(Constant.SHARED_PREF_TANK_NO);
@@ -92,6 +99,8 @@ public class DepartureWSAsync extends AsyncTask<String, Void, Void> {
 
 			//end progress dialog
 			progressDialog.dismiss();
+
+			shortToast(context, "Fail to departure, please try again.");
 		}
 	}
 

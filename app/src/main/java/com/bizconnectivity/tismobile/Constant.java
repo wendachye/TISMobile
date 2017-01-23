@@ -64,7 +64,7 @@ public class Constant {
 
     //CheckIn
     public static String ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN = "Truck loading bay was already checked in before.";
-    public static String ERR_MSG_INVALID_TRUCK_BAY = "Invalid Truck Loading Bay";
+    public static String ERR_MSG_INVALID_TRUCK_BAY = "Invalid Truck Loading Bay or No Internet Connection.";
     public static String ERR_MSG_INVALID_TECHNICIAN_NRIC = "Invalid Technician NRIC";
 
     //Check Out
@@ -115,5 +115,6 @@ public class Constant {
 
     public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     public static SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH:mm", Locale.US);
+    public static SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat("HH:mm:ss", Locale.US);
     public static Calendar calendar = Calendar.getInstance();
 }

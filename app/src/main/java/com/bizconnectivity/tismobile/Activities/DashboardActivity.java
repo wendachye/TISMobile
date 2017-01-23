@@ -347,6 +347,12 @@ public class DashboardActivity extends AppCompatActivity {
                         startActivity(intentCheckOut);
                         return true;
 
+                    case R.id.settingsMenuSyncData:
+                        Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
+                        finish();
+                        startActivity(intentSyncData);
+                        return true;
+
                     default:
                         return false;
                 }

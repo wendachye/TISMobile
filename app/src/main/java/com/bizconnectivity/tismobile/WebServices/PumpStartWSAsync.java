@@ -6,15 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.bizconnectivity.tismobile.activities.LoadingOperationActivity;
 import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
+import java.text.ParseException;
+import java.util.Date;
+
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
 import static com.bizconnectivity.tismobile.Constant.calendar;
+import static com.bizconnectivity.tismobile.Constant.simpleDateFormat;
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
+import static com.bizconnectivity.tismobile.Constant.simpleDateFormat3;
 
 public class PumpStartWSAsync extends AsyncTask<String, Void, Void> {
 
@@ -37,7 +43,10 @@ public class PumpStartWSAsync extends AsyncTask<String, Void, Void> {
 	@Override
 	protected Void doInBackground(String... params) {
 
-		response = PumpStartWS.invokeUpdatePumpStartWS(jobID, updatedBy);
+		String time = simpleDateFormat3.format(calendar.getTime());
+
+		response = PumpStartWS.invokeUpdatePumpStartWS(jobID, time, updatedBy);
+
 		return null;
 	}
 
@@ -50,8 +59,9 @@ public class PumpStartWSAsync extends AsyncTask<String, Void, Void> {
 		if (response) {
 
 			//region set job status and pump start time
-			editor.putString(Constant.SHARED_PREF_PUMP_START_TIME, simpleDateFormat2.format(calendar.getTime())).apply();
-			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_PUMP_START).apply();
+			editor.putString(Constant.SHARED_PREF_PUMP_START_TIME, simpleDateFormat2.format(calendar.getTime()));
+			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_PUMP_START);
+			editor.apply();
 
 			jobDetailDataSource = new JobDetailDataSource(context);
 			jobDetailDataSource.open();

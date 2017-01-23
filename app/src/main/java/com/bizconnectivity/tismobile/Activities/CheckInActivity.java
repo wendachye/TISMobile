@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -27,16 +28,19 @@ import com.bizconnectivity.tismobile.classes.GHSDetail;
 import com.bizconnectivity.tismobile.classes.JobDetail;
 import com.bizconnectivity.tismobile.classes.PPE;
 import com.bizconnectivity.tismobile.classes.PPEDetail;
+import com.bizconnectivity.tismobile.classes.SealDetail;
 import com.bizconnectivity.tismobile.database.datasources.GHSDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.PPEDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.SealDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.TechnicianDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.webservices.CheckInWS;
 import com.bizconnectivity.tismobile.webservices.GHSWS;
 import com.bizconnectivity.tismobile.webservices.JobDetailWS;
 import com.bizconnectivity.tismobile.webservices.PPEWS;
+import com.bizconnectivity.tismobile.webservices.SealNoWS;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
@@ -579,8 +583,6 @@ public class CheckInActivity extends AppCompatActivity {
 
             } else {
 
-
-
                 //close progress dialog
                 progressDialog.dismiss();
 
@@ -634,7 +636,10 @@ public class CheckInActivity extends AppCompatActivity {
                     jobDetailDataSource.close();
 
                     //retrieve all the ppe and ghs from web service
-                    new PPEGHSAsync(jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getProductName());
+                    new PPEGHSAsync(jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getProductName()).execute();
+
+                    //retrieve all the seal no
+                    new sealNoAsync(jobDetailArrayList.get(i).getJobID()).execute();
                 }
             }
         }
@@ -699,47 +704,47 @@ public class CheckInActivity extends AppCompatActivity {
                     switch (ppeName) {
 
                         case "ear_protection":
-                            ppeDetail.setPpeID(1);
+                            ppeDetail.setPpeID("1");
                             break;
 
                         case "face_shield":
-                            ppeDetail.setPpeID(2);
+                            ppeDetail.setPpeID("2");
                             break;
 
                         case "foot_protection":
-                            ppeDetail.setPpeID(3);
+                            ppeDetail.setPpeID("3");
                             break;
 
                         case "hand_protection":
-                            ppeDetail.setPpeID(4);
+                            ppeDetail.setPpeID("4");
                             break;
 
                         case "head_protection":
-                            ppeDetail.setPpeID(5);
+                            ppeDetail.setPpeID("5");
                             break;
 
                         case "mandatory_instruction":
-                            ppeDetail.setPpeID(6);
+                            ppeDetail.setPpeID("6");
                             break;
 
                         case "pedestrian_route":
-                            ppeDetail.setPpeID(7);
+                            ppeDetail.setPpeID("7");
                             break;
 
                         case "protective_clothing":
-                            ppeDetail.setPpeID(8);
+                            ppeDetail.setPpeID("8");
                             break;
 
                         case "respirator":
-                            ppeDetail.setPpeID(9);
+                            ppeDetail.setPpeID("9");
                             break;
 
                         case "safety_glasses":
-                            ppeDetail.setPpeID(10);
+                            ppeDetail.setPpeID("10");
                             break;
 
                         case "safety_harness":
-                            ppeDetail.setPpeID(11);
+                            ppeDetail.setPpeID("11");
                             break;
 
                         default:
@@ -771,39 +776,39 @@ public class CheckInActivity extends AppCompatActivity {
                     switch (ghsName) {
 
                         case "AcuteToxicity":
-                            ghsDetail.setGhsID(1);
+                            ghsDetail.setGhsID("1");
                             break;
 
                         case "AspirationToxicity":
-                            ghsDetail.setGhsID(2);
+                            ghsDetail.setGhsID("2");
                             break;
 
                         case "Corrosive":
-                            ghsDetail.setGhsID(3);
+                            ghsDetail.setGhsID("3");
                             break;
 
                         case "EnvironmentToxicity":
-                            ghsDetail.setGhsID(4);
+                            ghsDetail.setGhsID("4");
                             break;
 
                         case "Explosive":
-                            ghsDetail.setGhsID(5);
+                            ghsDetail.setGhsID("5");
                             break;
 
                         case "Flammable":
-                            ghsDetail.setGhsID(6);
+                            ghsDetail.setGhsID("6");
                             break;
 
                         case "GasesUnderPressure":
-                            ghsDetail.setGhsID(7);
+                            ghsDetail.setGhsID("7");
                             break;
 
                         case "Irritant":
-                            ghsDetail.setGhsID(8);
+                            ghsDetail.setGhsID("8");
                             break;
 
                         case "Oxidiser":
-                            ghsDetail.setGhsID(9);
+                            ghsDetail.setGhsID("9");
                             break;
 
                         default:
@@ -818,6 +823,48 @@ public class CheckInActivity extends AppCompatActivity {
                 ghsDetailDataSource.insertOrUpdateGHS(ghsDetailArrayList);
                 ghsDetailDataSource.close();
             }
+
+        }
+    }
+
+    private class sealNoAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID;
+        ArrayList<String> sealNoArrayList;
+        SealDetailDataSource sealDetailDataSource;
+
+        private sealNoAsync(String jobID) {
+
+            this.jobID = jobID;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            sealNoArrayList = new ArrayList<>();
+            sealNoArrayList = SealNoWS.invokeRetrieveSealNo(jobID);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (sealNoArrayList.size() > 0) {
+
+                sealDetailDataSource = new SealDetailDataSource(getApplicationContext());
+                sealDetailDataSource.open();
+                sealDetailDataSource.insertSealNo(jobID, sealNoArrayList);
+                sealDetailDataSource.close();
+            }
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
 
         }
     }

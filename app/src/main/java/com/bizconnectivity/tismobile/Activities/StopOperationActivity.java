@@ -20,6 +20,8 @@ import android.widget.TextView;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.SealDetailDataSource;
 import com.bizconnectivity.tismobile.webservices.AddSealWSAsync;
 import com.bizconnectivity.tismobile.webservices.CheckSealWSAsync;
 import com.bizconnectivity.tismobile.webservices.DepartureWSAsync;
@@ -29,13 +31,34 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Common.isNetworkAvailable;
+import static com.bizconnectivity.tismobile.Common.shortToast;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL1;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL2;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL3;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL4;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_BATCH_CONTROLLER;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_BATCH_CONTROLLER_LITRE;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_CUSTOMER_NAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_DATE;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_BAY;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_START_TIME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_STOP_TIME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_RACK_OUT_TIME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SDS_FILE_PATH;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_TANK_NO;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_WORK_INSTRUCTION;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
+import static com.bizconnectivity.tismobile.Constant.calendar;
+import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
 
 public class StopOperationActivity extends AppCompatActivity {
 
@@ -48,6 +71,8 @@ public class StopOperationActivity extends AppCompatActivity {
     Dialog exitDialog, pumpStopDialog, scanSealDialog, departureDialog;
     Button btnPumpStop, btnScanSeal, btnDeparture;
     SharedPreferences sharedPref;
+    JobDetailDataSource jobDetailDataSource;
+    SealDetailDataSource sealDetailDataSource;
     //endregion
 
     @Override
@@ -108,8 +133,8 @@ public class StopOperationActivity extends AppCompatActivity {
         //region status settings
 
         //retrieve job status from shared preferences
-        String jobStatus = sharedPref.getString(Constant.SHARED_PREF_JOB_STATUS, "");
-        String pumpStopTime = sharedPref.getString(Constant.SHARED_PREF_PUMP_STOP_TIME, "");
+        String jobStatus = sharedPref.getString(SHARED_PREF_JOB_STATUS, "");
+        String pumpStopTime = sharedPref.getString(SHARED_PREF_PUMP_STOP_TIME, "");
 
         switch (jobStatus) {
 
@@ -168,10 +193,10 @@ public class StopOperationActivity extends AppCompatActivity {
 
         //retrieve shared preferences
         String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
-        String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
-        String customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
-        String loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
-        String loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
+        String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
+        String customerName = sharedPref.getString(SHARED_PREF_CUSTOMER_NAME, "");
+        String loadingBay = sharedPref.getString(SHARED_PREF_LOADING_BAY, "");
+        String loadingArm = sharedPref.getString(SHARED_PREF_LOADING_ARM, "");
 
         //set text
         headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
@@ -341,16 +366,32 @@ public class StopOperationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-				String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+				String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
 				String loginName = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 
-                if (Common.isNetworkAvailable(context)) {
+                if (isNetworkAvailable(context)) {
 
                     PumpStopWSAsync task = new PumpStopWSAsync(context, pumpStopDialog, jobID, loginName);
                     task.execute();
 
                 } else {
 
+                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
+                    jobDetailDataSource.open();
+                    jobDetailDataSource.updatePumpStop(jobID);
+                    jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_PUMP_STOP);
+                    jobDetailDataSource.close();
+
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime()));
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PUMP_STOP);
+                    editor.apply();
+
+                    pumpStopDialog.dismiss();
+
+                    Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
+                    finish();
+                    startActivity(intent);
                 }
             }
         });
@@ -492,13 +533,40 @@ public class StopOperationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-	            String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+	            String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
 	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 	            String sealPos = "bottom";
 	            int totalCount = countSeal.size();
 
-                AddSealWSAsync task = new AddSealWSAsync(context, scanSealDialog, totalCount, countSeal, jobID, sealPos, updatedBy);
-                task.execute();
+                if (isNetworkAvailable(getApplicationContext())) {
+
+                    AddSealWSAsync task = new AddSealWSAsync(context, scanSealDialog, totalCount, countSeal, jobID, sealPos, updatedBy);
+                    task.execute();
+
+                } else {
+
+                    for (int i=0; i<countSeal.size(); i++) {
+
+                        sealDetailDataSource = new SealDetailDataSource(getApplicationContext());
+                        sealDetailDataSource.open();
+                        sealDetailDataSource.insertSealDetails(jobID, countSeal.get(i));
+                        sealDetailDataSource.close();
+
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
+
+                        jobDetailDataSource = new JobDetailDataSource(context);
+                        jobDetailDataSource.open();
+                        jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_SEAL);
+                        jobDetailDataSource.close();
+
+                        scanSealDialog.dismiss();
+
+                        Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
+                        finish();
+                        startActivity(intent);
+                    }
+                }
 
             }
         });
@@ -571,11 +639,53 @@ public class StopOperationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-	            String jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+	            String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
 	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
 
-	            DepartureWSAsync task = new DepartureWSAsync(context, departureDialog, jobID, updatedBy);
-	            task.execute();
+                if (isNetworkAvailable(getApplicationContext())) {
+
+                    DepartureWSAsync task = new DepartureWSAsync(context, departureDialog, jobID, updatedBy);
+                    task.execute();
+
+                } else {
+
+                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
+                    jobDetailDataSource.open();
+                    jobDetailDataSource.updateDepartureTime(jobID);
+                    jobDetailDataSource.close();
+
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.remove(SHARED_PREF_JOB_ID);
+                    editor.remove(SHARED_PREF_CUSTOMER_NAME);
+                    editor.remove(SHARED_PREF_PRODUCT_NAME);
+                    editor.remove(SHARED_PREF_TANK_NO);
+                    editor.remove(SHARED_PREF_LOADING_BAY);
+                    editor.remove(SHARED_PREF_LOADING_ARM);
+                    editor.remove(SHARED_PREF_SDS_FILE_PATH);
+                    editor.remove(SHARED_PREF_OPERATOR_ID);
+                    editor.remove(SHARED_PREF_DRIVER_ID);
+                    editor.remove(SHARED_PREF_WORK_INSTRUCTION);
+                    editor.remove(SHARED_PREF_PUMP_START_TIME);
+                    editor.remove(SHARED_PREF_PUMP_STOP_TIME);
+                    editor.remove(SHARED_PREF_RACK_OUT_TIME);
+                    editor.remove(SHARED_PREF_JOB_STATUS);
+                    editor.remove(SHARED_PREF_JOB_DATE);
+                    editor.remove(SHARED_PREF_BATCH_CONTROLLER);
+                    editor.remove(SHARED_PREF_BATCH_CONTROLLER_LITRE);
+                    editor.remove(SCAN_VALUE_BOTTOM_SEAL1);
+                    editor.remove(SCAN_VALUE_BOTTOM_SEAL2);
+                    editor.remove(SCAN_VALUE_BOTTOM_SEAL3);
+                    editor.remove(SCAN_VALUE_BOTTOM_SEAL4);
+                    editor.apply();
+
+                    departureDialog.dismiss();
+
+                    shortToast(getApplicationContext(), "Data stored in local due to no internet connection, please sync the data after the internet available.");
+
+                    Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                    finish();
+                    startActivity(intent);
+                }
             }
         });
         //endregion
@@ -619,23 +729,71 @@ public class StopOperationActivity extends AppCompatActivity {
 
                 if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL1)) {
 
-	                CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
-	                task.execute();
+                    if (isNetworkAvailable(this)) {
+
+                        CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        task.execute();
+
+                    } else {
+
+                        sealDetailDataSource = new SealDetailDataSource(this);
+                        sealDetailDataSource.open();
+                        sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        sealDetailDataSource.close();
+                    }
 
                 } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL2)) {
 
-                    CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
-                    task.execute();
+                    if (isNetworkAvailable(this)) {
+
+                        CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        task.execute();
+
+                    } else {
+
+                        sealDetailDataSource = new SealDetailDataSource(this);
+                        sealDetailDataSource.open();
+                        boolean response = sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        sealDetailDataSource.close();
+
+                        if (response) {
+
+
+                        } else {
+
+
+                        }
+                    }
 
                 } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL3)) {
 
-                    CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
-                    task.execute();
+                    if (isNetworkAvailable(this)) {
+
+                        CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        task.execute();
+
+                    } else {
+
+                        sealDetailDataSource = new SealDetailDataSource(this);
+                        sealDetailDataSource.open();
+                        sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        sealDetailDataSource.close();
+                    }
 
                 } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL4)) {
 
-                    CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
-                    task.execute();
+                    if (isNetworkAvailable(this)) {
+
+                        CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        task.execute();
+
+                    } else {
+
+                        sealDetailDataSource = new SealDetailDataSource(this);
+                        sealDetailDataSource.open();
+                        sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        sealDetailDataSource.close();
+                    }
                 }
                 else {
 

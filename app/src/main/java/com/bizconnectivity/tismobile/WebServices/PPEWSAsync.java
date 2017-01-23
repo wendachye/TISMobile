@@ -19,13 +19,15 @@ public class PPEWSAsync extends AsyncTask<String, Void, Void> {
 	Context context;
 	Button buttonPPE;
 	String productName;
+	boolean isOffline;
 	ArrayList<PPE> ppeArrayList = new ArrayList<>();
 	ArrayList<GHS> ghsArrayList = new ArrayList<>();
 	ProgressDialog progressDialog;
 
-	public PPEWSAsync(Context context, Button buttonPPE, String productName) {
+	public PPEWSAsync(Context context, boolean isOffline, Button buttonPPE, String productName) {
 
 		this.context = context;
+		this.isOffline = isOffline;
 		this.buttonPPE = buttonPPE;
 		this.productName = productName;
 	}
@@ -49,7 +51,7 @@ public class PPEWSAsync extends AsyncTask<String, Void, Void> {
 			//close progress dialog
 			progressDialog.dismiss();
 
-			((JobMainActivity) context).ppeDialog(ppeArrayList, ghsArrayList);
+			((JobMainActivity) context).ppeDialog(isOffline, ppeArrayList, ghsArrayList);
 
 		} else {
 

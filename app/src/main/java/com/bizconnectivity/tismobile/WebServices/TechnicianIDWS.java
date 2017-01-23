@@ -15,8 +15,8 @@ import static com.bizconnectivity.tismobile.webservices.ConstantWS.WS_CHECK_TECH
 
 public class TechnicianIDWS {
 
-	public static boolean invokeTechnicianIDWS(String nric)
-	{
+	public static boolean invokeTechnicianIDWS(String nric) {
+
 		boolean returnResult = false;
 
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, WS_CHECK_TECHNICIAN_NRIC);

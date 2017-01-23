@@ -38,4 +38,5 @@ public class ConstantWS {
 	public static String WS_TS_CHECK_SEAL = "Mobile_CheckValidSeal";
 	public static String WS_TS_GET_JOB_DETAIL_BY_ORDER_ID = "Mobile_GetJobDetailsByTimeslotID";
 	public static String WS_TS_GET_JOB_DETAIL_BY_CUSTOMER_NAME = "Mobile_GetJobDetailsByCustomerName";
+	public static String WS_TS_GET_SEAL_NO = "Mobile_GetSealNo";
 }

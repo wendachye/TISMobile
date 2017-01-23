@@ -84,7 +84,7 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 			"CREATE TABLE " +
 					PPEDetails.TABLE_NAME + " (" +
 					PPEDetails.COLUMN_JOB_ID + " TEXT, " +
-					PPEDetails.COLUMN_PPE_ID + " INTEGER)";
+					PPEDetails.COLUMN_PPE_ID + " TEXT)";
 
 	private static final String SQL_DELETE_PPE_DETAILS =
 			"DROP TABLE IF EXISTS " +
@@ -94,7 +94,7 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 			"CREATE TABLE " +
 					GHSDetails.TABLE_NAME + " (" +
 					GHSDetails.COLUMN_JOB_ID + " TEXT, " +
-					GHSDetails.COLUMN_GHS_ID + " INTEGER)";
+					GHSDetails.COLUMN_GHS_ID + " TEXT)";
 
 	private static final String SQL_DELETE_GHS_DETAILS =
 			"DROP TABLE IF EXISTS " +
@@ -103,13 +103,13 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 	private static final String SQL_CREATE_PPE =
 			"CREATE TABLE " +
 					PPE.TABLE_NAME + " (" +
-					PPE.COLUMN_PPE_ID + " INTEGER PRIMARY KEY, " +
+					PPE.COLUMN_PPE_ID + " TEXT, " +
 					PPE.COLUMN_PPE_NAME + " TEXT)";
 
 	private static final String SQL_CREATE_GHS =
 			"CREATE TABLE " +
 					GHS.TABLE_NAME + " (" +
-					GHS.COLUMN_GHS_ID + " INTEGER PRIMARY KEY, " +
+					GHS.COLUMN_GHS_ID + " TEXT, " +
 					GHS.COLUMN_GHS_NAME + " TEXT)";
 
 	//region insert ppe query
@@ -119,77 +119,77 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(1, 'ear_protection')";
+					"('1', 'ear_protection')";
 
 	private static final String SQL_INSERT_PPE2 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(2, 'face_shield')";
+					"('2', 'face_shield')";
 
 	private static final String SQL_INSERT_PPE3 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(3, 'foot_protection')";
+					"('3', 'foot_protection')";
 
 	private static final String SQL_INSERT_PPE4 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(4, 'hand_protection')";
+					"('4', 'hand_protection')";
 
 	private static final String SQL_INSERT_PPE5 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(5, 'head_protection')";
+					"('5', 'head_protection')";
 
 	private static final String SQL_INSERT_PPE6 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(6, 'mandatory_instruction')";
+					"('6', 'mandatory_instruction')";
 
 	private static final String SQL_INSERT_PPE7 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(7, 'pedestrian_route')";
+					"('7', 'pedestrian_route')";
 
 	private static final String SQL_INSERT_PPE8 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(8, 'protective_clothing')";
+					"('8', 'protective_clothing')";
 
 	private static final String SQL_INSERT_PPE9 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(9, 'respirator')";
+					"('9', 'respirator')";
 
 	private static final String SQL_INSERT_PPE10 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(10, 'safety_glasses')";
+					"('10', 'safety_glasses')";
 
 	private static final String SQL_INSERT_PPE11 =
 			"INSERT INTO " +
 					PPE.TABLE_NAME + " (" +
 					PPE.COLUMN_PPE_ID + ", " +
 					PPE.COLUMN_PPE_NAME + ") VALUES " +
-					"(11, 'safety_harness')";
+					"('11', 'safety_harness')";
 
 	//endregion
 
@@ -200,63 +200,63 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(1, 'AcuteToxicity')";
+					"('1', 'acute_toxicity')";
 
 	private static final String SQL_INSERT_GHS2 =
 			"INSERT INTO " +
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(2, 'AspirationToxicity')";
+					"('2', 'aspiration_toxicity')";
 
 	private static final String SQL_INSERT_GHS3 =
 			"INSERT INTO " +
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(3, 'Corrosive')";
+					"('3', 'corrosive')";
 
 	private static final String SQL_INSERT_GHS4 =
 			"INSERT INTO " +
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(4, 'EnvironmentToxicity')";
+					"('4', 'environment_toxicity')";
 
 	private static final String SQL_INSERT_GHS5 =
 			"INSERT INTO " +
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(5, 'Explosive')";
+					"('5', 'explosive')";
 
 	private static final String SQL_INSERT_GHS6 =
 			"INSERT INTO " +
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(6, 'Flammable')";
+					"('6', 'flammable')";
 
 	private static final String SQL_INSERT_GHS7 =
 			"INSERT INTO " +
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(7, 'GasesUnderPressure')";
+					"('7', 'gases_under_pressure')";
 
 	private static final String SQL_INSERT_GHS8 =
 			"INSERT INTO " +
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(8, 'Irritant')";
+					"('8', 'irritant')";
 
 	private static final String SQL_INSERT_GHS9 =
 			"INSERT INTO " +
 					GHS.TABLE_NAME + " (" +
 					GHS.COLUMN_GHS_ID + ", " +
 					GHS.COLUMN_GHS_NAME + ") VALUES " +
-					"(9, 'Oxidiser')";
+					"('9', 'oxidiser')";
 
 	//endregion
 

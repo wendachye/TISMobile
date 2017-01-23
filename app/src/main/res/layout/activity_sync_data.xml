@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_search_result"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.bizconnectivity.tismobile.activities.SyncDataActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="@dimen/footer_menu_height"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/headerResult"
+            layout="@layout/header_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/tvTruckBayListHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/list_view_header_color"
+            android:orientation="horizontal"
+            android:weightSum="1">
+
+            <TextView
+                android:id="@+id/tvLoadingBayOrderId"
+                android:layout_width="@dimen/no_width"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/list_item_spacing"
+                android:layout_marginRight="@dimen/list_item_spacing"
+                android:layout_weight="0.17"
+                android:padding="@dimen/list_item_padding"
+                android:text="@string/order"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/default_app_text" />
+
+            <TextView
+                android:id="@+id/separator1"
+                android:layout_width="@dimen/separator_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/tvLoadingBayCustomer"
+                android:layout_width="@dimen/no_width"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/list_item_spacing"
+                android:layout_marginRight="@dimen/list_item_spacing"
+                android:layout_weight="0.35"
+                android:padding="@dimen/list_item_padding"
+                android:text="@string/customer"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/default_app_text" />
+
+            <TextView
+                android:id="@+id/separator2"
+                android:layout_width="@dimen/separator_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/tvLoadingBayProduct"
+                android:layout_width="@dimen/no_width"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/list_item_spacing"
+                android:layout_marginRight="@dimen/list_item_spacing"
+                android:layout_weight="0.33"
+                android:padding="@dimen/list_item_padding"
+                android:text="@string/product"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/default_app_text" />
+
+            <TextView
+                android:id="@+id/separator3"
+                android:layout_width="@dimen/separator_width"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:background="@color/colorBlack" />
+
+            <TextView
+                android:id="@+id/tvLoadingBayTankNo"
+                android:layout_width="@dimen/no_width"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/list_item_spacing"
+                android:layout_marginRight="@dimen/list_item_spacing"
+                android:layout_weight="0.15"
+                android:padding="@dimen/list_item_padding"
+                android:text="@string/tank_no"
+                android:textColor="@color/colorBlack"
+                android:textSize="@dimen/default_app_text" />
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/hDivider1"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/separator_width"
+            android:background="@color/colorBlack" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"/>
+
+        <Button
+            android:id="@+id/btnSyncData"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sync Data"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/footerRelativeLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <include
+            android:id="@+id/footer"
+            layout="@layout/footer_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

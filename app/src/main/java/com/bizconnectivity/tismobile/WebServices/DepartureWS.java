@@ -14,7 +14,7 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class DepartureWS {
 
-	public static boolean invokeAddDepartureWS(String TimeSlotID, String UpdatedBy) {
+	public static boolean invokeAddDepartureWS(String TimeSlotID, String rackOutTime, String UpdatedBy) {
 
 		boolean returnResult = false;
 
@@ -30,6 +30,17 @@ public class DepartureWS {
 		propertyInfoTSID.setType(int.class);
 		// Add the property to request object
 		request.addProperty(propertyInfoTSID);
+
+		// Property which holds input parameters
+		PropertyInfo propertyInfoROT = new PropertyInfo();
+		// Set Name
+		propertyInfoROT.setName("rackOutTime");
+		// Set Value
+		propertyInfoROT.setValue(rackOutTime);
+		// Set dataType
+		propertyInfoROT.setType(String.class);
+		// Add the property to request object
+		request.addProperty(propertyInfoROT);
 
 		// Property which holds input parameters
 		PropertyInfo propertyInfoUB = new PropertyInfo();

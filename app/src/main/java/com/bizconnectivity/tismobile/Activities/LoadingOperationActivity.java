@@ -43,6 +43,8 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
+import static com.bizconnectivity.tismobile.Constant.calendar;
+import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
 
 public class LoadingOperationActivity extends AppCompatActivity {
 
@@ -404,8 +406,31 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                 if (returnScanValue.equals(SCAN_VALUE_LOADING_ARM)) {
 
-					LoadingArmWSAsync task = new LoadingArmWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-					task.execute();
+                    if (Common.isNetworkAvailable(this)) {
+
+                        LoadingArmWSAsync task = new LoadingArmWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        task.execute();
+
+                    } else {
+
+                        if (scanContent.equals(sharedPref.getString(SHARED_PREF_LOADING_ARM, ""))) {
+
+                            editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_LOADING_ARM).apply();
+
+                            jobDetailDataSource = new JobDetailDataSource(this);
+                            jobDetailDataSource.open();
+                            jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_LOADING_ARM);
+                            jobDetailDataSource.close();
+
+                            Intent intent = new Intent(this, LoadingOperationActivity.class);
+                            finish();
+                            startActivity(intent);
+
+                        } else {
+
+                            Common.shortToast(this, Constant.ERR_MSG_INVALID_LOADING_ARM);
+                        }
+                    }
 
                 } else {
 
@@ -573,7 +598,22 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                     } else {
 
+                        jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
+                        jobDetailDataSource.open();
+                        jobDetailDataSource.updatePumpStart(jobID);
+                        jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PUMP_START);
+                        jobDetailDataSource.close();
 
+                        SharedPreferences.Editor editor = sharedPref.edit();
+                        editor.putString(SHARED_PREF_PUMP_START_TIME, simpleDateFormat2.format(calendar.getTime()));
+                        editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PUMP_START);
+                        editor.apply();
+
+                        pumpStartDialog.dismiss();
+
+                        Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
+                        finish();
+                        startActivity(intent);
                     }
 
 			    }

@@ -3,12 +3,14 @@ package com.bizconnectivity.tismobile.webservices;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import com.bizconnectivity.tismobile.classes.GHS;
 import com.bizconnectivity.tismobile.classes.GHSDetail;
 import com.bizconnectivity.tismobile.classes.PPE;
 import com.bizconnectivity.tismobile.classes.PPEDetail;
 import com.bizconnectivity.tismobile.database.datasources.GHSDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.PPEDetailDataSource;
 
 import java.util.ArrayList;
@@ -43,13 +45,17 @@ public class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 
 		//insert ppe details into sqlite database
 		if (ppeArrayList.size() > 0) {
-
+			Log.d("aa", "ppe");
 			insertPPE(jobID, ppeArrayList);
+		}else {
+			Log.d("bb", "no ppe");
 		}
 		//insert ghs details into sqlite database
 		if (ghsArrayList.size() > 0) {
-
+			Log.d("aa", "ghs");
 			insertGHS(jobID, ghsArrayList);
+		}else {
+			Log.d("bb", "no ghs");
 		}
 	}
 
@@ -70,54 +76,53 @@ public class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 		for (int i=0; i<ppeArrayList.size(); i++) {
 
 			PPEDetail ppeDetail = new PPEDetail();
-			int ppeID = 0;
 			String ppeURL = ppeArrayList.get(i).getPpePictureURL();
 			String ppeName = ppeURL.substring(0, ppeURL.indexOf("."));
 
 			switch (ppeName) {
 
 				case "ear_protection":
-					ppeID = 1;
+					ppeDetail.setPpeID("1");
 					break;
 
 				case "face_shield":
-					ppeID = 2;
+					ppeDetail.setPpeID("2");
 					break;
 
 				case "foot_protection":
-					ppeID = 3;
+					ppeDetail.setPpeID("3");
 					break;
 
 				case "hand_protection":
-					ppeID = 4;
+					ppeDetail.setPpeID("4");
 					break;
 
 				case "head_protection":
-					ppeID = 5;
+					ppeDetail.setPpeID("5");
 					break;
 
 				case "mandatory_instruction":
-					ppeID = 6;
+					ppeDetail.setPpeID("6");
 					break;
 
 				case "pedestrian_route":
-					ppeID = 7;
+					ppeDetail.setPpeID("7");
 					break;
 
 				case "protective_clothing":
-					ppeID = 8;
+					ppeDetail.setPpeID("8");
 					break;
 
 				case "respirator":
-					ppeID = 9;
+					ppeDetail.setPpeID("9");
 					break;
 
 				case "safety_glasses":
-					ppeID = 10;
+					ppeDetail.setPpeID("10");
 					break;
 
 				case "safety_harness":
-					ppeID = 11;
+					ppeDetail.setPpeID("11");
 					break;
 
 				default:
@@ -125,8 +130,7 @@ public class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 			}
 
 			ppeDetail.setJobID(jobID);
-			ppeDetail.setPpeID(ppeID);
-
+			Log.d("ppe", ppeDetail.getPpeID());
 			ppeDetailArrayList.add(ppeDetail);
 		}
 
@@ -143,46 +147,45 @@ public class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 		for (int i=0; i<ghsArrayList.size(); i++) {
 
 			GHSDetail ghsDetail = new GHSDetail();
-			int ghsID = 0;
 			String ghsURL = ghsArrayList.get(i).getGhsPictureURL();
 			String ghsName = ghsURL.substring(0, ghsURL.indexOf("."));
 
 			switch (ghsName) {
 
-				case "AcuteToxicity":
-					ghsID = 1;
+				case "acute_toxicity":
+					ghsDetail.setGhsID("1");
 					break;
 
-				case "AspirationToxicity":
-					ghsID = 2;
+				case "aspiration_toxicity":
+					ghsDetail.setGhsID("2");
 					break;
 
-				case "Corrosive":
-					ghsID = 3;
+				case "corrosive":
+					ghsDetail.setGhsID("3");
 					break;
 
-				case "EnvironmentToxicity":
-					ghsID = 4;
+				case "environment_toxicity":
+					ghsDetail.setGhsID("4");
 					break;
 
-				case "Explosive":
-					ghsID = 5;
+				case "explosive":
+					ghsDetail.setGhsID("5");
 					break;
 
-				case "Flammable":
-					ghsID = 6;
+				case "flammable":
+					ghsDetail.setGhsID("6");
 					break;
 
-				case "GasesUnderPressure":
-					ghsID = 7;
+				case "gases_under_pressure":
+					ghsDetail.setGhsID("7");
 					break;
 
-				case "Irritant":
-					ghsID = 8;
+				case "irritant":
+					ghsDetail.setGhsID("8");
 					break;
 
-				case "Oxidiser":
-					ghsID = 9;
+				case "oxidiser":
+					ghsDetail.setGhsID("9");
 					break;
 
 				default:
@@ -190,8 +193,7 @@ public class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 			}
 
 			ghsDetail.setJobID(jobID);
-			ghsDetail.setGhsID(ghsID);
-
+			Log.d("ppe", ghsDetail.getGhsID());
 			ghsDetailArrayList.add(ghsDetail);
 		}
 

@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -24,15 +25,18 @@ import com.bizconnectivity.tismobile.classes.GHS;
 import com.bizconnectivity.tismobile.classes.PPE;
 import com.bizconnectivity.tismobile.Common;
 import com.bizconnectivity.tismobile.Constant;
+import com.bizconnectivity.tismobile.database.datasources.GHSDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.datasources.PPEDetailDataSource;
 import com.bizconnectivity.tismobile.webservices.PPEWSAsync;
 import com.bizconnectivity.tismobile.webservices.SDSWSAsync;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Common.shortToast;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CHECK_PPE;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
@@ -59,6 +63,11 @@ public class JobMainActivity extends AppCompatActivity {
     String jobStatus, welcomeMessage, jobID, customerName, loadingBay, loadingArm;
     ArrayList<LinearLayout> linearLayoutArrayGHS;
     ArrayList<LinearLayout> linearLayoutArrayPPE;
+    PPEDetailDataSource ppeDetailDataSource;
+    GHSDetailDataSource ghsDetailDataSource;
+    ArrayList<GHS> ghsArrayList;
+    ArrayList<PPE> ppeArrayList;
+    boolean isOffline = false;
     //endregion
 
     JobDetailDataSource jobDetailDataSource;
@@ -92,12 +101,28 @@ public class JobMainActivity extends AppCompatActivity {
 
                 if (Common.isNetworkAvailable(getApplicationContext())) {
 
-                    PPEWSAsync task = new PPEWSAsync(JobMainActivity.this, btnPPE, sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
+                    isOffline = false;
+
+                    PPEWSAsync task = new PPEWSAsync(JobMainActivity.this, isOffline, btnPPE, sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
                     task.execute();
 
                 } else {
 
+                    isOffline = true;
 
+                    ppeDetailDataSource = new PPEDetailDataSource(getApplicationContext());
+                    ppeArrayList = new ArrayList<>();
+                    ppeDetailDataSource.open();
+                    ppeArrayList = ppeDetailDataSource.retrievePPE(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                    ppeDetailDataSource.close();
+
+                    ghsDetailDataSource = new GHSDetailDataSource(getApplicationContext());
+                    ghsArrayList = new ArrayList<>();
+                    ghsDetailDataSource.open();
+                    ghsArrayList = ghsDetailDataSource.retrieveGHS(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                    ghsDetailDataSource.close();
+
+                    ppeDialog(isOffline, ppeArrayList, ghsArrayList);
                 }
 
             }
@@ -120,7 +145,20 @@ public class JobMainActivity extends AppCompatActivity {
 
                 } else {
 
+                    //update job status
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, Constant.STATUS_SDS).apply();
 
+                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
+                    jobDetailDataSource.open();
+                    jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), Constant.STATUS_SDS);
+                    jobDetailDataSource.close();
+
+                    Intent intent = new Intent(getApplicationContext(), JobMainActivity.class);
+                    finish();
+                    startActivity(intent);
+
+                    shortToast(getApplicationContext(), "No Internet Connection");
                 }
             }
         });
@@ -223,7 +261,7 @@ public class JobMainActivity extends AppCompatActivity {
         //endregion
     }
 
-    public void ppeDialog(ArrayList<PPE> ppeArrayList, ArrayList<GHS> ghsArrayList) {
+    public void ppeDialog(boolean isOffline, ArrayList<PPE> ppeArrayList, ArrayList<GHS> ghsArrayList) {
 
         if (scanPPEDialog != null && scanPPEDialog.isShowing())
             return;
@@ -254,83 +292,308 @@ public class JobMainActivity extends AppCompatActivity {
         }
         //endregion
 
-        //region ppe and ghs picture setup
+        if (isOffline) {
 
-        int totalLinearLayoutGHS = (int) Math.ceil(ghsArrayList.size() / 4.0);
-        int totalLinearLayoutPPE = (int) Math.ceil(ppeArrayList.size() / 4.0);
-        int imagePerRow = 4;
-        int countGHS = 0;
-        int countPPE = 0;
-        int countLinearLayoutGHS = 0;
-        int countLinearLayoutPPE = 0;
-        linearLayoutArrayGHS = new ArrayList<>();
-        linearLayoutArrayPPE = new ArrayList<>();
+            //region ppe and ghs picture setup
 
-        //region ghs
-        for (int i=0; i<totalLinearLayoutGHS; i++) {
+            int totalLinearLayoutGHS = (int) Math.ceil(ghsArrayList.size() / 4.0);
+            int totalLinearLayoutPPE = (int) Math.ceil(ppeArrayList.size() / 4.0);
+            int imagePerRow = 4;
+            int countGHS = 0;
+            int countPPE = 0;
+            int countLinearLayoutGHS = 0;
+            int countLinearLayoutPPE = 0;
+            linearLayoutArrayGHS = new ArrayList<>();
+            linearLayoutArrayPPE = new ArrayList<>();
 
-            LinearLayout linearLayout = new LinearLayout(this);
-            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            linearLayout.setGravity(Gravity.START);
-            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            linearLayoutArrayGHS.add(linearLayout);
+            //region ghs
+            for (int i = 0; i < totalLinearLayoutGHS; i++) {
 
-            linearLayoutGHS.addView(linearLayoutArrayGHS.get(i));
-        }
+                LinearLayout linearLayout = new LinearLayout(this);
+                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                linearLayout.setGravity(Gravity.START);
+                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                linearLayoutArrayGHS.add(linearLayout);
 
-        for (int j=0; j<ghsArrayList.size(); j++) {
-
-            ImageView image = new ImageView(this);
-            String ghsPictureUrl = GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
-            Picasso.with(this)
-                    .load(ghsPictureUrl)
-                    .resize(100, 100)
-                    .into(image);
-
-            linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
-
-            countGHS++;
-
-            if ((countGHS % imagePerRow) == 0) {
-
-                countLinearLayoutGHS++;
+                linearLayoutGHS.addView(linearLayoutArrayGHS.get(i));
             }
-        }
-        //endregion
 
-        //region ppe
-        for (int i=0; i<totalLinearLayoutPPE; i++) {
+            for (int j = 0; j < ghsArrayList.size(); j++) {
 
-            LinearLayout linearLayout = new LinearLayout(this);
-            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-            linearLayout.setGravity(Gravity.START);
-            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-            linearLayoutArrayPPE.add(linearLayout);
+                ImageView image = new ImageView(this);
 
-            linearLayoutPPE.addView(linearLayoutArrayPPE.get(i));
-        }
+                switch (ghsArrayList.get(j).getGhsPictureURL()) {
 
-        for (int j=0; j<ppeArrayList.size(); j++) {
+                    case "1":
+                        Picasso.with(this)
+                                .load(R.drawable.acute_toxicity)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
 
-            ImageView image = new ImageView(this);
-            String ppePictureUrl = PPE_FILE_LOCATION + ppeArrayList.get(j).getPpePictureURL();
-            Picasso.with(this)
-                    .load(ppePictureUrl)
-                    .resize(100, 100)
-                    .into(image);
+                    case "2":
+                        Picasso.with(this)
+                                .load(R.drawable.aspiration_toxicity)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
 
-            linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
+                    case "3":
+                        Picasso.with(this)
+                                .load(R.drawable.corrosive)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
 
-            countPPE++;
+                    case "4":
+                        Picasso.with(this)
+                                .load(R.drawable.environment_toxicity)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
 
-            if ((countPPE % imagePerRow) == 0) {
+                    case "5":
+                        Picasso.with(this)
+                                .load(R.drawable.explosive)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
 
-                countLinearLayoutPPE++;
+                    case "6":
+                        Picasso.with(this)
+                                .load(R.drawable.flammable)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "7":
+                        Picasso.with(this)
+                                .load(R.drawable.gases_under_pressure)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "8":
+                        Picasso.with(this)
+                                .load(R.drawable.irritant)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "9":
+                        Picasso.with(this)
+                                .load(R.drawable.oxidiser)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    default:
+                        break;
+                }
+
+                linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
+
+                countGHS++;
+
+                if ((countGHS % imagePerRow) == 0) {
+
+                    countLinearLayoutGHS++;
+                }
             }
-        }
-        //endregion
+            //endregion
 
-        //endregion
+            //region ppe
+            for (int i = 0; i < totalLinearLayoutPPE; i++) {
+
+                LinearLayout linearLayout = new LinearLayout(this);
+                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                linearLayout.setGravity(Gravity.START);
+                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                linearLayoutArrayPPE.add(linearLayout);
+
+                linearLayoutPPE.addView(linearLayoutArrayPPE.get(i));
+            }
+
+            for (int j = 0; j < ppeArrayList.size(); j++) {
+
+                ImageView image = new ImageView(this);
+
+                switch (ppeArrayList.get(j).getPpePictureURL()) {
+
+                    case "1":
+                        Picasso.with(this)
+                                .load(R.drawable.ear_protection)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "2":
+                        Picasso.with(this)
+                                .load(R.drawable.face_shield)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "3":
+                        Picasso.with(this)
+                                .load(R.drawable.foot_protection)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "4":
+                        Picasso.with(this)
+                                .load(R.drawable.hand_protection)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "5":
+                        Picasso.with(this)
+                                .load(R.drawable.head_protection)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "6":
+                        Picasso.with(this)
+                                .load(R.drawable.mandatory_instruction)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "7":
+                        Picasso.with(this)
+                                .load(R.drawable.pedestrian_route)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "8":
+                        Picasso.with(this)
+                                .load(R.drawable.protective_clothing)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "9":
+                        Picasso.with(this)
+                                .load(R.drawable.respirator)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "10":
+                        Picasso.with(this)
+                                .load(R.drawable.safety_glasses)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    case "11":
+                        Picasso.with(this)
+                                .load(R.drawable.safety_harness)
+                                .resize(100, 100)
+                                .into(image);
+                        break;
+
+                    default:
+                        break;
+                }
+
+                linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
+
+                countPPE++;
+
+                if ((countPPE % imagePerRow) == 0) {
+
+                    countLinearLayoutPPE++;
+                }
+            }
+            //endregion
+
+            //endregion
+
+        } else {
+
+            //region ppe and ghs picture setup
+
+            int totalLinearLayoutGHS = (int) Math.ceil(ghsArrayList.size() / 4.0);
+            int totalLinearLayoutPPE = (int) Math.ceil(ppeArrayList.size() / 4.0);
+            int imagePerRow = 4;
+            int countGHS = 0;
+            int countPPE = 0;
+            int countLinearLayoutGHS = 0;
+            int countLinearLayoutPPE = 0;
+            linearLayoutArrayGHS = new ArrayList<>();
+            linearLayoutArrayPPE = new ArrayList<>();
+
+            //region ghs
+            for (int i = 0; i < totalLinearLayoutGHS; i++) {
+
+                LinearLayout linearLayout = new LinearLayout(this);
+                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                linearLayout.setGravity(Gravity.START);
+                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                linearLayoutArrayGHS.add(linearLayout);
+
+                linearLayoutGHS.addView(linearLayoutArrayGHS.get(i));
+            }
+
+            for (int j = 0; j < ghsArrayList.size(); j++) {
+
+                ImageView image = new ImageView(this);
+                String ghsPictureUrl = GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
+                Picasso.with(this)
+                        .load(ghsPictureUrl)
+                        .resize(100, 100)
+                        .into(image);
+
+                linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
+
+                countGHS++;
+
+                if ((countGHS % imagePerRow) == 0) {
+
+                    countLinearLayoutGHS++;
+                }
+            }
+            //endregion
+
+            //region ppe
+            for (int i = 0; i < totalLinearLayoutPPE; i++) {
+
+                LinearLayout linearLayout = new LinearLayout(this);
+                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                linearLayout.setGravity(Gravity.START);
+                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+                linearLayoutArrayPPE.add(linearLayout);
+
+                linearLayoutPPE.addView(linearLayoutArrayPPE.get(i));
+            }
+
+            for (int j = 0; j < ppeArrayList.size(); j++) {
+
+                ImageView image = new ImageView(this);
+                String ppePictureUrl = PPE_FILE_LOCATION + ppeArrayList.get(j).getPpePictureURL();
+                Picasso.with(this)
+                        .load(ppePictureUrl)
+                        .resize(100, 100)
+                        .into(image);
+
+                linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
+
+                countPPE++;
+
+                if ((countPPE % imagePerRow) == 0) {
+
+                    countLinearLayoutPPE++;
+                }
+            }
+            //endregion
+
+            //endregion
+        }
 
         //region button confirm
         Button btnConfirm = (Button) scanPPEDialog.findViewById(R.id.btnConfirm);
@@ -359,7 +622,7 @@ public class JobMainActivity extends AppCompatActivity {
 
                 } else {
 
-                    Common.shortToast(getApplicationContext(), ERR_MSG_CHECK_PPE);
+                    shortToast(getApplicationContext(), ERR_MSG_CHECK_PPE);
                 }
             }
         });
@@ -438,7 +701,7 @@ public class JobMainActivity extends AppCompatActivity {
 
                 } else {
 
-                    Common.shortToast(getApplicationContext(), "Please Answer All The Question");
+                    shortToast(getApplicationContext(), "Please Answer All The Question");
                 }
             }
         });

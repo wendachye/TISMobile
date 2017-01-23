@@ -3,7 +3,7 @@ package com.bizconnectivity.tismobile.classes;
 public class GHSDetail {
 
 	private String jobID;
-	private int ghsID;
+	private String ghsID;
 
 	public String getJobID() {
 		return jobID;
@@ -13,11 +13,11 @@ public class GHSDetail {
 		this.jobID = jobID;
 	}
 
-	public int getGhsID() {
+	public String getGhsID() {
 		return ghsID;
 	}
 
-	public void setGhsID(int ghsID) {
+	public void setGhsID(String ghsID) {
 		this.ghsID = ghsID;
 	}
 }

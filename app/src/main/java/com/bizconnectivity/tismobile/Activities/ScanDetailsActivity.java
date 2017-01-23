@@ -34,6 +34,7 @@ import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_DRIVER_ID;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_OPERATOR_ID;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_WORK_INSTRUCTION;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
@@ -41,6 +42,7 @@ import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
 import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
 import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
+import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
 
 public class ScanDetailsActivity extends AppCompatActivity {
 
@@ -188,7 +190,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
         //retrieve shared preferences
         sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
         welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
-        jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
+        jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
         customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
         loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
         loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
@@ -415,7 +417,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                     jobDetailDataSource = new JobDetailDataSource(this);
                     jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_OPERATOR_ID);
+                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_OPERATOR_ID);
                     jobDetailDataSource.close();
                     //endregion
 
@@ -429,13 +431,59 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                 } else if (returnScanValue.equals(SCAN_VALUE_DRIVER_ID)) {
 
-                    DriverIDWSAsync task = new DriverIDWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
-                    task.execute();
+                    if (Common.isNetworkAvailable(this)) {
+
+                        DriverIDWSAsync task = new DriverIDWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        task.execute();
+
+                    } else {
+
+                        if (scanContent.equals(sharedPref.getString(SHARED_PREF_DRIVER_ID, ""))) {
+
+                            editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).apply();
+
+                            jobDetailDataSource = new JobDetailDataSource(this);
+                            jobDetailDataSource.open();
+                            jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_DRIVER_ID);
+                            jobDetailDataSource.close();
+
+                            Intent intent = new Intent(this, ScanDetailsActivity.class);
+                            finish();
+                            startActivity(intent);
+
+                        } else {
+
+                            Common.shortToast(this, Constant.SCAN_MSG_INVALID_DRIVER_ID_RECEIVED);
+                        }
+                    }
 
                 } else if (returnScanValue.equals(SCAN_VALUE_WORK_INSTRUCTION)) {
 
-                    WorkInstructionWSAsync task = new WorkInstructionWSAsync(this, sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), scanContent);
-                    task.execute();
+                    if (Common.isNetworkAvailable(this)) {
+
+                        WorkInstructionWSAsync task = new WorkInstructionWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        task.execute();
+
+                    } else {
+
+                        if (scanContent.equals(sharedPref.getString(SHARED_PREF_JOB_ID, ""))) {
+
+                            editor.putString(SHARED_PREF_JOB_STATUS, STATUS_WORK_INSTRUCTION).apply();
+
+                            jobDetailDataSource = new JobDetailDataSource(this);
+                            jobDetailDataSource.open();
+                            jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_WORK_INSTRUCTION);
+                            jobDetailDataSource.close();
+
+                            Intent intent = new Intent(this, JobMainActivity.class);
+                            finish();
+                            startActivity(intent);
+
+                        } else {
+
+                            Common.shortToast(this, Constant.SCAN_MSG_INVALID_WORK_INSTRUCTION_RECEIVED);
+                        }
+                    }
 
                 } else {
                     Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);

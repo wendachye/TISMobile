@@ -11,6 +11,10 @@ import com.bizconnectivity.tismobile.database.DatabaseSQLHelper;
 
 import java.util.ArrayList;
 
+import static com.bizconnectivity.tismobile.Constant.calendar;
+import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
+import static com.bizconnectivity.tismobile.Constant.simpleDateFormat3;
+
 public class JobDetailDataSource {
 
 	private SQLiteDatabase database;
@@ -259,4 +263,89 @@ public class JobDetailDataSource {
 		database.delete(JobDetails.TABLE_NAME, selection, selectionArgs);
 	}
 
+	public void updatePumpStart(String jobID) {
+
+		String time = simpleDateFormat3.format(calendar.getTime());
+
+		// New value for one column
+		ContentValues values = new ContentValues();
+		values.put(JobDetails.COLUMN_PUMP_START_TIME, time);
+
+		// Which row to update, based on the title
+		String selectionUpdate = JobDetails.COLUMN_JOB_ID + " = ?";
+		String[] selectionArgsUpdate = { jobID };
+
+		database.update(JobDetails.TABLE_NAME, values, selectionUpdate, selectionArgsUpdate);
+	}
+
+	public void updatePumpStop(String jobID) {
+
+		String time = simpleDateFormat3.format(calendar.getTime());
+
+		// New value for one column
+		ContentValues values = new ContentValues();
+		values.put(JobDetails.COLUMN_PUMP_STOP_TIME, time);
+
+		// Which row to update, based on the title
+		String selectionUpdate = JobDetails.COLUMN_JOB_ID + " = ?";
+		String[] selectionArgsUpdate = { jobID };
+
+		database.update(JobDetails.TABLE_NAME, values, selectionUpdate, selectionArgsUpdate);
+	}
+
+	public void updateDepartureTime(String jobID) {
+
+		// New value for one column
+		ContentValues values = new ContentValues();
+		values.put(JobDetails.COLUMN_RACK_OUT_TIME, simpleDateFormat2.format(calendar));
+
+		// Which row to update, based on the title
+		String selectionUpdate = JobDetails.COLUMN_JOB_ID + " = ?";
+		String[] selectionArgsUpdate = { jobID };
+
+		database.update(JobDetails.TABLE_NAME, values, selectionUpdate, selectionArgsUpdate);
+	}
+
+	public ArrayList<JobDetail> retrieveUnsyncJob() {
+
+		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
+
+		// Filter results WHERE
+		String selectionRetrieve = JobDetails.COLUMN_RACK_OUT_TIME + " != ?";
+		String[] selectionArgsRetrieve = { "" };
+
+		Cursor cursor = database.query(
+				JobDetails.TABLE_NAME,                    // The table to query
+				null,                                     // The columns to return
+				selectionRetrieve,                        // The columns for the WHERE clause
+				selectionArgsRetrieve,                    // The values for the WHERE clause
+				null,                                     // Group the rows
+				null,                                     // Filter by row groups
+				null                                      // The sort order
+		);
+
+		if (cursor.getCount() > 0) {
+
+			while (cursor.moveToNext()) {
+
+				JobDetail jobDetail = new JobDetail();
+
+				jobDetail.setJobID(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_JOB_ID)));
+				jobDetail.setCustomerName(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_CUSTOMER_NAME)));
+				jobDetail.setProductName(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PRODUCT_NAME)));
+				jobDetail.setTankNo(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TANK_NO)));
+				jobDetail.setLoadingBayNo(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_TRUCK_LOADING_BAY_NO)));
+				jobDetail.setLoadingArm(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_LOADING_ARM_NO)));
+				jobDetail.setPumpStartTime(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PUMP_START_TIME)));
+				jobDetail.setPumpStopTime(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_PUMP_STOP_TIME)));
+				jobDetail.setRackOutTime(cursor.getString(cursor.getColumnIndexOrThrow(JobDetails.COLUMN_RACK_OUT_TIME)));
+
+				jobDetailArrayList.add(jobDetail);
+			}
+		}
+
+		cursor.close();
+
+		return jobDetailArrayList;
+	}
 }

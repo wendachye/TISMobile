@@ -61,6 +61,8 @@
             tools:replace="screenOrientation"/>
         <activity android:name=".activities.SearchResultActivity">
         </activity>
+        <activity android:name=".activities.SyncDataActivity">
+        </activity>
     </application>
 
 </manifest>

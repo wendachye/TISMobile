@@ -10,7 +10,7 @@ import org.ksoap2.transport.HttpTransportSE;
 
 public class PumpStopWS {
 
-	public static boolean invokeUpdatePumpStopWS(String TimeSlotID, String UpdatedBy) {
+	public static boolean invokeUpdatePumpStopWS(String TimeSlotID, String pumpStopTime, String UpdatedBy) {
 
 		boolean returnResult = false;
 
@@ -26,6 +26,17 @@ public class PumpStopWS {
 		propertyInfoTSID.setType(int.class);
 		// Add the property to request object
 		request.addProperty(propertyInfoTSID);
+
+		// Property which holds input parameters
+		PropertyInfo propertyInfoPST = new PropertyInfo();
+		// Set Name
+		propertyInfoPST.setName("pumpStopTime");
+		// Set Value
+		propertyInfoPST.setValue(pumpStopTime);
+		// Set dataType
+		propertyInfoPST.setType(String.class);
+		// Add the property to request object
+		request.addProperty(propertyInfoPST);
 
 		// Property which holds input parameters
 		PropertyInfo propertyInfoUB = new PropertyInfo();
