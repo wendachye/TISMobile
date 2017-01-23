@@ -74,7 +74,8 @@ public class DatabaseSQLHelper extends SQLiteOpenHelper{
 			"CREATE TABLE " +
 					SealDetails.TABLE_NAME + " (" +
 					SealDetails.COLUMN_JOB_ID + " TEXT, " +
-					SealDetails.COLUMN_SEAL_NO + " TEXT)";
+					SealDetails.COLUMN_SEAL_NO + " TEXT, " +
+					SealDetails.COLUMN_SEAL_USED + " TEXT)";
 
 	private static final String SQL_DELETE_SEAL_DETAILS =
 			"DROP TABLE IF EXISTS " +

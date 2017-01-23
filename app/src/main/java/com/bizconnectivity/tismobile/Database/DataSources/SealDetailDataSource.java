@@ -37,6 +37,7 @@ public class SealDetailDataSource {
 		ContentValues values = new ContentValues();
 		values.put(SealDetails.COLUMN_JOB_ID, jobID);
 		values.put(SealDetails.COLUMN_SEAL_NO, sealNo);
+		values.put(SealDetails.COLUMN_SEAL_USED, "used");
 
 		// Insert the new row, returning the primary key value of the new row
 		database.insert(SealDetails.TABLE_NAME, null, values);
@@ -64,19 +65,7 @@ public class SealDetailDataSource {
 					null                                      // The sort order
 			);
 
-			if (cursor.moveToFirst()) {
-
-				// Create a new map of values, where column names are the keys
-				ContentValues values = new ContentValues();
-				values.put(SealDetails.COLUMN_SEAL_NO, sealNoArrayList.get(i));
-
-				// Which row to update, based on the title
-				String selectionUpdate = SealDetails.COLUMN_JOB_ID + " = ?";
-				String[] selectionArgsUpdate = { jobID };
-
-				database.update(SealDetails.TABLE_NAME, values, selectionUpdate, selectionArgsUpdate);
-
-			} else {
+			if (cursor.getCount() == 0) {
 
 				// Create a new map of values, where column names are the keys
 				ContentValues values = new ContentValues();
@@ -95,6 +84,30 @@ public class SealDetailDataSource {
 
 		boolean returnResult = false;
 
+		// Define a projection that specifies which columns from the database
+		// you will actually use after this query.
+		String[] projection = { SealDetails.COLUMN_SEAL_NO };
+
+		// Filter results WHERE
+		String selectionRetrieve = SealDetails.COLUMN_JOB_ID + " = ?" + " AND " + SealDetails.COLUMN_SEAL_NO + " = ?";
+		String[] selectionArgsRetrieve = { jobID, sealNo };
+
+		Cursor cursor = database.query(
+				SealDetails.TABLE_NAME,                    // The table to query
+				projection,                               // The columns to return
+				selectionRetrieve,                        // The columns for the WHERE clause
+				selectionArgsRetrieve,                    // The values for the WHERE clause
+				null,                                     // Group the rows
+				null,                                     // Filter by row groups
+				null                                      // The sort order
+		);
+
+		if (cursor.moveToFirst()) {
+
+			returnResult = true;
+		}
+
+		cursor.close();
 
 		return returnResult;
 	}
@@ -108,8 +121,8 @@ public class SealDetailDataSource {
 		String[] projection = { SealDetails.COLUMN_SEAL_NO };
 
 		// Filter results WHERE
-		String selectionRetrieve = SealDetails.COLUMN_JOB_ID + " = ?";
-		String[] selectionArgsRetrieve = { jobID };
+		String selectionRetrieve = SealDetails.COLUMN_JOB_ID + " = ?" + " AND " + SealDetails.COLUMN_SEAL_USED + " =?";
+		String[] selectionArgsRetrieve = { jobID, "used" };
 
 		Cursor cursor = database.query(
 				SealDetails.TABLE_NAME,                   // The table to query

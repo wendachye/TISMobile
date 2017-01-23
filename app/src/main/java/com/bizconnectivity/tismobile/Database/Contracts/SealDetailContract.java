@@ -16,5 +16,6 @@ public class SealDetailContract {
 		public static final String TABLE_NAME = "SealDetails";
 		public static final String COLUMN_JOB_ID = "JobID";
 		public static final String COLUMN_SEAL_NO = "SealNo";
+		public static final String COLUMN_SEAL_USED = "SealUsed";
 	}
 }

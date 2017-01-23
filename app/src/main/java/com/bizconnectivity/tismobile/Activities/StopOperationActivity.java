@@ -33,6 +33,7 @@ import java.util.ArrayList;
 
 import static com.bizconnectivity.tismobile.Common.isNetworkAvailable;
 import static com.bizconnectivity.tismobile.Common.shortToast;
+import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CANNOT_ADD_SEAL;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL1;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL2;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL3;
@@ -551,21 +552,21 @@ public class StopOperationActivity extends AppCompatActivity {
                         sealDetailDataSource.open();
                         sealDetailDataSource.insertSealDetails(jobID, countSeal.get(i));
                         sealDetailDataSource.close();
-
-                        SharedPreferences.Editor editor = sharedPref.edit();
-                        editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
-
-                        jobDetailDataSource = new JobDetailDataSource(context);
-                        jobDetailDataSource.open();
-                        jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_SEAL);
-                        jobDetailDataSource.close();
-
-                        scanSealDialog.dismiss();
-
-                        Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
-                        finish();
-                        startActivity(intent);
                     }
+
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
+
+                    jobDetailDataSource = new JobDetailDataSource(context);
+                    jobDetailDataSource.open();
+                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_SEAL);
+                    jobDetailDataSource.close();
+
+                    scanSealDialog.dismiss();
+
+                    Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
+                    finish();
+                    startActivity(intent);
                 }
 
             }
@@ -738,8 +739,29 @@ public class StopOperationActivity extends AppCompatActivity {
 
                         sealDetailDataSource = new SealDetailDataSource(this);
                         sealDetailDataSource.open();
-                        sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        boolean response = sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
                         sealDetailDataSource.close();
+
+                        if (response) {
+
+                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+
+                            if (!scanContent.equals(seal1)) {
+
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString(SCAN_VALUE_BOTTOM_SEAL1, scanContent).apply();
+
+                            } else {
+
+                                Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+                            }
+
+                            scanSealDialog();
+
+                        } else {
+
+                            Common.shortToast(context, Constant.ERR_MSG_INVALID_SEAL_NO);
+                        }
                     }
 
                 } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL2)) {
@@ -758,10 +780,23 @@ public class StopOperationActivity extends AppCompatActivity {
 
                         if (response) {
 
+                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+
+                            if (!scanContent.equals(seal1)) {
+
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString(SCAN_VALUE_BOTTOM_SEAL2, scanContent).apply();
+
+                            } else {
+
+                                Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+                            }
+
+                            scanSealDialog();
 
                         } else {
 
-
+                            Common.shortToast(context, Constant.ERR_MSG_INVALID_SEAL_NO);
                         }
                     }
 
@@ -776,8 +811,30 @@ public class StopOperationActivity extends AppCompatActivity {
 
                         sealDetailDataSource = new SealDetailDataSource(this);
                         sealDetailDataSource.open();
-                        sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        boolean response = sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
                         sealDetailDataSource.close();
+
+                        if (response) {
+
+                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+                            String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
+
+                            if (!scanContent.equals(seal1) && !scanContent.equals(seal2)) {
+
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString(SCAN_VALUE_BOTTOM_SEAL3, scanContent).apply();
+
+                            } else {
+
+                                Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+                            }
+
+                            scanSealDialog();
+
+                        } else {
+
+                            Common.shortToast(context, Constant.ERR_MSG_INVALID_SEAL_NO);
+                        }
                     }
 
                 } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL4)) {
@@ -791,11 +848,34 @@ public class StopOperationActivity extends AppCompatActivity {
 
                         sealDetailDataSource = new SealDetailDataSource(this);
                         sealDetailDataSource.open();
-                        sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
+                        boolean response = sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
                         sealDetailDataSource.close();
+
+                        if (response) {
+
+                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+                            String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
+                            String seal3 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL3, "");
+
+                            if (!scanContent.equals(seal1) && !scanContent.equals(seal2) && !scanContent.equals(seal3)) {
+
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString(SCAN_VALUE_BOTTOM_SEAL4, scanContent).apply();
+
+                            } else {
+
+                                Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+                            }
+
+                            scanSealDialog();
+
+                        } else {
+
+                            Common.shortToast(context, Constant.ERR_MSG_INVALID_SEAL_NO);
+                        }
                     }
-                }
-                else {
+
+                } else {
 
                     Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
                 }
@@ -804,6 +884,7 @@ public class StopOperationActivity extends AppCompatActivity {
 
                 Common.shortToast(this, Constant.SCAN_MSG_NO_DATA_RECEIVED);
             }
+
         } else {
             // If scan data is not received (for example, if the user cancels the scan by pressing the back button),
             // we can simply output a message.
