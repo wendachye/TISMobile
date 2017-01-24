@@ -76,6 +76,7 @@ public class SwitchJobActivity extends AppCompatActivity {
     LoadingBayList loadingBayList;
     JobDetail jobDetail;
     String jobID;
+    boolean isActivityStarted = false;
     //endregion
 
     @Override
@@ -368,21 +369,21 @@ public class SwitchJobActivity extends AppCompatActivity {
     public void btnHomeClicked() {
 
         Intent intentHome = new Intent(this, DashboardActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
         Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
         Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSwitchTruckBay);
     }
 
@@ -402,7 +403,7 @@ public class SwitchJobActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
@@ -412,13 +413,13 @@ public class SwitchJobActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
                     case R.id.settingsMenuSyncData:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentSyncData);
                         return true;
 
@@ -491,5 +492,16 @@ public class SwitchJobActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         exitApplication();
+    }
+
+    @Override
+    public void onStop() {
+
+        super.onStop();
+
+        if (isActivityStarted) {
+
+            finish();
+        }
     }
 }

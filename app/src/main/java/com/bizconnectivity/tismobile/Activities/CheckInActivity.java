@@ -77,6 +77,7 @@ public class CheckInActivity extends AppCompatActivity {
     ArrayList<String> loadingBayArrayList;
     String technicianID, trunkBayString;
     boolean returnResult;
+    boolean isActivityStarted = false;
     //endregion
 
     @Override
@@ -386,21 +387,21 @@ public class CheckInActivity extends AppCompatActivity {
     public void btnHomeClicked() {
 
         Intent intent = new Intent(this, DashboardActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
     }
 
     public void btnSearchClicked() {
 
         Intent intent = new Intent(this, SearchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
     }
 
     public void btnSwitchClicked() {
 
         Intent intent = new Intent(this, SwitchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
     }
 
@@ -429,13 +430,13 @@ public class CheckInActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckOut:
                         Intent intent = new Intent(getApplicationContext(), CheckOutActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intent);
                         return true;
 
                     case R.id.settingsMenuSyncData:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentSyncData);
                         return true;
 
@@ -507,6 +508,17 @@ public class CheckInActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         exitApplication();
+    }
+
+    @Override
+    public void onStop() {
+
+        super.onStop();
+
+        if (isActivityStarted) {
+
+            finish();
+        }
     }
 
     private class loadingBayAsync extends AsyncTask<String, Void, Void> {

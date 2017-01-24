@@ -66,6 +66,7 @@ public class DashboardActivity extends AppCompatActivity {
     ArrayList<JobDetail> childArrayList;
     ArrayList<String> groupArrayList;
     String jobID, loadingBay;
+    boolean isActivityStarted = false;
     //endregion
 
     @Override
@@ -268,7 +269,7 @@ public class DashboardActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Intent intent = getIntent();
-                finish();
+                isActivityStarted = true;
                 startActivity(intent);
             }
         });
@@ -304,14 +305,14 @@ public class DashboardActivity extends AppCompatActivity {
     public void btnSearchClicked() {
 
         Intent intent = new Intent(this, SearchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
     }
 
     public void btnSwitchClicked() {
 
         Intent intent = new Intent(this, SwitchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
     }
 
@@ -333,7 +334,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
@@ -343,13 +344,13 @@ public class DashboardActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
                     case R.id.settingsMenuSyncData:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentSyncData);
                         return true;
 
@@ -390,8 +391,9 @@ public class DashboardActivity extends AppCompatActivity {
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intentLogin);
+                finish();
             }
         });
         //endregion
@@ -426,5 +428,15 @@ public class DashboardActivity extends AppCompatActivity {
         exitApplication();
     }
 
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+
+        if (isActivityStarted) {
+
+            finish();
+        }
+    }
 
 }

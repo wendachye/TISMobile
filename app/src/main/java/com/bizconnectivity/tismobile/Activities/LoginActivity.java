@@ -10,6 +10,7 @@ import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.text.method.TextKeyListener;
+import android.transition.TransitionInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
