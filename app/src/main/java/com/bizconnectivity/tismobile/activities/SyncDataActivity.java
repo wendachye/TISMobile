@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -56,7 +57,6 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 	JobDetailDataSource jobDetailDataSource;
 	ArrayList<JobDetail> jobDetailArrayList;
 	SyncDataAdapter adapter;
-	Button buttonSync;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -88,25 +88,40 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		adapter = new SyncDataAdapter(this, jobDetailArrayList, R.layout.list_view_search_result, this);
 		recyclerView.setAdapter(adapter);
+	}
 
-		buttonSync = (Button) findViewById(R.id.btnSyncData);
-		buttonSync.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.settings_sync_data, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// Handle action bar item clicks here. The action bar will
+		// automatically handle clicks on the Home/Up button, so long
+		// as you specify a parent activity in AndroidManifest.xml.
+
+		//noinspection SimplifiableIfStatement
+		if (item.getItemId() == R.id.btnSync) {
+
+			if (isNetworkAvailable(getApplicationContext())) {
 
 				String updatedBy = sharedPref.getString(SHARED_PREF_LOGINNAME, "");
 
-				if (isNetworkAvailable(getApplicationContext())) {
+				departureAsync task = new departureAsync(jobDetailArrayList, updatedBy);
+				task.execute();
 
-					departureAsync task = new departureAsync(jobDetailArrayList, updatedBy);
-					task.execute();
+			} else {
 
-				} else {
-
-					shortToast(getApplicationContext(), "No Internet Connection.");
-				}
+				shortToast(getApplicationContext(), "No Internet Connection.");
 			}
-		});
+
+			return true;
+		}
+
+		return super.onOptionsItemSelected(item);
 	}
 
 	private class departureAsync extends AsyncTask<String, Void, Void> {
@@ -276,6 +291,12 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 						Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
 						finish();
 						startActivity(intentCheckOut);
+						return true;
+
+					case R.id.settingsMenuSyncData:
+						Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
+						finish();
+						startActivity(intentSyncData);
 						return true;
 
 					default:

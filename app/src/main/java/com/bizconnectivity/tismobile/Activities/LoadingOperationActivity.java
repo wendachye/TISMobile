@@ -30,6 +30,8 @@ import com.bizconnectivity.tismobile.webservices.PumpStartWSAsync;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
+import java.util.Calendar;
+
 import static com.bizconnectivity.tismobile.Common.isNetworkAvailable;
 import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_SCAN_LOADING_ARM;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_LOADING_ARM;
@@ -43,7 +45,6 @@ import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
-import static com.bizconnectivity.tismobile.Constant.calendar;
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
 
 public class LoadingOperationActivity extends AppCompatActivity {
@@ -308,6 +309,12 @@ public class LoadingOperationActivity extends AppCompatActivity {
                         Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
                         finish();
                         startActivity(intentCheckOut);
+                        return true;
+
+                    case R.id.settingsMenuSyncData:
+                        Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
+                        finish();
+                        startActivity(intentSyncData);
                         return true;
 
                     default:
@@ -604,6 +611,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
                         jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PUMP_START);
                         jobDetailDataSource.close();
 
+                        Calendar calendar = Calendar.getInstance();
                         SharedPreferences.Editor editor = sharedPref.edit();
                         editor.putString(SHARED_PREF_PUMP_START_TIME, simpleDateFormat2.format(calendar.getTime()));
                         editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PUMP_START);

@@ -70,26 +70,29 @@ public class PPEWS {
 		//retrieve diffgram from property
 		SoapObject diffGram = (SoapObject) soapObject.getProperty("diffgram");
 
-		//retrieve document element from diffgram
-		SoapObject documentElement = (SoapObject) diffGram.getProperty("DocumentElement");
+		if (!soapObject.getProperty("diffgram").toString().equals("anyType{}")) {
 
-		//get the number of dataset
-		int newDataSetCount = documentElement.getPropertyCount();
+			//retrieve document element from diffgram
+			SoapObject documentElement = (SoapObject) diffGram.getProperty("DocumentElement");
 
-		for (int i = 0; i < newDataSetCount; i++) {
+			//get the number of dataset
+			int newDataSetCount = documentElement.getPropertyCount();
 
-			PPE ppe = new PPE();
+			for (int i = 0; i < newDataSetCount; i++) {
 
-			//retrieve data from dataset
-			SoapObject table = (SoapObject) documentElement.getProperty(i);
+				PPE ppe = new PPE();
 
-			if (!table.getProperty("PPEPicture").toString().equals("anyType{}")) {
-				ppe.setPpePictureURL(table.getProperty("PPEPicture").toString());
-			} else {
-				ppe.setPpePictureURL("");
+				//retrieve data from dataset
+				SoapObject table = (SoapObject) documentElement.getProperty(i);
+
+				if (!table.getProperty("PPEPicture").toString().equals("anyType{}")) {
+					ppe.setPpePictureURL(table.getProperty("PPEPicture").toString());
+				} else {
+					ppe.setPpePictureURL("");
+				}
+
+				ppeArrayList.add(ppe);
 			}
-
-			ppeArrayList.add(ppe);
 		}
 
 		return ppeArrayList;

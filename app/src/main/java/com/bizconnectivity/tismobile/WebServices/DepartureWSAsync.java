@@ -12,9 +12,10 @@ import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
+import java.util.Calendar;
+
 import static com.bizconnectivity.tismobile.Common.shortToast;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
-import static com.bizconnectivity.tismobile.Constant.calendar;
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat3;
 
 public class DepartureWSAsync extends AsyncTask<String, Void, Void> {
@@ -38,6 +39,7 @@ public class DepartureWSAsync extends AsyncTask<String, Void, Void> {
 	@Override
 	protected Void doInBackground(String... params) {
 
+		Calendar calendar = Calendar.getInstance();
 		String time = simpleDateFormat3.format(calendar.getTime());
 
 		response = DepartureWS.invokeAddDepartureWS(jobID, time, updatedBy);

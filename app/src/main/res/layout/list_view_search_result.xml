@@ -19,6 +19,7 @@
             android:layout_weight="0.17"
             android:padding="@dimen/list_item_padding"
             android:text="Order "
+            android:textStyle=""
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
 

@@ -1,5 +1,7 @@
 package com.bizconnectivity.tismobile.webservices;
 
+import android.util.Log;
+
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
@@ -39,7 +41,7 @@ public class SealNoWS {
 
 		try {
 			//invoke web service
-			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_GET_PRODUCT_PPE, envelope);
+			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_GET_SEAL_NO, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
 
@@ -68,20 +70,23 @@ public class SealNoWS {
 		//retrieve diffgram from property
 		SoapObject diffGram = (SoapObject) soapObject.getProperty("diffgram");
 
-		//retrieve document element from diffgram
-		SoapObject documentElement = (SoapObject) diffGram.getProperty("DocumentElement");
+		if (!soapObject.getProperty("diffgram").toString().equals("anyType{}")) {
 
-		//get the number of dataset
-		int newDataSetCount = documentElement.getPropertyCount();
+			//retrieve document element from diffgram
+			SoapObject documentElement = (SoapObject) diffGram.getProperty("DocumentElement");
 
-		for (int i = 0; i < newDataSetCount; i++) {
+			//get the number of dataset
+			int newDataSetCount = documentElement.getPropertyCount();
 
-			//retrieve data from dataset
-			SoapObject table = (SoapObject) documentElement.getProperty(i);
+			for (int i = 0; i < newDataSetCount; i++) {
 
-			if (!table.getProperty("SealNo").toString().equals("anyType{}")) {
+				//retrieve data from dataset
+				SoapObject table = (SoapObject) documentElement.getProperty(i);
 
-				sealNoArrayList.add(table.getProperty("SealNo").toString());
+				if (!table.getProperty("SealNo").toString().equals("anyType{}")) {
+
+					sealNoArrayList.add(table.getProperty("SealNo").toString());
+				}
 			}
 		}
 

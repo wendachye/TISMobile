@@ -255,10 +255,11 @@ public class CheckInActivity extends AppCompatActivity {
                     } else {
 
                         //check loading bay no with database
-                        checkIn = new CheckIn();
-                        checkIn.setLoadingBayNo(scanContent);
-
-                        checkLoadingBayNo(checkIn);
+//                        checkIn = new CheckIn();
+//                        checkIn.setLoadingBayNo(scanContent);
+//
+//                        checkLoadingBayNo(checkIn);
+                        shortToast(this, "No internet connection.");
                     }
 
                 } else {
@@ -430,6 +431,12 @@ public class CheckInActivity extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), CheckOutActivity.class);
                         finish();
                         startActivity(intent);
+                        return true;
+
+                    case R.id.settingsMenuSyncData:
+                        Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
+                        finish();
+                        startActivity(intentSyncData);
                         return true;
 
                     default:

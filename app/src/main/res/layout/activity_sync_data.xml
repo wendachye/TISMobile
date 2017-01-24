@@ -20,6 +20,24 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
+        <TextView
+            android:id="@+id/tvTruckBayTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginBottom="@dimen/header_title_text_spacing"
+            android:layout_marginTop="@dimen/header_title_text_spacing"
+            android:gravity="center_horizontal"
+            android:text="SYNC DATA"
+            android:textStyle="bold"
+            android:textSize="@dimen/header_title_text" />
+
+        <TextView
+            android:id="@+id/hDivider"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/separator_width"
+            android:background="@color/colorBlack" />
+
         <LinearLayout
             android:id="@+id/tvTruckBayListHeader"
             android:layout_width="match_parent"
@@ -37,6 +55,7 @@
                 android:layout_weight="0.17"
                 android:padding="@dimen/list_item_padding"
                 android:text="@string/order"
+                android:textStyle="bold"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -56,6 +75,7 @@
                 android:layout_weight="0.35"
                 android:padding="@dimen/list_item_padding"
                 android:text="@string/customer"
+                android:textStyle="bold"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -75,6 +95,7 @@
                 android:layout_weight="0.33"
                 android:padding="@dimen/list_item_padding"
                 android:text="@string/product"
+                android:textStyle="bold"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -94,6 +115,7 @@
                 android:layout_weight="0.15"
                 android:padding="@dimen/list_item_padding"
                 android:text="@string/tank_no"
+                android:textStyle="bold"
                 android:textColor="@color/colorBlack"
                 android:textSize="@dimen/default_app_text" />
 
@@ -108,13 +130,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="300dp"/>
-
-        <Button
-            android:id="@+id/btnSyncData"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Sync Data"/>
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 

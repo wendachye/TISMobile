@@ -11,8 +11,9 @@ import com.bizconnectivity.tismobile.activities.StopOperationActivity;
 import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 
+import java.util.Calendar;
+
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
-import static com.bizconnectivity.tismobile.Constant.calendar;
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat3;
 
@@ -37,6 +38,7 @@ public class PumpStopWSAsync extends AsyncTask<String, Void, Void> {
 	@Override
 	protected Void doInBackground(String... params) {
 
+		Calendar calendar = Calendar.getInstance();
 		String time = simpleDateFormat3.format(calendar.getTime());
 
 		response = PumpStopWS.invokeUpdatePumpStopWS(jobID, time, updatedBy);
@@ -53,6 +55,7 @@ public class PumpStopWSAsync extends AsyncTask<String, Void, Void> {
 		if (response) {
 
 			//region set job status and pump stop time
+			Calendar calendar = Calendar.getInstance();
 			editor.putString(Constant.SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime()));
 			editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_PUMP_STOP);
 			editor.apply();

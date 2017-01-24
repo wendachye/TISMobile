@@ -4,15 +4,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import com.bizconnectivity.tismobile.classes.JobDetail;
 import com.bizconnectivity.tismobile.database.contracts.JobDetailContract.JobDetails;
 import com.bizconnectivity.tismobile.database.DatabaseSQLHelper;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
-import static com.bizconnectivity.tismobile.Constant.calendar;
-import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat3;
 
 public class JobDetailDataSource {
@@ -156,8 +156,8 @@ public class JobDetailDataSource {
 		String[] projection = { JobDetails.COLUMN_JOB_ID, JobDetails.COLUMN_CUSTOMER_NAME, JobDetails.COLUMN_PRODUCT_NAME, JobDetails.COLUMN_TANK_NO };
 
 		// Filter results WHERE
-		String selectionRetrieve = JobDetails.COLUMN_TRUCK_LOADING_BAY_NO + " = ? AND " + JobDetails.COLUMN_JOB_STATUS + " != ?";
-		String[] selectionArgsRetrieve = { loadingBayNo, "Pending" };
+		String selectionRetrieve = JobDetails.COLUMN_TRUCK_LOADING_BAY_NO + " = ? AND " + JobDetails.COLUMN_JOB_STATUS + " != ?" + " AND " + JobDetails.COLUMN_RACK_OUT_TIME + " =?";
+		String[] selectionArgsRetrieve = { loadingBayNo, "Pending", "" };
 
 		Cursor cursor = database.query(
 				JobDetails.TABLE_NAME,                    // The table to query
@@ -265,6 +265,7 @@ public class JobDetailDataSource {
 
 	public void updatePumpStart(String jobID) {
 
+		Calendar calendar = Calendar.getInstance();
 		String time = simpleDateFormat3.format(calendar.getTime());
 
 		// New value for one column
@@ -280,6 +281,7 @@ public class JobDetailDataSource {
 
 	public void updatePumpStop(String jobID) {
 
+		Calendar calendar = Calendar.getInstance();
 		String time = simpleDateFormat3.format(calendar.getTime());
 
 		// New value for one column
@@ -295,9 +297,12 @@ public class JobDetailDataSource {
 
 	public void updateDepartureTime(String jobID) {
 
+		Calendar calendar = Calendar.getInstance();
+		String time = simpleDateFormat3.format(calendar.getTime());
+
 		// New value for one column
 		ContentValues values = new ContentValues();
-		values.put(JobDetails.COLUMN_RACK_OUT_TIME, simpleDateFormat2.format(calendar));
+		values.put(JobDetails.COLUMN_RACK_OUT_TIME, time);
 
 		// Which row to update, based on the title
 		String selectionUpdate = JobDetails.COLUMN_JOB_ID + " = ?";

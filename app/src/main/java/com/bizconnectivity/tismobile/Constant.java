@@ -116,5 +116,4 @@ public class Constant {
     public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     public static SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH:mm", Locale.US);
     public static SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat("HH:mm:ss", Locale.US);
-    public static Calendar calendar = Calendar.getInstance();
 }

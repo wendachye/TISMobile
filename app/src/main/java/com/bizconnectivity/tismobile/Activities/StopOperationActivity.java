@@ -30,8 +30,10 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import static com.bizconnectivity.tismobile.Common.isNetworkAvailable;
+import static com.bizconnectivity.tismobile.Common.longToast;
 import static com.bizconnectivity.tismobile.Common.shortToast;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CANNOT_ADD_SEAL;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL1;
@@ -58,7 +60,6 @@ import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_WORK_INSTRUCTIO
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
 import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
 import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
-import static com.bizconnectivity.tismobile.Constant.calendar;
 import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
 
 public class StopOperationActivity extends AppCompatActivity {
@@ -295,6 +296,12 @@ public class StopOperationActivity extends AppCompatActivity {
                         startActivity(intentCheckOut);
                         return true;
 
+                    case R.id.settingsMenuSyncData:
+                        Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
+                        finish();
+                        startActivity(intentSyncData);
+                        return true;
+
                     default:
                         return false;
                 }
@@ -383,6 +390,7 @@ public class StopOperationActivity extends AppCompatActivity {
                     jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_PUMP_STOP);
                     jobDetailDataSource.close();
 
+                    Calendar calendar = Calendar.getInstance();
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime()));
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PUMP_STOP);
@@ -681,7 +689,7 @@ public class StopOperationActivity extends AppCompatActivity {
 
                     departureDialog.dismiss();
 
-                    shortToast(getApplicationContext(), "Data stored in local due to no internet connection, please sync the data after the internet available.");
+                    longToast(getApplicationContext(), "Data stored in local due to no internet connection, please sync the data after the internet available.");
 
                     Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                     finish();
