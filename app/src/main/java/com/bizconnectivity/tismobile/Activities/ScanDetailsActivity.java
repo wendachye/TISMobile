@@ -57,6 +57,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
     JobDetailDataSource jobDetailDataSource;
     LoadingBayDetailDataSource loadingBayDetailDataSource;
     String jobStatus, operatorID, driverID, welcomeMessage, jobID, customerName, loadingBay, loadingArm;
+    boolean isActivityStarted = false;
     //endregion
 
     @Override
@@ -244,21 +245,21 @@ public class ScanDetailsActivity extends AppCompatActivity {
     public void btnHomeClicked() {
 
         Intent intentHome = new Intent(this, DashboardActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
         Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
         Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSwitchTruckBay);
     }
 
@@ -277,7 +278,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
@@ -287,13 +288,13 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
                     case R.id.settingsMenuSyncData:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentSyncData);
                         return true;
 
@@ -334,7 +335,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intentLogin);
             }
         });
@@ -454,7 +456,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
                             jobDetailDataSource.close();
 
                             Intent intent = new Intent(this, ScanDetailsActivity.class);
-                            finish();
+                            isActivityStarted = true;
                             startActivity(intent);
 
                         } else {
@@ -482,7 +484,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
                             jobDetailDataSource.close();
 
                             Intent intent = new Intent(this, JobMainActivity.class);
-                            finish();
+                            isActivityStarted = true;
                             startActivity(intent);
 
                         } else {
@@ -508,4 +510,15 @@ public class ScanDetailsActivity extends AppCompatActivity {
 	public void onBackPressed() {
 
 	}
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+
+        if (isActivityStarted) {
+
+            finish();
+        }
+    }
 }

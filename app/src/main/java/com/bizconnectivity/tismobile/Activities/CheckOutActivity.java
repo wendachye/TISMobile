@@ -43,6 +43,7 @@ public class CheckOutActivity extends AppCompatActivity {
     Spinner spLoadingBay;
     ArrayList<String> loadingBayArrayList;
     String message;
+    boolean isActivityStarted = false;
     //endregion
 
     LoadingBayDetailDataSource loadingBayDetailDataSource;
@@ -100,7 +101,7 @@ public class CheckOutActivity extends AppCompatActivity {
                     shortToast(getApplicationContext(), message);
 
                     Intent intent = new Intent(getApplicationContext(), CheckOutActivity.class);
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
 
                 } else {
@@ -167,21 +168,21 @@ public class CheckOutActivity extends AppCompatActivity {
     public void btnHomeClicked() {
 
         Intent intentHome = new Intent(this, DashboardActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
         Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
         Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSwitchTruckBay);
     }
 
@@ -201,7 +202,7 @@ public class CheckOutActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
@@ -210,11 +211,14 @@ public class CheckOutActivity extends AppCompatActivity {
                         return true;
 
                     case R.id.settingsMenuCheckOut:
+                        Intent intent = getIntent();
+                        isActivityStarted = true;
+                        startActivity(intent);
                         return true;
 
                     case R.id.settingsMenuSyncData:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentSyncData);
                         return true;
 
@@ -255,7 +259,8 @@ public class CheckOutActivity extends AppCompatActivity {
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intentLogin);
             }
         });
@@ -285,5 +290,16 @@ public class CheckOutActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         exitApplication();
+    }
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+
+        if (isActivityStarted) {
+
+            finish();
+        }
     }
 }

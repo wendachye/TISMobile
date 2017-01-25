@@ -243,7 +243,7 @@ public class CheckInActivity extends AppCompatActivity {
                     editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, scanContent).apply();
 
                     Intent intent = new Intent(this, CheckInActivity.class);
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
 
                 } else if (returnScanValue.equals(SCAN_VALUE_TRUCK_LOADING_BAY)) {
@@ -298,7 +298,7 @@ public class CheckInActivity extends AppCompatActivity {
             editor.putString(SHARED_PREF_TECHNICIAN_ID, checkIn.getTechnicianNRIC()).apply();
 
             Intent intent = new Intent(this, CheckInActivity.class);
-            finish();
+            isActivityStarted = true;
             startActivity(intent);
 
         } else {
@@ -308,7 +308,7 @@ public class CheckInActivity extends AppCompatActivity {
             shortToast(this, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
 
             Intent intent = new Intent(this, CheckInActivity.class);
-            finish();
+            isActivityStarted = true;
             startActivity(intent);
         }
     }
@@ -323,7 +323,7 @@ public class CheckInActivity extends AppCompatActivity {
         if (returnResult) {
 
             Intent intent = new Intent(this, CheckInActivity.class);
-            finish();
+            isActivityStarted = true;
             startActivity(intent);
 
         } else {

@@ -68,6 +68,7 @@ public class JobMainActivity extends AppCompatActivity {
     ArrayList<GHS> ghsArrayList;
     ArrayList<PPE> ppeArrayList;
     boolean isOffline = false;
+    boolean isActivityStarted = false;
     //endregion
 
     JobDetailDataSource jobDetailDataSource;
@@ -155,7 +156,7 @@ public class JobMainActivity extends AppCompatActivity {
                     jobDetailDataSource.close();
 
                     Intent intent = new Intent(getApplicationContext(), JobMainActivity.class);
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
 
                     shortToast(getApplicationContext(), "No Internet Connection");
@@ -172,7 +173,7 @@ public class JobMainActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Intent intent = new Intent(getApplicationContext(), ScanDetailsActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intent);
             }
         });
@@ -617,7 +618,7 @@ public class JobMainActivity extends AppCompatActivity {
                     scanPPEDialog.dismiss();
 
                     Intent intent = getIntent();
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
 
                 } else {
@@ -696,7 +697,7 @@ public class JobMainActivity extends AppCompatActivity {
                     safetyChecksDialog.dismiss();
 
                     Intent intent = new Intent(getApplicationContext(), LoadingOperationActivity.class);
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
 
                 } else {
@@ -796,21 +797,21 @@ public class JobMainActivity extends AppCompatActivity {
     public void btnHomeClicked() {
 
         Intent intent = new Intent(this, DashboardActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
     }
 
     public void btnSearchClicked() {
 
         Intent intent = new Intent(this, SearchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
     }
 
     public void btnSwitchClicked() {
 
         Intent intent = new Intent(this, SwitchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
     }
 
@@ -830,7 +831,7 @@ public class JobMainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
@@ -840,13 +841,13 @@ public class JobMainActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
                     case R.id.settingsMenuSyncData:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentSyncData);
                         return true;
 
@@ -887,7 +888,8 @@ public class JobMainActivity extends AppCompatActivity {
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intentLogin);
             }
         });
@@ -921,7 +923,18 @@ public class JobMainActivity extends AppCompatActivity {
     public void onBackPressed() {
 
         Intent intent = new Intent(this, DashboardActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intent);
+    }
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+
+        if (isActivityStarted) {
+
+            finish();
+        }
     }
 }

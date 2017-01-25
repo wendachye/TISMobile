@@ -75,6 +75,7 @@ public class StopOperationActivity extends AppCompatActivity {
     SharedPreferences sharedPref;
     JobDetailDataSource jobDetailDataSource;
     SealDetailDataSource sealDetailDataSource;
+    boolean isActivityStarted = false;
     //endregion
 
     @Override
@@ -249,21 +250,21 @@ public class StopOperationActivity extends AppCompatActivity {
     public void btnHomeClicked() {
 
         Intent intentHome = new Intent(context, DashboardActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
         Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
         Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSwitchTruckBay);
     }
 
@@ -282,7 +283,7 @@ public class StopOperationActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(context, CheckInActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
@@ -292,13 +293,13 @@ public class StopOperationActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
                     case R.id.settingsMenuSyncData:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentSyncData);
                         return true;
 
@@ -332,7 +333,8 @@ public class StopOperationActivity extends AppCompatActivity {
                 editor.apply();
 
                 Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intent);
             }
         });
@@ -399,7 +401,7 @@ public class StopOperationActivity extends AppCompatActivity {
                     pumpStopDialog.dismiss();
 
                     Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
                 }
             }
@@ -573,7 +575,7 @@ public class StopOperationActivity extends AppCompatActivity {
                     scanSealDialog.dismiss();
 
                     Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
                 }
 
@@ -692,7 +694,7 @@ public class StopOperationActivity extends AppCompatActivity {
                     longToast(getApplicationContext(), "Data stored in local due to no internet connection, please sync the data after the internet available.");
 
                     Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
                 }
             }
@@ -904,4 +906,15 @@ public class StopOperationActivity extends AppCompatActivity {
 	public void onBackPressed() {
 
 	}
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+
+        if (isActivityStarted) {
+
+            finish();
+        }
+    }
 }

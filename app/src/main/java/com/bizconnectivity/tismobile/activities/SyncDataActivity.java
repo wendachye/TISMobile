@@ -57,6 +57,7 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 	JobDetailDataSource jobDetailDataSource;
 	ArrayList<JobDetail> jobDetailArrayList;
 	SyncDataAdapter adapter;
+	boolean isActivityStarted = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,16 +107,23 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		//noinspection SimplifiableIfStatement
 		if (item.getItemId() == R.id.btnSync) {
 
-			if (isNetworkAvailable(getApplicationContext())) {
+			if (jobDetailArrayList.size() > 0) {
 
-				String updatedBy = sharedPref.getString(SHARED_PREF_LOGINNAME, "");
+				if (isNetworkAvailable(getApplicationContext())) {
 
-				departureAsync task = new departureAsync(jobDetailArrayList, updatedBy);
-				task.execute();
+					String updatedBy = sharedPref.getString(SHARED_PREF_LOGINNAME, "");
+
+					departureAsync task = new departureAsync(jobDetailArrayList, updatedBy);
+					task.execute();
+
+				} else {
+
+					shortToast(getApplicationContext(), "No Internet Connection.");
+				}
 
 			} else {
 
-				shortToast(getApplicationContext(), "No Internet Connection.");
+				shortToast(this, "No data to sync.");
 			}
 
 			return true;
@@ -177,12 +185,13 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		@Override
 		protected void onPostExecute(Void result) {
 
-
 			//close progress dialog
 			progressDialog.dismiss();
 
+			shortToast(getApplicationContext(), "Data has been synced.");
+
 			Intent intent = new Intent(getApplicationContext(), SyncDataActivity.class);
-			finish();
+			isActivityStarted = true;
 			startActivity(intent);
 		}
 	}
@@ -243,21 +252,21 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 	public void btnSearchClicked() {
 
 		Intent intent = new Intent(this, SearchJobActivity.class);
-		finish();
+		isActivityStarted = true;
 		startActivity(intent);
 	}
 
 	public void btnHomeClicked() {
 
 		Intent intent = new Intent(this, DashboardActivity.class);
-		finish();
+		isActivityStarted = true;
 		startActivity(intent);
 	}
 
 	public void btnSwitchClicked() {
 
 		Intent intent = new Intent(this, SwitchJobActivity.class);
-		finish();
+		isActivityStarted = true;
 		startActivity(intent);
 	}
 
@@ -279,7 +288,7 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 					case R.id.settingsMenuCheckIn:
 						Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
-						finish();
+						isActivityStarted = true;
 						startActivity(intentCheckIn);
 						return true;
 
@@ -289,13 +298,13 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 					case R.id.settingsMenuCheckOut:
 						Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
-						finish();
+						isActivityStarted = true;
 						startActivity(intentCheckOut);
 						return true;
 
 					case R.id.settingsMenuSyncData:
 						Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-						finish();
+						isActivityStarted = true;
 						startActivity(intentSyncData);
 						return true;
 
@@ -336,7 +345,8 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 				//clear all activity and start login activity
 				Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-				intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				isActivityStarted = true;
 				startActivity(intentLogin);
 			}
 		});
@@ -370,4 +380,21 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 	}
 	//endregion
+
+	@Override
+	public void onBackPressed() {
+
+		exitApplication();
+	}
+
+	@Override
+	protected void onStop() {
+
+		super.onStop();
+
+		if (isActivityStarted) {
+
+			finish();
+		}
+	}
 }

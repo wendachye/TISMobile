@@ -230,84 +230,84 @@ public class SwitchJobActivity extends AppCompatActivity {
             case STATUS_PENDING:
 
                 Intent intent = new Intent(this, JobMainActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intent);
                 break;
 
             case STATUS_PPE:
 
                 Intent intentPPE = new Intent(this, JobMainActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentPPE);
                 break;
 
             case STATUS_SDS:
 
                 Intent intentSDS = new Intent(this, JobMainActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentSDS);
                 break;
 
             case STATUS_OPERATOR_ID:
 
                 Intent intentSD = new Intent(this, ScanDetailsActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentSD);
                 break;
 
             case STATUS_DRIVER_ID:
 
                 Intent intentDI = new Intent(this, ScanDetailsActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentDI);
                 break;
 
             case STATUS_WORK_INSTRUCTION:
 
                 Intent intentWI = new Intent(this, JobMainActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentWI);
                 break;
 
             case STATUS_SAFETY_CHECKS :
 
                 Intent intentSC = new Intent(this, LoadingOperationActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentSC);
                 break;
 
             case STATUS_SCAN_LOADING_ARM:
 
                 Intent intentLA = new Intent(this, LoadingOperationActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentLA);
                 break;
 
             case STATUS_BATCH_CONTROLLER:
 
                 Intent intentBC = new Intent(this, LoadingOperationActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentBC);
                 break;
 
             case STATUS_PUMP_START:
 
                 Intent intentPS = new Intent(this, StopOperationActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentPS);
                 break;
 
             case STATUS_PUMP_STOP:
 
                 Intent intentPSTP = new Intent(this, StopOperationActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentPSTP);
                 break;
 
             case STATUS_SCAN_SEAL:
 
                 Intent intentSS = new Intent(this, StopOperationActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intentSS);
                 break;
 
@@ -460,7 +460,8 @@ public class SwitchJobActivity extends AppCompatActivity {
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intentLogin);
             }
         });

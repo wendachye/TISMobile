@@ -115,7 +115,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                 //start job main activity
                 Intent intent = new Intent(getApplicationContext(), JobMainActivity.class);
-                finish();
+                isActivityStarted = true;
                 startActivity(intent);
 
                 return true;
@@ -392,8 +392,8 @@ public class DashboardActivity extends AppCompatActivity {
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
                 intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intentLogin);
-                finish();
             }
         });
         //endregion

@@ -60,6 +60,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
     JobDetailDataSource jobDetailDataSource;
     LoadingBayDetailDataSource loadingBayDetailDataSource;
     String jobStatus, loadingArm, batchController, pumpStartTime, welcomeMessage, jobID, customerName, loadingBay;
+    boolean isActivityStarted = false;
     //endregion
 
     @Override
@@ -264,21 +265,21 @@ public class LoadingOperationActivity extends AppCompatActivity {
     public void btnHomeClicked() {
 
         Intent intentHome = new Intent(this, DashboardActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentHome);
     }
 
     public void btnSearchClicked() {
 
         Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSearchJob);
     }
 
     public void btnSwitchClicked() {
 
         Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
-        finish();
+        isActivityStarted = true;
         startActivity(intentSwitchTruckBay);
     }
 
@@ -297,7 +298,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.settingsMenuCheckIn:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
@@ -307,13 +308,13 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                     case R.id.settingsMenuCheckOut:
                         Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
                     case R.id.settingsMenuSyncData:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intentSyncData);
                         return true;
 
@@ -354,7 +355,8 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intentLogin);
             }
         });
@@ -430,7 +432,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
                             jobDetailDataSource.close();
 
                             Intent intent = new Intent(this, LoadingOperationActivity.class);
-                            finish();
+                            isActivityStarted = true;
                             startActivity(intent);
 
                         } else {
@@ -542,7 +544,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
                     batchControllerDialog.dismiss();
 
                     Intent intent = getIntent();
-                    finish();
+                    isActivityStarted = true;
                     startActivity(intent);
 
                 } else {
@@ -620,7 +622,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
                         pumpStartDialog.dismiss();
 
                         Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
-                        finish();
+                        isActivityStarted = true;
                         startActivity(intent);
                     }
 
@@ -651,7 +653,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
 	    } else {
 
 		    Intent intent = new Intent(this, StopOperationActivity.class);
-            finish();
+            isActivityStarted = true;
 		    startActivity(intent);
 	    }
     }
@@ -659,4 +661,15 @@ public class LoadingOperationActivity extends AppCompatActivity {
 	public void onBackPressed() {
 
 	}
+
+    @Override
+    protected void onStop() {
+
+        super.onStop();
+
+        if (isActivityStarted) {
+
+            finish();
+        }
+    }
 }
