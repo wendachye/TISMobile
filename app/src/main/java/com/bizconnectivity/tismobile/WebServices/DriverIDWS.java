@@ -41,9 +41,11 @@ public class DriverIDWS {
 			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_GET_TIMESLOT, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
+
 				SoapFault response = (SoapFault) envelope.bodyIn;
-				Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
+
 			} else {
+
 				SoapObject response = (SoapObject) envelope.bodyIn;
 
 				SoapObject so1 = (SoapObject) response.getProperty(0);
@@ -62,9 +64,10 @@ public class DriverIDWS {
 					}
 				}
 			}
+
 		} catch (Exception e) {
+
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
 		return returnResult;

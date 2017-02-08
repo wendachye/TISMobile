@@ -27,7 +27,7 @@ import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSo
 import java.util.ArrayList;
 
 import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGIN_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 
 public class SearchResultActivity extends AppCompatActivity implements SearchResultAdapter.AdapterCallBack{
@@ -81,7 +81,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 		headerLayout = (LinearLayout) findViewById(R.id.headerResult);
 
 		headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-		headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
+		headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 	}
 	//endregion
 
@@ -90,7 +90,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 
 		footerLayout = (LinearLayout) findViewById(R.id.footer);
 
-		btnHome = (ImageButton) footerLayout.findViewById(R.id.btnHome);
+		btnHome = (ImageButton) footerLayout.findViewById(R.id.button_home);
 		btnHome.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -99,7 +99,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 			}
 		});
 
-		btnSearch = (ImageButton) footerLayout.findViewById(R.id.btnSearch);
+		btnSearch = (ImageButton) footerLayout.findViewById(R.id.button_search);
 		btnSearch.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -108,7 +108,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 			}
 		});
 
-		btnSwitch = (ImageButton) footerLayout.findViewById(R.id.btnSwitch);
+		btnSwitch = (ImageButton) footerLayout.findViewById(R.id.button_switch);
 		btnSwitch.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -117,7 +117,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 			}
 		});
 
-		btnSettings = (ImageButton) footerLayout.findViewById(R.id.btnSettings);
+		btnSettings = (ImageButton) footerLayout.findViewById(R.id.button_settings);
 		btnSettings.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View view) {
@@ -164,23 +164,23 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 
 				switch (item.getItemId()) {
 
-					case R.id.settingsMenuCheckIn:
+					case R.id.menu_check_in:
 						Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
 						isActivityStarted = true;
 						startActivity(intentCheckIn);
 						return true;
 
-					case R.id.settingsMenuExitApp:
+					case R.id.menu_exit:
 						exitApplication();
 						return true;
 
-					case R.id.settingsMenuCheckOut:
+					case R.id.menu_check_out:
 						Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
 						isActivityStarted = true;
 						startActivity(intentCheckOut);
 						return true;
 
-					case R.id.settingsMenuSyncData:
+					case R.id.menu_sync_data:
 						Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
 						isActivityStarted = true;
 						startActivity(intentSyncData);

@@ -2,124 +2,121 @@
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/footer_menu"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:baselineAligned="false"
     style="@style/AppTheme.Footer">
 
     <LinearLayout
-        android:id="@+id/btnAlertLayout"
         android:layout_width="@dimen/no_width"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_weight="0.245"
-        android:background="@drawable/table_border_noleft"
-        android:gravity="center_horizontal"
+        android:background="@drawable/table_border_no_left"
         android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/btnHome"
+            android:id="@+id/button_home"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
             app:srcCompat="@mipmap/ic_home"
-            android:contentDescription="@string/home_image"/>
+            android:contentDescription="@string/home_image"
+            android:onClick="btnHome"/>
 
         <TextView
             android:id="@+id/tvAlertTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/Menu_Home"
+            android:text="@string/menu_home"
             android:textColor="@color/colorRed"
             android:textSize="@dimen/footer_menu_text"
+            android:textAlignment="center"
             android:layout_marginTop="@dimen/footer_menu_text_top_spacing"
             android:layout_marginBottom="@dimen/footer_menu_text_bottom_spacing"/>
 
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/btnSearchLayout"
         android:layout_width="@dimen/no_width"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_weight="0.245"
-        android:background="@drawable/table_border_noleft"
-        android:gravity="center_horizontal"
+        android:background="@drawable/table_border_no_left"
         android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/btnSearch"
+            android:id="@+id/button_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
             app:srcCompat="@mipmap/ic_search"
-            android:contentDescription="@string/search_image"/>
+            android:contentDescription="@string/search_image"
+            android:onClick="btnSearch"/>
 
         <TextView
-            android:id="@+id/tvSearchTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/Menu_Search"
+            android:text="@string/menu_search"
             android:textColor="@color/colorBlue"
             android:textSize="@dimen/footer_menu_text"
+            android:textAlignment="center"
             android:layout_marginTop="@dimen/footer_menu_text_top_spacing"
             android:layout_marginBottom="@dimen/footer_menu_text_bottom_spacing"/>
+
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/btnSwitchLayout"
         android:layout_width="@dimen/no_width"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_weight="0.245"
-        android:background="@drawable/table_border_noleft"
-        android:gravity="center_horizontal"
+        android:background="@drawable/table_border_no_left"
         android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/btnSwitch"
+            android:id="@+id/button_switch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:clickable="true"
             app:srcCompat="@mipmap/ic_switch"
-            android:contentDescription="@string/switch_image"/>
+            android:contentDescription="@string/switch_image"
+            android:onClick="btnSwitch"/>
 
         <TextView
-            android:id="@+id/tvSwitchTitle"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/Menu_Switch"
+            android:text="@string/menu_switch"
             android:textColor="@color/colorGreen"
             android:textSize="@dimen/footer_menu_text"
+            android:textAlignment="center"
             android:layout_marginTop="@dimen/footer_menu_text_top_spacing"
             android:layout_marginBottom="@dimen/footer_menu_text_bottom_spacing"/>
 
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/btnSettingsLayout"
         android:layout_width="@dimen/no_width"
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:layout_weight="0.245"
-        android:background="@drawable/table_border_noleft_noright"
+        android:background="@drawable/table_border_no_left_right"
         android:gravity="center_horizontal"
         android:orientation="vertical">
 
         <ImageButton
-            android:id="@+id/btnSettings"
+            android:id="@+id/button_settings"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
             app:srcCompat="@mipmap/ic_login"
-            android:contentDescription="@string/settings_image"/>
+            android:contentDescription="@string/settings_image"
+            android:onClick="btnSettings"/>
 
         <TextView
-            android:id="@+id/tvSettingTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/Menu_Settings"
+            android:text="@string/menu_settings"
             android:textSize="@dimen/footer_menu_text"
             android:layout_marginTop="@dimen/footer_menu_text_top_spacing"
             android:layout_marginBottom="@dimen/footer_menu_text_bottom_spacing"/>

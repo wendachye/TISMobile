@@ -19,34 +19,58 @@ import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
 
 import java.util.ArrayList;
 
-import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
-import static com.bizconnectivity.tismobile.Common.shortToast;
-import static com.bizconnectivity.tismobile.Constant.ERR_MSG_NO_TRUCK_BAY_CHECKED_IN;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
-import static com.bizconnectivity.tismobile.Constant.TRUCK_BAY_CHECKED_OUT;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
+import io.realm.Sort;
+
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 public class CheckOutActivity extends AppCompatActivity {
 
     //region declaration
-    ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage;
-    Dialog exitDialog;
-    Button btnConfirm;
-    LinearLayout footerLayout;
-    SharedPreferences sharedPref;
-    Spinner spLoadingBay;
+
+    //header
+    @BindView(R.id.header_check_out)
+    LinearLayout mLinearLayoutHeader;
+    @BindView(R.id.text_header)
+    TextView mTextViewHeader;
+
+    //content
+    @BindView(R.id.spinner_loading_bay)
+    Spinner mSpinnerLoadingBay;
+
+    //footer
+    @BindView(R.id.footer_check_out)
+    LinearLayout mLinearLayoutFooter;
+    @BindView(R.id.button_home)
+    ImageButton mImageButtonHome;
+    @BindView(R.id.button_search)
+    ImageButton mImageButtonSearch;
+    @BindView(R.id.button_switch)
+    ImageButton mImageButtonSwitch;
+    @BindView(R.id.button_settings)
+    ImageButton mImageButtonSettings;
+
+    Realm realm;
+    RealmResults<LoadingBayDetail> loadingBayDetailResults;
     ArrayList<String> loadingBayArrayList;
-    String message;
+    LoadingBayDetail loadingBayDetail;
+
+    PopupMenu popupMenu;
+    Dialog exitDialog;
+    SharedPreferences sharedPref;
     boolean isActivityStarted = false;
     //endregion
-
-    LoadingBayDetailDataSource loadingBayDetailDataSource;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,172 +78,135 @@ public class CheckOutActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_out);
 
+        ButterKnife.bind(this);
+        realm = Realm.getDefaultInstance();
         sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-        //region Header and Footer
+        //action bar
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        /*-------- Set User Login Details --------*/
-        setUserLoginDetails();
+        //header
+        mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
-        /*-------- footer buttons --------*/
-        setFooterMenu();
-        //endregion
+        //region initial loading bay no
+        loadingBayDetailResults = realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING);
 
-        //region retrieve all loading bay
         loadingBayArrayList = new ArrayList<>();
 
-        loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
-        loadingBayDetailDataSource.open();
-        loadingBayArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
-        loadingBayDetailDataSource.close();
-        //endregion
+        for (LoadingBayDetail results : loadingBayDetailResults) {
 
-        //region spinner loading bay
-        spLoadingBay = (Spinner) findViewById(R.id.ddlTruckBayItem);
+             loadingBayArrayList.add(results.getLoadingBayNo());
+        }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, R.layout.spinner_item, loadingBayArrayList);
-        spLoadingBay.setAdapter(adapter);
+        mSpinnerLoadingBay.setAdapter(adapter);
         //endregion
 
-        //region button confirm
-        btnConfirm = (Button) findViewById(R.id.btnConfirm);
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
+        //region auto update loading bay no
+        loadingBayDetailResults.addChangeListener(new RealmChangeListener<RealmResults<LoadingBayDetail>>() {
             @Override
-            public void onClick(View view) {
+            public void onChange(RealmResults<LoadingBayDetail> element) {
 
-                if (spLoadingBay.getSelectedItem() != null ) {
+                loadingBayArrayList = new ArrayList<>();
 
-                    //delete selected loading bay
-                    loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-                    loadingBayDetailDataSource.deleteSelectedLoadingBay(spLoadingBay.getSelectedItem().toString());
+                for (LoadingBayDetail results : loadingBayDetailResults) {
 
-                    //check out message
-                    message = spLoadingBay.getSelectedItem().toString() + TRUCK_BAY_CHECKED_OUT;
-                    shortToast(getApplicationContext(), message);
-
-                    Intent intent = new Intent(getApplicationContext(), CheckOutActivity.class);
-                    isActivityStarted = true;
-                    startActivity(intent);
-
-                } else {
-
-                    shortToast(getApplicationContext(), ERR_MSG_NO_TRUCK_BAY_CHECKED_IN);
+                    loadingBayArrayList.add(results.getLoadingBayNo());
                 }
+
+                ArrayAdapter<String> adapter = new ArrayAdapter<>(getApplicationContext(), R.layout.spinner_item, loadingBayArrayList);
+                mSpinnerLoadingBay.setAdapter(adapter);
             }
         });
         //endregion
     }
 
-    //region Header
-    /*-------- Set User Login Details --------*/
-    public void setUserLoginDetails() {
+    @OnClick(R.id.button_submit)
+    public void btnCheckOut (View view) {
 
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.headerCheckOut);
-        headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
+        if (mSpinnerLoadingBay.getSelectedItem() != null ) {
 
-        headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
+            //check out loading bay
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    loadingBayDetail = new LoadingBayDetail();
+                    loadingBayDetail.setLoadingBayNo(mSpinnerLoadingBay.getSelectedItem().toString());
+                    loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+                    realm.copyToRealmOrUpdate(loadingBayDetail);
+                }
+            });
+
+            //check out message
+            shortToast(getApplicationContext(), mSpinnerLoadingBay.getSelectedItem().toString() + TRUCK_BAY_CHECKED_OUT);
+
+        } else {
+
+            shortToast(getApplicationContext(), ERR_MSG_NO_TRUCK_BAY_CHECKED_IN);
+        }
     }
-    //endregion
 
     //region Footer
-    public void setFooterMenu() {
+    @OnClick(R.id.button_home)
+    public void btnHome(View view) {
 
-        footerLayout = (LinearLayout) findViewById(R.id.footer);
-        btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
-        btnAlert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnHomeClicked();
-            }
-        });
-
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.btnSearch);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSearchClicked();
-            }
-        });
-
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.btnSwitch);
-        btnSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSwitchClicked();
-            }
-        });
-
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.btnSettings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSettingsClicked(view);
-            }
-        });
-    }
-
-    public void btnHomeClicked() {
-
-        Intent intentHome = new Intent(this, DashboardActivity.class);
+        Intent intent = new Intent(this, DashboardActivity.class);
         isActivityStarted = true;
-        startActivity(intentHome);
+        startActivity(intent);
     }
 
-    public void btnSearchClicked() {
+    @OnClick(R.id.button_search)
+    public void btnSearch(View view) {
 
-        Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
+        Intent intent = new Intent(this, SearchJobActivity.class);
         isActivityStarted = true;
-        startActivity(intentSearchJob);
+        startActivity(intent);
     }
 
-    public void btnSwitchClicked() {
+    @OnClick(R.id.button_switch)
+    public void btnSwitch(View view) {
 
-        Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
+        Intent intent = new Intent(this, SwitchJobActivity.class);
         isActivityStarted = true;
-        startActivity(intentSwitchTruckBay);
+        startActivity(intent);
     }
 
-    public void btnSettingsClicked(View view) {
-        settingsMenuOptions(view);
-    }
+    @OnClick(R.id.button_settings)
+    public void btnSettings(View view) {
 
-    public void settingsMenuOptions(View view) {
-
-        PopupMenu popup = new PopupMenu(this, view);
+        popupMenu = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+
                 switch (item.getItemId()) {
 
-                    case R.id.settingsMenuCheckIn:
+                    case R.id.menu_check_in:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
-                    case R.id.settingsMenuExitApp:
-                        exitApplication();
-                        return true;
-
-                    case R.id.settingsMenuCheckOut:
-                        Intent intent = getIntent();
+                    case R.id.menu_check_out:
+                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
                         isActivityStarted = true;
-                        startActivity(intent);
+                        startActivity(intentCheckOut);
                         return true;
 
-                    case R.id.settingsMenuSyncData:
+                    case R.id.menu_sync_data:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
                         isActivityStarted = true;
                         startActivity(intentSyncData);
+                        return true;
+
+                    case R.id.menu_exit:
+                        exitApplication();
                         return true;
 
                     default:
@@ -227,8 +214,8 @@ public class CheckOutActivity extends AppCompatActivity {
                 }
             }
         });
-        popup.inflate(R.menu.settings_menu);
-        popup.show();
+        popupMenu.inflate(R.menu.settings_menu);
+        popupMenu.show();
     }
 
     public void exitApplication() {
@@ -246,20 +233,37 @@ public class CheckOutActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                //close exit dialog
-                exitDialog.dismiss();
-
                 //clear all shared preferences
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.clear().apply();
 
-                //delete all loading bay
-                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-                loadingBayDetailDataSource.deleteAllLoadingBay();
+                //check out all the loading bay
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        loadingBayDetailResults = realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll();
+
+                        if (loadingBayDetailResults.size() > 0) {
+
+                            for (int i = 0; i < loadingBayDetailResults.size(); i++) {
+
+                                loadingBayDetail = new LoadingBayDetail();
+                                loadingBayDetail.setLoadingBayNo(loadingBayDetailResults.get(i).getLoadingBayNo());
+                                loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+                                realm.copyToRealmOrUpdate(loadingBayDetail);
+                            }
+                        }
+                    }
+                });
+
+                //close exit dialog
+                exitDialog.dismiss();
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 isActivityStarted = true;
                 startActivity(intentLogin);
             }
@@ -270,6 +274,7 @@ public class CheckOutActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 exitDialog.dismiss();
             }
         });
@@ -301,5 +306,13 @@ public class CheckOutActivity extends AppCompatActivity {
 
             finish();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        realm.close();
     }
 }

@@ -1,20 +1,18 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center_horizontal"
     android:orientation="vertical"
     tools:context="com.bizconnectivity.tismobile.activities.LoginActivity">
 
     <TextView
-        android:id="@+id/tvScanTitle"
         android:layout_width="match_parent"
         android:background="@color/colorGreen"
         android:layout_height="@dimen/login_green_bar_height" />
 
     <ScrollView
-        android:id="@+id/login_form"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -26,50 +24,49 @@
 
             <ImageView
                 android:layout_width="wrap_content"
+                android:layout_height="@dimen/height_150"
                 app:srcCompat="@drawable/logo"
-                android:layout_gravity="start"
-                android:layout_marginTop="30dp"
-                android:id="@+id/imgLogo"
-                android:layout_height="120dp"
-                android:layout_marginBottom="20dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="@dimen/margin_30"
+                android:layout_marginBottom="@dimen/margin_30"
                 android:contentDescription="@string/app_image"/>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
+                android:layout_height="@dimen/height_50"
+                android:layout_marginLeft="@dimen/margin_10"
+                android:layout_marginRight="@dimen/margin_10"
                 android:hint="@string/prompt_username"
                 android:textSize="@dimen/default_app_text">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/tbUsername"
+                    android:id="@+id/text_username"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="@dimen/height_40"
                     android:maxLines="1"
                     android:inputType="text"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp" />
+                    android:paddingLeft="@dimen/padding_10"
+                    android:paddingRight="@dimen/padding_10" />
 
             </android.support.design.widget.TextInputLayout>
 
             <android.support.design.widget.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
+                android:layout_height="@dimen/height_50"
+                android:layout_marginLeft="@dimen/margin_10"
+                android:layout_marginRight="@dimen/margin_10"
                 android:textSize="@dimen/default_app_text"
                 android:hint="@string/prompt_password"
                 app:passwordToggleEnabled="true">
 
                 <android.support.design.widget.TextInputEditText
-                    android:id="@+id/tbPassword"
+                    android:id="@+id/text_password"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
+                    android:layout_height="@dimen/height_40"
                     android:inputType="textPassword"
                     android:maxLines="1"
-                    android:paddingLeft="10dp"
-                    android:paddingRight="10dp"/>
+                    android:paddingLeft="@dimen/padding_10"
+                    android:paddingRight="@dimen/padding_10"/>
 
             </android.support.design.widget.TextInputLayout>
 
@@ -79,22 +76,24 @@
                 android:layout_height="match_parent">
 
                 <Button
-                    android:id="@+id/btnSignInCancel"
+                    android:id="@+id/button_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="@dimen/margin_15"
                     android:text="@string/action_sign_in_cancel"
                     android:layout_weight="1"
-                    android:textSize="@dimen/default_app_text"/>
+                    android:textSize="@dimen/default_app_text"
+                    android:onClick="btnSignInCancel"/>
 
                 <Button
-                    android:id="@+id/btnSignIn"
+                    android:id="@+id/button_submit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="@dimen/margin_15"
                     android:text="@string/action_sign_in_short"
                     android:layout_weight="1"
-                    android:textSize="@dimen/default_app_text"/>
+                    android:textSize="@dimen/default_app_text"
+                    android:onClick="btnSignIn"/>
 
             </LinearLayout>
 

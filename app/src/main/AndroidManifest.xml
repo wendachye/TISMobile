@@ -56,13 +56,15 @@
             android:name=".activities.StopOperationActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"/>
         <activity
+            android:name=".activities.SearchResultActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
+            android:name=".activities.SyncDataActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"/>
+        <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="portrait"
             tools:replace="screenOrientation"/>
-        <activity android:name=".activities.SearchResultActivity">
-        </activity>
-        <activity android:name=".activities.SyncDataActivity">
-        </activity>
     </application>
 
 </manifest>

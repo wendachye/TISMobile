@@ -1,6 +1,6 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import com.bizconnectivity.tismobile.classes.GHS;
+import com.bizconnectivity.tismobile.database.models.GHSDetail;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -13,9 +13,9 @@ import java.util.ArrayList;
 
 public class GHSWS {
 
-	public static ArrayList<GHS> invokeRetrieveGHSWS (String productName) {
+	public static ArrayList<GHSDetail> invokeRetrieveGHSWS (String productName) {
 
-		ArrayList<GHS> ghsArrayList = new ArrayList<>();
+		ArrayList<GHSDetail> ghsArrayList = new ArrayList<>();
 
 		//create request
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_GET_PRODUCT_GHS);
@@ -59,9 +59,9 @@ public class GHSWS {
 		return ghsArrayList;
 	}
 
-	public static ArrayList<GHS> getElementFromGHS (SoapObject response) {
+	public static ArrayList<GHSDetail> getElementFromGHS (SoapObject response) {
 
-		ArrayList<GHS> ghsArrayList = new ArrayList<>();
+		ArrayList<GHSDetail> ghsArrayList = new ArrayList<>();
 
 		//get the desired property
 		SoapObject soapObject = (SoapObject) response.getProperty(0);
@@ -75,18 +75,21 @@ public class GHSWS {
 
 		for (int i = 0; i < newDataSetCount; i++) {
 
-			GHS ghs = new GHS();
+			GHSDetail ghsDetail = new GHSDetail();
 
 			//retrieve data from dataset
 			SoapObject table = (SoapObject) documentElement.getProperty(i);
 
 			if (!table.getProperty("GHSPicture").toString().equals("anyType{}")) {
-				ghs.setGhsPictureURL(table.getProperty("GHSPicture").toString());
+
+				ghsDetail.setGhsURL(table.getProperty("GHSPicture").toString());
+
 			} else {
-				ghs.setGhsPictureURL("");
+
+				ghsDetail.setGhsURL("");
 			}
 
-			ghsArrayList.add(ghs);
+			ghsArrayList.add(ghsDetail);
 		}
 
 		return ghsArrayList;

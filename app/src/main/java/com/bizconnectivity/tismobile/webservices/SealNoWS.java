@@ -1,6 +1,6 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import android.util.Log;
+import com.bizconnectivity.tismobile.database.models.SealDetail;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -13,9 +13,9 @@ import java.util.ArrayList;
 
 public class SealNoWS {
 
-	public static ArrayList<String> invokeRetrieveSealNo(String timeslotID) {
+	public static ArrayList<SealDetail> invokeRetrieveSealNo(String timeslotID) {
 
-		ArrayList<String> sealNoArrayList = new ArrayList<>();
+		ArrayList<SealDetail> sealNoArrayList = new ArrayList<>();
 
 		//create request
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_GET_SEAL_NO);
@@ -60,9 +60,9 @@ public class SealNoWS {
 		return sealNoArrayList;
 	}
 
-	public static ArrayList<String> getElementFromSealNo(SoapObject response){
+	public static ArrayList<SealDetail> getElementFromSealNo(SoapObject response){
 
-		ArrayList<String> sealNoArrayList = new ArrayList<>();
+		ArrayList<SealDetail> sealNoArrayList = new ArrayList<>();
 
 		//get the desired property
 		SoapObject soapObject = (SoapObject) response.getProperty(0);
@@ -80,13 +80,21 @@ public class SealNoWS {
 
 			for (int i = 0; i < newDataSetCount; i++) {
 
+				SealDetail sealDetail = new SealDetail();
+
 				//retrieve data from dataset
 				SoapObject table = (SoapObject) documentElement.getProperty(i);
 
 				if (!table.getProperty("SealNo").toString().equals("anyType{}")) {
 
-					sealNoArrayList.add(table.getProperty("SealNo").toString());
+					sealDetail.setSealNo(table.getProperty("SealNo").toString());
+
+				} else {
+
+					sealDetail.setSealNo("");
 				}
+
+				sealNoArrayList.add(sealDetail);
 			}
 		}
 

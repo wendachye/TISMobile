@@ -79,9 +79,11 @@ public class AddSealWS {
 			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_CREATE_SEAL, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
+
 				SoapFault response = (SoapFault) envelope.bodyIn;
-				Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
+
 			} else {
+
 				SoapObject response = (SoapObject) envelope.bodyIn;
 				SoapPrimitive responseProperty = (SoapPrimitive) response.getProperty(0);
 
@@ -91,9 +93,10 @@ public class AddSealWS {
 					returnResult =  true;
 				}
 			}
+
 		} catch (Exception e) {
+
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
 		return returnResult;
@@ -164,7 +167,6 @@ public class AddSealWS {
 				if (envelope.bodyIn instanceof SoapFault) {
 
 					SoapFault response = (SoapFault) envelope.bodyIn;
-					Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
 
 				} else {
 

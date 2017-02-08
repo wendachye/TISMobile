@@ -1,26 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content">
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:id="@+id/settingsMenuCheckIn"
-        android:title="Check In"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <item
+        android:id="@+id/menu_check_in"
+         android:title="@string/check_in"/>
 
-    <item  android:id="@+id/settingsMenuCheckOut"
-        android:title="Check Out"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <item
+        android:id="@+id/menu_check_out"
+        android:title="@string/check_out"/>
 
-    <item  android:id="@+id/settingsMenuSyncData"
-           android:title="Sync Data"
-           android:layout_width="match_parent"
-           android:layout_height="match_parent" />
+    <item
+        android:id="@+id/menu_sync_data"
+        android:title="@string/sync_data"/>
 
-    <item  android:id="@+id/settingsMenuExitApp"
-        android:title="Exit Application"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+    <item
+        android:id="@+id/menu_exit"
+        android:title="@string/exit" />
 
 </menu>

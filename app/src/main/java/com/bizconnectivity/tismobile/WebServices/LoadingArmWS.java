@@ -70,9 +70,10 @@ public class LoadingArmWS {
 					returnResult = true;
 				}
 			}
+
 		} catch (Exception e) {
+
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
 		return returnResult;

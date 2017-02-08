@@ -34,7 +34,6 @@ import java.util.Calendar;
 
 import static com.bizconnectivity.tismobile.Common.isNetworkAvailable;
 import static com.bizconnectivity.tismobile.Common.longToast;
-import static com.bizconnectivity.tismobile.Common.shortToast;
 import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CANNOT_ADD_SEAL;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL1;
 import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL2;
@@ -195,7 +194,7 @@ public class StopOperationActivity extends AppCompatActivity {
         tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
 
         //retrieve shared preferences
-        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
         String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
         String customerName = sharedPref.getString(SHARED_PREF_CUSTOMER_NAME, "");
         String loadingBay = sharedPref.getString(SHARED_PREF_LOADING_BAY, "");
@@ -214,7 +213,7 @@ public class StopOperationActivity extends AppCompatActivity {
     public void setFooterMenu() {
 
         footerLayout = (LinearLayout) findViewById(R.id.footer);
-        btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
+        btnAlert = (ImageButton) footerLayout.findViewById(R.id.button_home);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -222,7 +221,7 @@ public class StopOperationActivity extends AppCompatActivity {
             }
         });
 
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.btnSearch);
+        btnSearch = (ImageButton) footerLayout.findViewById(R.id.button_search);
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -230,7 +229,7 @@ public class StopOperationActivity extends AppCompatActivity {
             }
         });
 
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.btnSwitch);
+        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.button_switch);
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -238,7 +237,7 @@ public class StopOperationActivity extends AppCompatActivity {
             }
         });
 
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.btnSettings);
+        btnSettings = (ImageButton) footerLayout.findViewById(R.id.button_settings);
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -281,23 +280,23 @@ public class StopOperationActivity extends AppCompatActivity {
             public boolean onMenuItemClick(MenuItem item) {
 
                 switch (item.getItemId()) {
-                    case R.id.settingsMenuCheckIn:
+                    case R.id.menu_check_in:
                         Intent intentCheckIn = new Intent(context, CheckInActivity.class);
                         isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
-                    case R.id.settingsMenuExitApp:
+                    case R.id.menu_exit:
                         exitApplication();
                         return true;
 
-                    case R.id.settingsMenuCheckOut:
+                    case R.id.menu_check_out:
                         Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
                         isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
-                    case R.id.settingsMenuSyncData:
+                    case R.id.menu_sync_data:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
                         isActivityStarted = true;
                         startActivity(intentSyncData);
@@ -377,7 +376,7 @@ public class StopOperationActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 				String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
-				String loginName = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+				String loginName = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
 
                 if (isNetworkAvailable(context)) {
 
@@ -545,7 +544,7 @@ public class StopOperationActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 	            String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
-	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
 	            String sealPos = "bottom";
 	            int totalCount = countSeal.size();
 
@@ -651,7 +650,7 @@ public class StopOperationActivity extends AppCompatActivity {
             public void onClick(View view) {
 
 	            String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
-	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
 
                 if (isNetworkAvailable(getApplicationContext())) {
 

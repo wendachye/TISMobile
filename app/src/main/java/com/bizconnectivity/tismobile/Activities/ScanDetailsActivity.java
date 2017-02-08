@@ -189,8 +189,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
         tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
 
         //retrieve shared preferences
-        sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
-        welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGINNAME, "");
+        sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
+        welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
         jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
         customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
         loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
@@ -209,7 +209,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
         footerLayout = (LinearLayout) findViewById(R.id.footer);
 
-        btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
+        btnAlert = (ImageButton) footerLayout.findViewById(R.id.button_home);
         btnAlert.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -217,7 +217,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
             }
         });
 
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.btnSearch);
+        btnSearch = (ImageButton) footerLayout.findViewById(R.id.button_search);
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -225,7 +225,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
             }
         });
 
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.btnSwitch);
+        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.button_switch);
         btnSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -233,7 +233,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
             }
         });
 
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.btnSettings);
+        btnSettings = (ImageButton) footerLayout.findViewById(R.id.button_settings);
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -276,23 +276,23 @@ public class ScanDetailsActivity extends AppCompatActivity {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
                 switch (item.getItemId()) {
-                    case R.id.settingsMenuCheckIn:
+                    case R.id.menu_check_in:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
-                    case R.id.settingsMenuExitApp:
+                    case R.id.menu_exit:
                         exitApplication();
                         return true;
 
-                    case R.id.settingsMenuCheckOut:
+                    case R.id.menu_check_out:
                         Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
                         isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
-                    case R.id.settingsMenuSyncData:
+                    case R.id.menu_sync_data:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
                         isActivityStarted = true;
                         startActivity(intentSyncData);

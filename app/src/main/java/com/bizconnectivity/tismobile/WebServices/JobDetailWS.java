@@ -1,8 +1,6 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import android.util.Log;
-
-import com.bizconnectivity.tismobile.classes.JobDetail;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -15,10 +13,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import static com.bizconnectivity.tismobile.Constant.simpleDateFormat;
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.WS_GET_ALL_JOB_DETAILS;
+import static com.bizconnectivity.tismobile.Constant.*;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.*;
 
 public class JobDetailWS {
 

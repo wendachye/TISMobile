@@ -1,10 +1,5 @@
 package com.bizconnectivity.tismobile.webservices;
 
-
-import android.util.Log;
-
-import com.bizconnectivity.tismobile.Constant;
-
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
@@ -12,10 +7,7 @@ import org.ksoap2.serialization.SoapObject;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.NAMESPACE;
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.SOAP_ACTION;
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.URL;
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.WS_CHECK_TRUCK_RACK_EXISTS;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.*;
 
 public class CheckInWS {
 

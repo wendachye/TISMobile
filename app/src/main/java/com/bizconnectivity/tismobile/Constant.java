@@ -1,17 +1,18 @@
 package com.bizconnectivity.tismobile;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Locale;
 
 public class Constant {
     public static String KEY_ENCRYPT = "TISMOBILE";
     public static String SHARED_PREF_NAME = "SP_NAME";
-    public static String SHARED_PREF_LOGINNAME = "SP_LOGINNAME";
+    public static String SHARED_PREF_LOGIN_NAME = "SP_LOGIN_NAME";
     public static String SHARED_PREF_SCAN_VALUE = "SP_SCAN_VALUE";
     public static String SHARED_PREF_TECHNICIAN_ID = "SP_TECHNICIAN_ID";
 
-    //Selected Job Details
+    /*--------Job Details--------*/
+
+    //Shared Preferences of selected job
     public static String SHARED_PREF_JOB_ID = "SP_JOB_ID";
     public static String SHARED_PREF_CUSTOMER_NAME = "SP_CUSTOMER_NAME";
     public static String SHARED_PREF_PRODUCT_NAME = "SP_PRODUCT_NAME";
@@ -44,45 +45,39 @@ public class Constant {
     public static final String STATUS_PUMP_STOP = "Pump Stop Completed";
     public static final String STATUS_SCAN_SEAL = "Scan Seal Completed";
 
-    /*--------Login--------*/
+    /*--------Testing Login User--------*/
     public static String TEST_USERNAME = "test";
     public static String TEST_PASSWORD = "test";
 
     /*--------Error Messages--------*/
+
     //Login
-    public static String ERR_MSG_LOGIN_INCORRECT = "Incorrect username/password.";
+    public static String ERR_MSG_LOGIN_INCORRECT = "Incorrect Username or Password.";
     public static String ERR_MSG_USERNAME_REQUIRED = "Username is required.";
     public static String ERR_MSG_PASSWORD_REQUIRED = "Password is required.";
-    public static String ERR_MSG_INCORRECT_USERNAME = "Incorrect Username.";
-    public static String ERR_MSG_INCORRECT_PASSWORD = "Incorrect Password.";
-    public static String MSG_LOGIN_CORRECT = "Success Login";
+
+    //CheckIn
+    public static String ERR_MSG_INVALID_TECHNICIAN_NRIC = "Invalid Technician NRIC";
+    public static String ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN = "Truck loading bay was already checked in before.";
+    public static String ERR_MSG_INVALID_TRUCK_BAY = "Invalid Truck Loading Bay.";
+
+    //Check Out
+    public static String ERR_MSG_NO_TRUCK_BAY_CHECKED_IN = "You have not check-in to any Truck Loading Bay.";
+    public static String ERR_MSG_INVALID_LOADING_ARM = "Invalid Truck Rack Arm.";
+    public static String ERR_MSG_INVALID_SEAL_NO = "Invalid Seal Number.";
+    public static String ERR_MSG_CANNOT_ADD_SEAL = "This seal already added.";
+    public static String ERR_MSG_SEAL_CANNOT_ADD = "Can not add seal.";
+
+
     public static String MSG_ORDER_ID_REQUIRED = "Order ID is required";
     public static String MSG_CUSTOMER_NAME_REQUIRED = "Customer Name is required";
     public static String MSG_ORDER_ID_NOT_FOUND = "Order ID not found.";
     public static String MSG_CUSTOMER_NAME_NOT_FOUND = "Customer Name not found.";
-
-
-    //CheckIn
-    public static String ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN = "Truck loading bay was already checked in before.";
-    public static String ERR_MSG_INVALID_TRUCK_BAY = "Invalid Truck Loading Bay or No Internet Connection.";
-    public static String ERR_MSG_INVALID_TECHNICIAN_NRIC = "Invalid Technician NRIC";
-
-    //Check Out
-    public static String ERR_MSG_NO_TRUCK_BAY_CHECKED_IN = "You have not check-in to any Truck Loading Bay.";
-	public static String ERR_MSG_INVALID_LOADING_ARM = "Invalid Truck Rack Arm.";
-	public static String ERR_MSG_INVALID_SEAL_NO = "Invalid Seal Number.";
-	public static String ERR_MSG_CANNOT_ADD_SEAL = "This seal already added.";
-    public static String ERR_MSG_SEAL_CANNOT_ADD = "Can not add seal.";
-
-    //PPE
     public static String ERR_MSG_CHECK_PPE = "Please check the PPE and GHS.";
 
     /*--------Text Messages--------*/
-    public static String TEXT_EXCEPTION = "EXCEPTION";
-    public static String TEXT_ERROR = "ERROR";
-    public static String TEXT_ERROR_MSG = "ERROR MSG: ";
-
-    //Check Out
+    public static String LOADING_BAY_NO_CHECK_IN = "Check In";
+    public static String LOADING_BAY_NO_CHECK_OUT = "Check Out";
     public static String TRUCK_BAY_CHECKED_OUT = " have been check-out.";
 
     /*--------Barcode Scanner--------*/
@@ -112,7 +107,7 @@ public class Constant {
     public static String SCAN_MSG_PROMPT_SCAN_LOADING_ARM = "Please scan Loading Arm";
     public static String SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL = "Please scan Bottom Seal";
 
-
+    /*--------Date Format--------*/
     public static SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     public static SimpleDateFormat simpleDateFormat2 = new SimpleDateFormat("HH:mm", Locale.US);
     public static SimpleDateFormat simpleDateFormat3 = new SimpleDateFormat("HH:mm:ss", Locale.US);

@@ -41,8 +41,9 @@ public class WorkInstructionWS {
 			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_GET_TIMESLOT, envelope);
 
 			if (envelope.bodyIn instanceof SoapFault) {
+
 				SoapFault response = (SoapFault) envelope.bodyIn;
-				Log.d(Constant.TEXT_ERROR, Constant.TEXT_ERROR_MSG + response.toString());
+
 			} else {
 				SoapObject response = (SoapObject) envelope.bodyIn;
 
@@ -60,9 +61,10 @@ public class WorkInstructionWS {
 					workInstruction = "";
 				}
 			}
+
 		} catch (Exception e) {
+
 			e.printStackTrace();
-			Log.d(Constant.TEXT_EXCEPTION, e.getLocalizedMessage());
 		}
 
 		if (!workInstruction.isEmpty()) {

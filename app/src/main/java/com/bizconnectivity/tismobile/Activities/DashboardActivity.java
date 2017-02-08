@@ -24,11 +24,21 @@ import com.bizconnectivity.tismobile.classes.LoadingBayList;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
 
 import java.util.ArrayList;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmResults;
+import io.realm.Sort;
+
 import static com.bizconnectivity.tismobile.Common.formatCheckedInTruckLoadingBay;
 import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
+import static com.bizconnectivity.tismobile.Common.loadingBayString;
+import static com.bizconnectivity.tismobile.Constant.LOADING_BAY_NO_CHECK_IN;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_CUSTOMER_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_DATE;
@@ -36,7 +46,7 @@ import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_BAY;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGIN_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
 import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
@@ -50,14 +60,43 @@ import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_WORK_INSTRUCTIO
 public class DashboardActivity extends AppCompatActivity {
 
     //region declaration
-    ImageButton btnHome, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage, tvTruckBayTitle, tvLoadingBayOrderId;
+
+    //header
+    @BindView(R.id.header_dashboard)
+    LinearLayout mLinearLayoutHeader;
+    @BindView(R.id.text_header)
+    TextView mTextViewHeader;
+
+    //content
+    @BindView(R.id.text_dashboard_title)
+    TextView mTextViewDashboardTitle;
+    @BindView(R.id.expandable_list_view)
+    ExpandableListView mExpandableListView;
+
+    //footer
+    @BindView(R.id.footer_dashboard)
+    LinearLayout mLinearLayoutFooter;
+    @BindView(R.id.button_home)
+    ImageButton mImageButtonHome;
+    @BindView(R.id.button_search)
+    ImageButton mImageButtonSearch;
+    @BindView(R.id.button_switch)
+    ImageButton mImageButtonSwitch;
+    @BindView(R.id.button_settings)
+    ImageButton mImageButtonSettings;
+
+    Realm realm;
+    RealmResults<LoadingBayDetail> loadingBayDetailResults;
+    PopupMenu popupMenu;
     Dialog exitDialog;
-    LinearLayout footerLayout;
-    LinearLayout headerLayout;
-    SharedPreferences sharedPref;
-    ExpandableListView expandableListView;
     CustomExpandableListAdapter customExpandableListAdapter;
+    SharedPreferences sharedPref;
+    String trunkBayString;
+    boolean isActivityStarted = false;
+
+
+    TextView tvLoadingBayOrderId;
+
     LoadingBayDetailDataSource loadingBayDetailDataSource;
     JobDetailDataSource jobDetailDataSource;
     LoadingBayList loadingBayLists;
@@ -65,8 +104,7 @@ public class DashboardActivity extends AppCompatActivity {
     ArrayList<LoadingBayList> loadingBayArraylist;
     ArrayList<JobDetail> childArrayList;
     ArrayList<String> groupArrayList;
-    String jobID, loadingBay;
-    boolean isActivityStarted = false;
+    String jobID;
     //endregion
 
     @Override
@@ -75,26 +113,53 @@ public class DashboardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
 
+        ButterKnife.bind(this);
+        realm = Realm.getDefaultInstance();
         sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-        //region expandable list view settings
-        expandableListView = (ExpandableListView) findViewById(R.id.expandable_list_view);
+        //action bar
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
+        //region header
+        mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
+
+        loadingBayDetailResults = realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING);
+
+        trunkBayString = "";
+
+        for (LoadingBayDetail results : loadingBayDetailResults) {
+
+            if (trunkBayString.isEmpty()) {
+
+                trunkBayString = results.getLoadingBayNo();
+
+            } else {
+
+                trunkBayString = loadingBayString(trunkBayString, results.getLoadingBayNo());
+            }
+        }
+
+        mTextViewDashboardTitle.setText(formatCheckedInTruckLoadingBay(trunkBayString));
+        //endregion
+
+        //region expandable list view settings
         loadingBayArraylist = new ArrayList<>();
         loadingBayArraylist = retrieveAllLoadingBay();
 
         customExpandableListAdapter = new CustomExpandableListAdapter(this, loadingBayArraylist);
-        expandableListView.setAdapter(customExpandableListAdapter);
+        mExpandableListView.setAdapter(customExpandableListAdapter);
 
         //expand all the list view at the first time
         for (int i=0; i<customExpandableListAdapter.getGroupCount(); i++ ) {
 
-            expandableListView.expandGroup(i);
+            mExpandableListView.expandGroup(i);
         }
         //endregion
 
         //region expandable list view child onclick
-        expandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+        mExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
             public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
 
@@ -124,7 +189,7 @@ public class DashboardActivity extends AppCompatActivity {
         //endregion
 
         //region expandable list view group onclick
-        expandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
+        mExpandableListView.setOnGroupClickListener(new ExpandableListView.OnGroupClickListener() {
             @Override
             public boolean onGroupClick(ExpandableListView parent, View view, int groupPosition, long id) {
 
@@ -140,19 +205,6 @@ public class DashboardActivity extends AppCompatActivity {
                 return true;
             }
         });
-        //endregion
-
-        //region Header and Footer
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setIcon(R.mipmap.ic_launcher);
-
-        /*-------- Set User Login Details --------*/
-        setUserLoginDetails();
-        setLoadingBayNo();
-
-        /*-------- Footer Buttons --------*/
-        setFooterMenu();
         //endregion
     }
 
@@ -220,138 +272,63 @@ public class DashboardActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    //region Header
-    /*-------- Set User Login Details --------*/
-    public void setUserLoginDetails() {
-
-        headerLayout = (LinearLayout) findViewById(R.id.headerDashboard);
-
-        headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-        headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
-    }
-
-    public void setLoadingBayNo() {
-
-        tvTruckBayTitle = (TextView) findViewById(R.id.tvTruckBayTitle);
-
-        //region check loading bay
-
-        loadingBay = "";
-
-        if (!groupArrayList.isEmpty()) {
-
-            for (int i = 0; i < groupArrayList.size(); i++) {
-
-                if (loadingBay.isEmpty()) {
-
-                    loadingBay = groupArrayList.get(i);
-
-                } else {
-
-                    loadingBay = loadingBay + ", " + groupArrayList.get(i);
-                }
-            }
-        }
-        //endregion
-
-        tvTruckBayTitle.setText(formatCheckedInTruckLoadingBay(loadingBay));
-    }
-    //endregion
-
     //region Footer
-    public void setFooterMenu() {
+    @OnClick(R.id.button_home)
+    public void btnHome(View view) {
 
-        footerLayout = (LinearLayout) findViewById(R.id.footer);
-
-        btnHome = (ImageButton) footerLayout.findViewById(R.id.btnHome);
-        btnHome.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Intent intent = getIntent();
-                isActivityStarted = true;
-                startActivity(intent);
-            }
-        });
-
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.btnSearch);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSearchClicked();
-            }
-        });
-
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.btnSwitch);
-        btnSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSwitchClicked();
-            }
-        });
-
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.btnSettings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSettingsClicked(view);
-            }
-        });
+        Intent intent = new Intent(this, DashboardActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
     }
 
-    public void btnSearchClicked() {
+    @OnClick(R.id.button_search)
+    public void btnSearch(View view) {
 
         Intent intent = new Intent(this, SearchJobActivity.class);
         isActivityStarted = true;
         startActivity(intent);
     }
 
-    public void btnSwitchClicked() {
+    @OnClick(R.id.button_switch)
+    public void btnSwitch(View view) {
 
         Intent intent = new Intent(this, SwitchJobActivity.class);
         isActivityStarted = true;
         startActivity(intent);
     }
 
-    public void btnSettingsClicked(View view) {
+    @OnClick(R.id.button_settings)
+    public void btnSettings(View view) {
 
-        settingsMenuOptions(view);
-    }
-
-    public void settingsMenuOptions(View view) {
-
-        PopupMenu popup = new PopupMenu(this, view);
+        popupMenu = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
                 switch (item.getItemId()) {
 
-                    case R.id.settingsMenuCheckIn:
+                    case R.id.menu_check_in:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         isActivityStarted = true;
                         startActivity(intentCheckIn);
                         return true;
 
-                    case R.id.settingsMenuExitApp:
-                        exitApplication();
-                        return true;
-
-                    case R.id.settingsMenuCheckOut:
+                    case R.id.menu_check_out:
                         Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
                         isActivityStarted = true;
                         startActivity(intentCheckOut);
                         return true;
 
-                    case R.id.settingsMenuSyncData:
+                    case R.id.menu_sync_data:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
                         isActivityStarted = true;
                         startActivity(intentSyncData);
+                        return true;
+
+                    case R.id.menu_exit:
+                        exitApplication();
                         return true;
 
                     default:
@@ -359,8 +336,8 @@ public class DashboardActivity extends AppCompatActivity {
                 }
             }
         });
-        popup.inflate(R.menu.settings_menu);
-        popup.show();
+        popupMenu.inflate(R.menu.settings_menu);
+        popupMenu.show();
     }
 
     public void exitApplication() {
@@ -371,9 +348,9 @@ public class DashboardActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-
-        //region button confirm
         Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
+
+        // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -391,24 +368,20 @@ public class DashboardActivity extends AppCompatActivity {
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                isActivityStarted = true;
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 startActivity(intentLogin);
             }
         });
-        //endregion
 
-        //region button cancel
         Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
+        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                //close exit dialog
                 exitDialog.dismiss();
             }
         });
-        //endregion
 
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
@@ -439,4 +412,11 @@ public class DashboardActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        realm.close();
+    }
 }

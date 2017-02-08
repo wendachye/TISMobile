@@ -2,7 +2,6 @@
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_dashboard"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -14,31 +13,28 @@
         android:orientation="vertical">
 
         <include
-            android:id="@+id/headerDashboard"
+            android:id="@+id/header_dashboard"
             layout="@layout/header_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <TextView
-            android:id="@+id/tvTruckBayTitle"
+            android:id="@+id/text_dashboard_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
             android:layout_marginBottom="@dimen/header_title_text_spacing"
             android:layout_marginTop="@dimen/header_title_text_spacing"
-            android:gravity="center_horizontal"
             android:text="@string/truck_loading_bay"
+            android:textAlignment="center"
             android:textStyle="bold"
             android:textSize="@dimen/header_title_text" />
 
         <TextView
-            android:id="@+id/dashboardDivider1"
             android:layout_width="match_parent"
             android:layout_height="@dimen/separator_width"
             android:background="@color/colorBlack" />
 
         <LinearLayout
-            android:id="@+id/tvTruckBayListHeader"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@color/list_view_header_color"
@@ -46,7 +42,6 @@
             android:weightSum="1">
 
             <TextView
-                android:id="@+id/tvLoadingBayOrderId"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -59,14 +54,12 @@
                 android:textSize="@dimen/default_app_text" />
 
             <TextView
-                android:id="@+id/separator1"
                 android:layout_width="@dimen/separator_width"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayCustomer"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -79,14 +72,12 @@
                 android:textSize="@dimen/default_app_text" />
 
             <TextView
-                android:id="@+id/separator2"
                 android:layout_width="@dimen/separator_width"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayProduct"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -99,14 +90,12 @@
                 android:textSize="@dimen/default_app_text" />
 
             <TextView
-                android:id="@+id/separator3"
                 android:layout_width="@dimen/separator_width"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayTankNo"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -129,13 +118,12 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/footerRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
         <include
-            android:id="@+id/footer"
+            android:id="@+id/footer_dashboard"
             layout="@layout/footer_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

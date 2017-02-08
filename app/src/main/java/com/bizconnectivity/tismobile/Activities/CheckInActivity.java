@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -20,22 +19,12 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.classes.CheckIn;
-import com.bizconnectivity.tismobile.Common;
-import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.classes.GHS;
-import com.bizconnectivity.tismobile.classes.GHSDetail;
-import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.classes.PPE;
-import com.bizconnectivity.tismobile.classes.PPEDetail;
-import com.bizconnectivity.tismobile.classes.SealDetail;
-import com.bizconnectivity.tismobile.database.datasources.GHSDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.PPEDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.SealDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.TechnicianDetailDataSource;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.models.GHSDetail;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
+import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
+import com.bizconnectivity.tismobile.database.models.PPEDetail;
+import com.bizconnectivity.tismobile.database.models.SealDetail;
 import com.bizconnectivity.tismobile.webservices.CheckInWS;
 import com.bizconnectivity.tismobile.webservices.GHSWS;
 import com.bizconnectivity.tismobile.webservices.JobDetailWS;
@@ -46,37 +35,57 @@ import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 
-import static com.bizconnectivity.tismobile.Common.shortToast;
-import static com.bizconnectivity.tismobile.Constant.ERR_MSG_INVALID_TRUCK_BAY;
-import static com.bizconnectivity.tismobile.Constant.ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN;
-import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_CANCEL_SCANNING;
-import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_INVALID_DATA_RECEIVED;
-import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_NO_DATA_RECEIVED;
-import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_TECHNICIAN_ID;
-import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_TRUCK_LOADING_BAY;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_TECHNICIAN_ID;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_TRUCK_LOADING_BAY;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGINNAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_TECHNICIAN_ID;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
+import io.realm.Sort;
+
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 
 public class CheckInActivity extends AppCompatActivity {
 
     //region declaration
-    ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage, tvTruckBayId, tvTechnicianId;
+
+    //header
+    @BindView(R.id.header_check_in)
+    LinearLayout mLinearLayoutHeader;
+    @BindView(R.id.text_header)
+    TextView mTextViewHeader;
+
+    //content
+    @BindView(R.id.button_technician_nric)
+    Button mButtonTechnicianNRIC;
+    @BindView(R.id.text_technician_nric)
+    TextView mTextViewTechnicianNRIC;
+    @BindView(R.id.button_loading_bay)
+    Button mButtonLoadingBay;
+    @BindView(R.id.text_loading_bay)
+    TextView mTextViewLoadingBay;
+
+    //footer
+    @BindView(R.id.footer_check_in)
+    LinearLayout mLinearLayoutFooter;
+    @BindView(R.id.button_home)
+    ImageButton mImageButtonHome;
+    @BindView(R.id.button_search)
+    ImageButton mImageButtonSearch;
+    @BindView(R.id.button_switch)
+    ImageButton mImageButtonSwitch;
+    @BindView(R.id.button_settings)
+    ImageButton mImageButtonSettings;
+
+    Realm realm;
+    RealmResults<LoadingBayDetail> loadingBayDetailResults;
+    LoadingBayDetail loadingBayDetail;
+    PopupMenu popupMenu;
     Dialog exitDialog;
-    LinearLayout footerLayout;
-    Button btnScanTechnician, btnScanTruckBay;
     SharedPreferences sharedPref;
-    TechnicianDetailDataSource technicianDetailDataSource;
-    LoadingBayDetailDataSource loadingBayDetailDataSource;
-    CheckIn checkIn;
-    ArrayList<String> loadingBayArrayList;
     String technicianID, trunkBayString;
-    boolean returnResult;
     boolean isActivityStarted = false;
     //endregion
 
@@ -86,102 +95,99 @@ public class CheckInActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_check_in);
 
+        ButterKnife.bind(this);
+        realm = Realm.getDefaultInstance();
         sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-        //region Header and Footer
+        //action bar
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        /*-------- Set User Login Details --------*/
-        setUserLoginDetails();
+        //header
+        mTextViewHeader.setText(formatCheckInMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
-        /*-------- footer buttons --------*/
-        setFooterMenu();
-        //endregion
-
-        //region button technician id
-        tvTechnicianId = (TextView) findViewById(R.id.tvTechnicianId);
-        btnScanTechnician = (Button) findViewById(R.id.btnScanTechnician);
-        btnScanTechnician.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnScanTechnicianClicked();
-            }
-        });
-        //endregion
-
-        //region button loading bay
-        tvTruckBayId = (TextView) findViewById(R.id.tvTruckBayId);
-        btnScanTruckBay = (Button) findViewById(R.id.btnScanTruckBay);
-        btnScanTruckBay.setEnabled(false);
-        btnScanTruckBay.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnScanTruckBayClicked();
-            }
-        });
-        //endregion
-
-        //region check and set technician nric & loading bay no
+        //region initial technician nric
         technicianID = sharedPref.getString(SHARED_PREF_TECHNICIAN_ID, "");
 
-        loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
+        if (!technicianID.isEmpty()) {
 
-        loadingBayDetailDataSource.open();
-        loadingBayArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
-        loadingBayDetailDataSource.close();
+            mTextViewTechnicianNRIC.setText(technicianID);
+            mButtonTechnicianNRIC.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+            mButtonTechnicianNRIC.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-        trunkBayString = "";
-
-        for (int i=0; i<loadingBayArrayList.size(); i++) {
-
-            if (trunkBayString.isEmpty()) {
-
-                trunkBayString = loadingBayArrayList.get(i);
-
-            } else {
-
-                trunkBayString = trunkBayString + ", " + loadingBayArrayList.get(i);
-            }
-
-        }
-
-        if (!technicianID.isEmpty() && loadingBayArrayList.size() > 0){
-
-            btnScanTechnician.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-            btnScanTechnician.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-            tvTechnicianId.setText(technicianID);
-
-            btnScanTruckBay.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-            btnScanTruckBay.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-            tvTruckBayId.setText(trunkBayString);
-            btnScanTruckBay.setEnabled(true);
-
-        } else if (!technicianID.isEmpty()) {
-
-            btnScanTechnician.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-            btnScanTechnician.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-            tvTechnicianId.setText(technicianID);
-
-            btnScanTruckBay.setEnabled(true);
+            mButtonLoadingBay.setEnabled(true);
 
         } else {
 
-            btnScanTechnician.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-            btnScanTechnician.getBackground().clearColorFilter();
-            tvTechnicianId.setText("");
-
-            btnScanTruckBay.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-            btnScanTruckBay.getBackground().clearColorFilter();
-            tvTruckBayId.setText("");
+            mTextViewTechnicianNRIC.setText("");
+            mButtonTechnicianNRIC.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+            mButtonTechnicianNRIC.getBackground().clearColorFilter();
         }
+        //endregion
+
+        //region initial loading bay no
+        loadingBayDetailResults = realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING);
+
+        trunkBayString = "";
+
+        if (loadingBayDetailResults.size() > 0) {
+
+            for (LoadingBayDetail results : loadingBayDetailResults) {
+
+                if (trunkBayString.isEmpty()) {
+
+                    trunkBayString = results.getLoadingBayNo();
+
+                } else {
+
+                    trunkBayString = loadingBayString(trunkBayString, results.getLoadingBayNo());
+                }
+            }
+
+            mTextViewLoadingBay.setText(trunkBayString);
+            mButtonLoadingBay.setEnabled(true);
+            mButtonLoadingBay.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+            mButtonLoadingBay.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+
+        } else {
+
+            mTextViewLoadingBay.setText("");
+            mButtonLoadingBay.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorBlack));
+            mButtonLoadingBay.getBackground().clearColorFilter();
+        }
+        //endregion
+
+        //region auto update loading bay no
+        loadingBayDetailResults.addChangeListener(new RealmChangeListener<RealmResults<LoadingBayDetail>>() {
+            @Override
+            public void onChange(RealmResults<LoadingBayDetail> element) {
+
+                trunkBayString = "";
+
+                for (LoadingBayDetail results : loadingBayDetailResults) {
+
+                    if (trunkBayString.isEmpty()) {
+
+                         trunkBayString = results.getLoadingBayNo();
+
+                    } else {
+
+                        trunkBayString = loadingBayString(trunkBayString, results.getLoadingBayNo());
+                    }
+                }
+
+                mTextViewLoadingBay.setText(trunkBayString);
+                mButtonLoadingBay.setEnabled(true);
+                mButtonLoadingBay.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonLoadingBay.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+            }
+        });
         //endregion
     }
 
-    public void btnScanTechnicianClicked() {
+    @OnClick(R.id.button_technician_nric)
+    public void btnScanTechnician(View view) {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_TECHNICIAN_ID).apply();
@@ -193,7 +199,8 @@ public class CheckInActivity extends AppCompatActivity {
         integrator.initiateScan();
     }
 
-    public void btnScanTruckBayClicked() {
+    @OnClick(R.id.button_loading_bay)
+    public void btnScanLoadingBay(View view) {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_TRUCK_LOADING_BAY).apply();
@@ -225,22 +232,7 @@ public class CheckInActivity extends AppCompatActivity {
 
                 if (returnScanValue.equals(SCAN_VALUE_TECHNICIAN_ID)) {
 
-//                    if (Common.isNetworkAvailable(this)) {
-//
-//                        //check technician nric with web service
-//                        TechnicianIDWSAsync task = new TechnicianIDWSAsync(this, scanContent);
-//                        task.execute();
-//
-//                    } else {
-//
-//                        //check technician nric with sqlite database
-//                        checkIn = new CheckIn();
-//                        checkIn.setTechnicianNRIC(scanContent);
-//
-//                        checkTechnicianNRIC(checkIn);
-//                    }
-
-                    editor.putString(Constant.SHARED_PREF_TECHNICIAN_ID, scanContent).apply();
+                    editor.putString(SHARED_PREF_TECHNICIAN_ID, scanContent).apply();
 
                     Intent intent = new Intent(this, CheckInActivity.class);
                     isActivityStarted = true;
@@ -248,18 +240,13 @@ public class CheckInActivity extends AppCompatActivity {
 
                 } else if (returnScanValue.equals(SCAN_VALUE_TRUCK_LOADING_BAY)) {
 
-                    if (Common.isNetworkAvailable(this)) {
+                    if (isNetworkAvailable(this)) {
 
                         //check loading bay no with web service
                         new loadingBayAsync(scanContent).execute();
 
                     } else {
 
-                        //check loading bay no with database
-//                        checkIn = new CheckIn();
-//                        checkIn.setLoadingBayNo(scanContent);
-//
-//                        checkLoadingBayNo(checkIn);
                         shortToast(this, "No internet connection.");
                     }
 
@@ -284,160 +271,343 @@ public class CheckInActivity extends AppCompatActivity {
     }
     //endregion
 
-    public void checkTechnicianNRIC(CheckIn checkIn) {
+    private class loadingBayAsync extends AsyncTask<String, Void, Void> {
 
-        SharedPreferences.Editor editor = sharedPref.edit();
+        LoadingBayDetail loadingBayDetail;
+        ProgressDialog progressDialog;
+        String rackNo;
+        boolean response;
 
-        technicianDetailDataSource = new TechnicianDetailDataSource(this);
-        technicianDetailDataSource.open();
-        returnResult = technicianDetailDataSource.retrieveTechnicianNRIC(checkIn);
-        technicianDetailDataSource.close();
+        private loadingBayAsync(String rackNo) {
 
-        if (returnResult) {
+            this.rackNo = rackNo;
+        }
 
-            editor.putString(SHARED_PREF_TECHNICIAN_ID, checkIn.getTechnicianNRIC()).apply();
+        @Override
+        protected void onPreExecute() {
 
-            Intent intent = new Intent(this, CheckInActivity.class);
-            isActivityStarted = true;
-            startActivity(intent);
+            //start progress dialog
+            progressDialog = ProgressDialog.show(CheckInActivity.this, "Please wait..", "Loading...", true);
+        }
 
-        } else {
+        @Override
+        protected Void doInBackground(String... params) {
 
-            editor.putString(SHARED_PREF_TECHNICIAN_ID, "").apply();
+            response = CheckInWS.invokeCheckTruckRack(rackNo);
 
-            shortToast(this, Constant.ERR_MSG_INVALID_TECHNICIAN_NRIC);
+            return null;
+        }
 
-            Intent intent = new Intent(this, CheckInActivity.class);
-            isActivityStarted = true;
-            startActivity(intent);
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (response) {
+
+                //region insert or update loading bay details to database
+                if (realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", rackNo).equalTo("status", LOADING_BAY_NO_CHECK_OUT).count() > 0) {
+
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+
+                            loadingBayDetail = new LoadingBayDetail();
+                            loadingBayDetail.setLoadingBayNo(rackNo);
+                            loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_IN);
+
+                            realm.copyToRealmOrUpdate(loadingBayDetail);
+                        }
+                    });
+
+                } else if (realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", rackNo).equalTo("status", LOADING_BAY_NO_CHECK_IN).count() > 0) {
+
+                    shortToast(getApplicationContext(), ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN);
+
+                } else {
+
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+
+                            loadingBayDetail = new LoadingBayDetail();
+                            loadingBayDetail.setLoadingBayNo(rackNo);
+                            loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_IN);
+
+                            realm.copyToRealm(loadingBayDetail);
+                        }
+                    });
+                }
+                //endregion
+
+                //retrieve job details from web service
+                new jobDetailsAsync(rackNo).execute();
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+            } else {
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //prompt error message
+                shortToast(getApplicationContext(), ERR_MSG_INVALID_TRUCK_BAY);
+            }
         }
     }
 
-    public void checkLoadingBayNo(CheckIn checkIn) {
+    private class jobDetailsAsync extends AsyncTask<String, Void, Void> {
 
-        loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
-        loadingBayDetailDataSource.open();
-        returnResult = loadingBayDetailDataSource.checkLoadingBayNo(checkIn);
-        loadingBayDetailDataSource.close();
+        String rackNo;
+        ArrayList<JobDetail> jobDetailArrayList;
+        JobDetail jobDetail;
 
-        if (returnResult) {
+        private  jobDetailsAsync(String rackNo) {
 
-            Intent intent = new Intent(this, CheckInActivity.class);
-            isActivityStarted = true;
-            startActivity(intent);
+            this.rackNo = rackNo;
+        }
 
-        } else {
+        @Override
+        protected Void doInBackground(String... params) {
 
-            shortToast(this, ERR_MSG_INVALID_TRUCK_BAY);
+            jobDetailArrayList = JobDetailWS.invokeRetrieveAllJobs(rackNo);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            for (final JobDetail results : jobDetailArrayList) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        jobDetail = new JobDetail();
+                        jobDetail.setJobID(results.getJobID());
+                        jobDetail.setCustomerName(results.getCustomerName());
+                        jobDetail.setProductName(results.getProductName());
+                        jobDetail.setTankNo(results.getTankNo());
+                        jobDetail.setLoadingBayNo(results.getLoadingBayNo());
+                        jobDetail.setLoadingArm(results.getLoadingArm());
+                        jobDetail.setSdsFilePath(results.getSdsFilePath());
+                        jobDetail.setOperatorID(results.getOperatorID());
+                        jobDetail.setDriverID(results.getDriverID());
+                        jobDetail.setJobDate(results.getJobDate());
+
+                        realm.copyToRealmOrUpdate(jobDetail);
+                    }
+                });
+
+                new PPEGHSAsync(results.getJobID(), results.getProductName()).execute();
+
+                new sealNoAsync(results.getJobID()).execute();
+            }
         }
     }
 
-    //region Header
-    /*-------- Set User Login Details --------*/
-    public void setUserLoginDetails() {
+    private class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 
-        LinearLayout headerLayout = (LinearLayout) findViewById(R.id.headerCheckIn);
-        headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
+        ArrayList<PPEDetail> ppeArrayList;
+        PPEDetail ppeDetail;
+        ArrayList<GHSDetail> ghsArrayList;
+        GHSDetail ghsDetail;
+        String jobID, productName, ppeName, ghsName;
 
-        headerMessage.setText(Common.formatCheckInMsg(sharedPref.getString(SHARED_PREF_LOGINNAME, "")));
+        private PPEGHSAsync(String jobID, String productName) {
+
+            this.jobID = jobID;
+            this.productName = productName;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            ppeArrayList = PPEWS.invokeRetrievePPEWS(productName);
+            ghsArrayList = GHSWS.invokeRetrieveGHSWS(productName);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            for (final PPEDetail results : ppeArrayList) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        ppeDetail = new PPEDetail();
+                        ppeName = results.getPpeURL().substring(0, results.getPpeURL().indexOf("."));
+
+                        if (realm.where(PPEDetail.class).equalTo("jobID", jobID).equalTo("ppeName", ppeName).count() == 0) {
+
+                            if (realm.where(PPEDetail.class).max("ppeID") == null) {
+
+                                ppeDetail.setPpeID(1);
+
+                            } else {
+
+                                ppeDetail.setPpeID(realm.where(PPEDetail.class).max("ppeID").intValue() + 1);
+                            }
+
+                            ppeDetail.setPpeName(ppeName);
+                            ppeDetail.setPpeURL(results.getPpeURL());
+                            ppeDetail.setJobID(jobID);
+
+                            realm.copyToRealm(ppeDetail);
+
+                        } else {
+
+                            ppeDetail.setPpeID(realm.where(PPEDetail.class).max("ppeID").intValue() + 1);
+                            ppeDetail.setPpeName(ppeName);
+                            ppeDetail.setPpeURL(results.getPpeURL());
+                            ppeDetail.setJobID(jobID);
+
+                            realm.copyToRealmOrUpdate(ppeDetail);
+                        }
+                    }
+                });
+            }
+
+            for (final GHSDetail results : ghsArrayList) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        ghsDetail = new GHSDetail();
+                        ghsName = results.getGhsURL().substring(0, results.getGhsURL().indexOf("."));
+
+                        if (realm.where(GHSDetail.class).equalTo("jobID", jobID).equalTo("ghsName", ghsName).count() == 0) {
+
+                            if (realm.where(GHSDetail.class).max("ghsID") == null) {
+
+                                ghsDetail.setGhsID(1);
+
+                            } else {
+
+                                ghsDetail.setGhsID(realm.where(GHSDetail.class).max("ghsID").intValue() + 1);
+                            }
+
+                            ghsDetail.setGhsName(ghsName);
+                            ghsDetail.setGhsURL(results.getGhsURL());
+                            ghsDetail.setJobID(jobID);
+
+                            realm.copyToRealm(ghsDetail);
+
+                        } else {
+
+                            ghsDetail.setGhsID(realm.where(GHSDetail.class).max("ghsID").intValue() + 1);
+                            ghsDetail.setGhsName(ghsName);
+                            ghsDetail.setGhsURL(results.getGhsURL());
+                            ghsDetail.setJobID(jobID);
+
+                            realm.copyToRealmOrUpdate(ghsDetail);
+                        }
+                    }
+                });
+            }
+        }
     }
-    //endregion
+
+    private class sealNoAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID;
+        ArrayList<SealDetail> sealNoArrayList;
+        SealDetail sealDetail;
+
+        private sealNoAsync(String jobID) {
+
+            this.jobID = jobID;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            sealNoArrayList = SealNoWS.invokeRetrieveSealNo(jobID);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            for (final SealDetail results : sealNoArrayList) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        sealDetail = new SealDetail();
+                        sealDetail.setSealNo(results.getSealNo());
+                        sealDetail.setJobID(jobID);
+
+                        realm.copyToRealmOrUpdate(sealDetail);
+                    }
+                });
+            }
+        }
+    }
 
     //region Footer
-    public void setFooterMenu() {
-
-        footerLayout = (LinearLayout) findViewById(R.id.footer);
-        btnAlert = (ImageButton) footerLayout.findViewById(R.id.btnHome);
-        btnAlert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnHomeClicked();
-            }
-        });
-
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.btnSearch);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSearchClicked();
-            }
-        });
-
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.btnSwitch);
-        btnSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSwitchClicked();
-            }
-        });
-
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.btnSettings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnSettingsClicked(view);
-            }
-        });
-    }
-
-    public void btnHomeClicked() {
+    @OnClick(R.id.button_home)
+    public void btnHome(View view) {
 
         Intent intent = new Intent(this, DashboardActivity.class);
         isActivityStarted = true;
         startActivity(intent);
     }
 
-    public void btnSearchClicked() {
+    @OnClick(R.id.button_search)
+    public void btnSearch(View view) {
 
         Intent intent = new Intent(this, SearchJobActivity.class);
         isActivityStarted = true;
         startActivity(intent);
     }
 
-    public void btnSwitchClicked() {
+    @OnClick(R.id.button_switch)
+    public void btnSwitch(View view) {
 
         Intent intent = new Intent(this, SwitchJobActivity.class);
         isActivityStarted = true;
         startActivity(intent);
     }
 
-    public void btnSettingsClicked(View view) {
+    @OnClick(R.id.button_settings)
+    public void btnSettings(View view) {
 
-        settingsMenuOptions(view);
-    }
-
-    public void settingsMenuOptions(View view) {
-
-        PopupMenu popup = new PopupMenu(this, view);
+        popupMenu = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
 
                 switch (item.getItemId()) {
 
-                    case R.id.settingsMenuCheckIn:
-                        return true;
-
-                    case R.id.settingsMenuExitApp:
-                        exitApplication();
-                        return true;
-
-                    case R.id.settingsMenuCheckOut:
-                        Intent intent = new Intent(getApplicationContext(), CheckOutActivity.class);
+                    case R.id.menu_check_in:
+                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         isActivityStarted = true;
-                        startActivity(intent);
+                        startActivity(intentCheckIn);
                         return true;
 
-                    case R.id.settingsMenuSyncData:
+                    case R.id.menu_check_out:
+                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
+                        isActivityStarted = true;
+                        startActivity(intentCheckOut);
+                        return true;
+
+                    case R.id.menu_sync_data:
                         Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
                         isActivityStarted = true;
                         startActivity(intentSyncData);
+                        return true;
+
+                    case R.id.menu_exit:
+                        exitApplication();
                         return true;
 
                     default:
@@ -445,14 +615,13 @@ public class CheckInActivity extends AppCompatActivity {
                 }
             }
         });
-        popup.inflate(R.menu.settings_menu);
-        popup.show();
+        popupMenu.inflate(R.menu.settings_menu);
+        popupMenu.show();
     }
 
     public void exitApplication() {
 
-        if (exitDialog != null && exitDialog.isShowing())
-            return;
+        if (exitDialog != null && exitDialog.isShowing()) return;
 
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -464,20 +633,38 @@ public class CheckInActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                //close exit dialog
-                exitDialog.dismiss();
-
                 //clear all shared preferences
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.clear().apply();
 
-                //delete all loading bay
-                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-                loadingBayDetailDataSource.deleteAllLoadingBay();
+                //check out all the loading bay
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        loadingBayDetailResults = realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll();
+
+                        if (loadingBayDetailResults.size() > 0) {
+
+                            for (int i = 0; i < loadingBayDetailResults.size(); i++) {
+
+                                loadingBayDetail = new LoadingBayDetail();
+                                loadingBayDetail.setLoadingBayNo(loadingBayDetailResults.get(i).getLoadingBayNo());
+                                loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+                                realm.copyToRealmOrUpdate(loadingBayDetail);
+                            }
+                        }
+                    }
+                });
+
+                //close exit dialog
+                exitDialog.dismiss();
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
                 intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intentLogin);
             }
         });
@@ -521,370 +708,11 @@ public class CheckInActivity extends AppCompatActivity {
         }
     }
 
-    private class loadingBayAsync extends AsyncTask<String, Void, Void> {
+    @Override
+    protected void onDestroy() {
 
-        ProgressDialog progressDialog;
-        String rackNo;
-        boolean response;
+        super.onDestroy();
 
-        private loadingBayAsync(String rackNo) {
-
-            this.rackNo = rackNo;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-            //start progress dialog
-            progressDialog = ProgressDialog.show(CheckInActivity.this, "Please wait..", "Loading...", true);
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-
-            response = CheckInWS.invokeCheckTruckRack(rackNo);
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-            if (response) {
-
-                //region insert loading bay to database
-                checkIn = new CheckIn();
-                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-
-                checkIn.setLoadingBayNo(rackNo);
-                loadingBayDetailDataSource.open();
-                returnResult = loadingBayDetailDataSource.insertLoadingBayNo(getApplicationContext(), checkIn);
-                loadingBayDetailDataSource.close();
-
-                if (!returnResult) {
-
-                    shortToast(getApplicationContext(), ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN);
-                }
-                //endregion
-
-                //get all the job details from web service
-                new jobDetailsAsync(rackNo).execute();
-
-                //new thread for button settings
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        if (trunkBayString.isEmpty()) {
-
-                            trunkBayString = rackNo;
-                            tvTruckBayId.setText(trunkBayString);
-
-                        } else {
-
-                            trunkBayString = trunkBayString + ", " + rackNo;
-                            tvTruckBayId.setText(trunkBayString);
-                        }
-
-                        btnScanTruckBay.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
-                        btnScanTruckBay.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
-                        btnScanTruckBay.setEnabled(true);
-                    }
-                });
-
-                //close progress dialog
-                progressDialog.dismiss();
-
-            } else {
-
-                //close progress dialog
-                progressDialog.dismiss();
-
-                //prompt error message
-                shortToast(getApplicationContext(), ERR_MSG_INVALID_TRUCK_BAY);
-            }
-        }
-    }
-
-    private class jobDetailsAsync extends AsyncTask<String, Void, Void> {
-
-        String rackNo;
-        ArrayList<JobDetail> jobDetailArrayList;
-        JobDetailDataSource jobDetailDataSource;
-
-        private  jobDetailsAsync(String rackNo) {
-
-            this.rackNo = rackNo;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-
-            jobDetailArrayList = new ArrayList<>();
-            jobDetailArrayList = JobDetailWS.invokeRetrieveAllJobs(rackNo);
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-            if (jobDetailArrayList.size() > 0) {
-
-                for (int i=0; i<jobDetailArrayList.size(); i++) {
-
-                    //insert or update database
-                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-                    jobDetailDataSource.open();
-                    jobDetailDataSource.insertOrUpdateJobDetails(jobDetailArrayList.get(i));
-                    jobDetailDataSource.close();
-
-                    //retrieve all the ppe and ghs from web service
-                    new PPEGHSAsync(jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getProductName()).execute();
-
-                    //retrieve all the seal no
-                    new sealNoAsync(jobDetailArrayList.get(i).getJobID()).execute();
-                }
-            }
-        }
-    }
-
-    private class PPEGHSAsync extends AsyncTask<String, Void, Void> {
-
-        String jobID, productName, ppeURL, ppeName, ghsURL, ghsName;
-        ArrayList<PPE> ppeArrayList;
-        ArrayList<GHS> ghsArrayList;
-        ArrayList<PPEDetail> ppeDetailArrayList;
-        ArrayList<GHSDetail> ghsDetailArrayList;
-        PPEDetail ppeDetail;
-        GHSDetail ghsDetail;
-        PPEDetailDataSource ppeDetailDataSource;
-        GHSDetailDataSource ghsDetailDataSource;
-
-        private PPEGHSAsync(String jobID, String productName) {
-
-            this.jobID = jobID;
-            this.productName = productName;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-
-            ppeArrayList = new ArrayList<>();
-            ppeArrayList = PPEWS.invokeRetrievePPEWS(productName);
-
-            ghsArrayList = new ArrayList<>();
-            ghsArrayList = GHSWS.invokeRetrieveGHSWS(productName);
-
-            return null;
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-            //insert ppe details to database
-            if (ppeArrayList.size() > 0) {
-
-                ppeDetailArrayList = new ArrayList<>();
-
-                for (int i = 0; i < ppeArrayList.size(); i++) {
-
-                    ppeDetail = new PPEDetail();
-                    ppeURL = ppeArrayList.get(i).getPpePictureURL();
-                    ppeName = ppeURL.substring(0, ppeURL.indexOf("."));
-
-                    ppeDetail.setJobID(jobID);
-
-                    switch (ppeName) {
-
-                        case "ear_protection":
-                            ppeDetail.setPpeID("1");
-                            break;
-
-                        case "face_shield":
-                            ppeDetail.setPpeID("2");
-                            break;
-
-                        case "foot_protection":
-                            ppeDetail.setPpeID("3");
-                            break;
-
-                        case "hand_protection":
-                            ppeDetail.setPpeID("4");
-                            break;
-
-                        case "head_protection":
-                            ppeDetail.setPpeID("5");
-                            break;
-
-                        case "mandatory_instruction":
-                            ppeDetail.setPpeID("6");
-                            break;
-
-                        case "pedestrian_route":
-                            ppeDetail.setPpeID("7");
-                            break;
-
-                        case "protective_clothing":
-                            ppeDetail.setPpeID("8");
-                            break;
-
-                        case "respirator":
-                            ppeDetail.setPpeID("9");
-                            break;
-
-                        case "safety_glasses":
-                            ppeDetail.setPpeID("10");
-                            break;
-
-                        case "safety_harness":
-                            ppeDetail.setPpeID("11");
-                            break;
-
-                        default:
-                            break;
-                    }
-
-                    ppeDetailArrayList.add(ppeDetail);
-                }
-
-                ppeDetailDataSource = new PPEDetailDataSource(getApplicationContext());
-                ppeDetailDataSource.open();
-                ppeDetailDataSource.insertOrUpdatePPE(ppeDetailArrayList);
-                ppeDetailDataSource.close();
-            }
-
-            //insert ghs details into to database
-            if (ghsArrayList.size() > 0) {
-
-                ghsDetailArrayList = new ArrayList<>();
-
-                for (int i=0; i<ghsArrayList.size(); i++) {
-
-                    ghsDetail = new GHSDetail();
-                    ghsURL = ghsArrayList.get(i).getGhsPictureURL();
-                    ghsName = ghsURL.substring(0, ghsURL.indexOf("."));
-
-                    ghsDetail.setJobID(jobID);
-
-                    switch (ghsName) {
-
-                        case "AcuteToxicity":
-                            ghsDetail.setGhsID("1");
-                            break;
-
-                        case "AspirationToxicity":
-                            ghsDetail.setGhsID("2");
-                            break;
-
-                        case "Corrosive":
-                            ghsDetail.setGhsID("3");
-                            break;
-
-                        case "EnvironmentToxicity":
-                            ghsDetail.setGhsID("4");
-                            break;
-
-                        case "Explosive":
-                            ghsDetail.setGhsID("5");
-                            break;
-
-                        case "Flammable":
-                            ghsDetail.setGhsID("6");
-                            break;
-
-                        case "GasesUnderPressure":
-                            ghsDetail.setGhsID("7");
-                            break;
-
-                        case "Irritant":
-                            ghsDetail.setGhsID("8");
-                            break;
-
-                        case "Oxidiser":
-                            ghsDetail.setGhsID("9");
-                            break;
-
-                        default:
-                            break;
-                    }
-
-                    ghsDetailArrayList.add(ghsDetail);
-                }
-
-                ghsDetailDataSource = new GHSDetailDataSource(getApplicationContext());
-                ghsDetailDataSource.open();
-                ghsDetailDataSource.insertOrUpdateGHS(ghsDetailArrayList);
-                ghsDetailDataSource.close();
-            }
-
-        }
-    }
-
-    private class sealNoAsync extends AsyncTask<String, Void, Void> {
-
-        String jobID;
-        ArrayList<String> sealNoArrayList;
-        SealDetailDataSource sealDetailDataSource;
-
-        private sealNoAsync(String jobID) {
-
-            this.jobID = jobID;
-        }
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected Void doInBackground(String... params) {
-
-            sealNoArrayList = new ArrayList<>();
-            sealNoArrayList = SealNoWS.invokeRetrieveSealNo(jobID);
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-            if (sealNoArrayList.size() > 0) {
-
-                sealDetailDataSource = new SealDetailDataSource(getApplicationContext());
-                sealDetailDataSource.open();
-                sealDetailDataSource.insertSealNo(jobID, sealNoArrayList);
-                sealDetailDataSource.close();
-            }
-        }
-
-        @Override
-        protected void onProgressUpdate(Void... values) {
-
-        }
+        realm.close();
     }
 }

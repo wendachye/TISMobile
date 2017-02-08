@@ -25,7 +25,7 @@ public class JobDetailWSAsync extends AsyncTask<String, Void, Void> {
 	protected Void doInBackground(String... params) {
 
 		jobDetailArrayList = new ArrayList<>();
-		jobDetailArrayList = JobDetailWS.invokeRetrieveAllJobs(truckRackNo);
+//		jobDetailArrayList = JobDetailWS.invokeRetrieveAllJobs(truckRackNo);
 
 		return null;
 	}

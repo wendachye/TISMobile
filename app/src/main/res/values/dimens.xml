@@ -11,6 +11,14 @@
     <dimen name="ppe_border_width">2dp</dimen>
     <dimen name="small_margin">3dp</dimen>
 
+    <dimen name="margin_10">10dp</dimen>
+    <dimen name="margin_15">15dp</dimen>
+    <dimen name="margin_30">30dp</dimen>
+    <dimen name="padding_10">10dp</dimen>
+    <dimen name="height_50">50dp</dimen>
+    <dimen name="height_40">40dp</dimen>
+    <dimen name="height_150">150dp</dimen>
+
     <dimen name="footer_menu_text">14sp</dimen>
     <dimen name="footer_menu_text_top_spacing">-10dp</dimen>
     <dimen name="footer_menu_text_bottom_spacing">2dp</dimen>

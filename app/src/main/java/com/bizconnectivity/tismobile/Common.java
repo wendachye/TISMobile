@@ -21,6 +21,11 @@ public class Common {
         return "TRUCK LOADING BAY: " + truckLoadingBay;
     }
 
+    public static String loadingBayString(String first, String next){
+
+    	return first + ", " + next;
+    }
+
     public static boolean isNetworkAvailable(final Context context) {
 
         final ConnectivityManager connectivityManager = ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));

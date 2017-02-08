@@ -1,6 +1,6 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import com.bizconnectivity.tismobile.classes.PPE;
+import com.bizconnectivity.tismobile.database.models.PPEDetail;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
@@ -13,9 +13,9 @@ import java.util.ArrayList;
 
 public class PPEWS {
 
-	public static ArrayList<PPE> invokeRetrievePPEWS(String productName) {
+	public static ArrayList<PPEDetail> invokeRetrievePPEWS(String productName) {
 
-		ArrayList<PPE> ppeArrayList = new ArrayList<>();
+		ArrayList<PPEDetail> ppeArrayList = new ArrayList<>();
 
 		//create request
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_GET_PRODUCT_PPE);
@@ -60,9 +60,9 @@ public class PPEWS {
 		return ppeArrayList;
 	}
 
-	public static ArrayList<PPE> getElementFromPPE(SoapObject response) {
+	public static ArrayList<PPEDetail> getElementFromPPE(SoapObject response) {
 
-		ArrayList<PPE> ppeArrayList = new ArrayList<>();
+		ArrayList<PPEDetail> ppeArrayList = new ArrayList<>();
 
 		//get the desired property
 		SoapObject soapObject = (SoapObject) response.getProperty(0);
@@ -80,18 +80,20 @@ public class PPEWS {
 
 			for (int i = 0; i < newDataSetCount; i++) {
 
-				PPE ppe = new PPE();
+				PPEDetail ppeDetail = new PPEDetail();
 
 				//retrieve data from dataset
 				SoapObject table = (SoapObject) documentElement.getProperty(i);
 
 				if (!table.getProperty("PPEPicture").toString().equals("anyType{}")) {
-					ppe.setPpePictureURL(table.getProperty("PPEPicture").toString());
+
+					ppeDetail.setPpeURL(table.getProperty("PPEPicture").toString());
 				} else {
-					ppe.setPpePictureURL("");
+
+					ppeDetail.setPpeURL("");
 				}
 
-				ppeArrayList.add(ppe);
+				ppeArrayList.add(ppeDetail);
 			}
 		}
 

@@ -2,13 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-<item
-    android:id="@+id/btnSync"
-    android:orderInCategory="100"
-    android:title="Sync Data"
-    android:icon="@mipmap/ic_sync_black_24dp"
-    app:showAsAction="always"
-    />
+    <item
+        android:id="@+id/menu_refresh"
+        android:orderInCategory="100"
+        android:icon="@mipmap/ic_sync_black_24dp"
+        app:showAsAction="always"
+        android:title="@string/sync_data"/>
 
 </menu>

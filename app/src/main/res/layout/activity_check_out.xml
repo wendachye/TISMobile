@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_check_out"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -13,13 +12,12 @@
         android:orientation="vertical">
 
         <include
-            android:id="@+id/headerCheckOut"
+            android:id="@+id/header_check_out"
             layout="@layout/header_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <include
-            android:id="@+id/checkOutDialog"
             layout="@layout/dialog_checkout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -31,7 +29,7 @@
         android:layout_alignParentBottom="true">
 
         <include
-            android:id="@+id/footer"
+            android:id="@+id/footer_check_out"
             layout="@layout/footer_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
