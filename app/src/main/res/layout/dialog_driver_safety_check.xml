@@ -5,57 +5,58 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/tvDriverSafetyCheckTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:gravity="center_horizontal"
-        android:text="DRIVER AND SAFETY CHECKS"
+        android:text="@string/job_main"
         android:textStyle="bold"
+        android:textAlignment="center"
         android:textSize="@dimen/header_title_text" />
 
     <Button
-        android:id="@+id/btnScanPPE"
+        android:id="@+id/button_ppe"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
         android:layout_marginTop="@dimen/dialog_content_left_right_spacing"
-        android:text="PPE"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/ppe"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnPPE"/>
 
     <Button
-        android:id="@+id/btnSDS"
+        android:id="@+id/button_sds"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
         android:layout_marginTop="@dimen/dialog_content_top_bottom_spacing2"
-        android:text="SDS"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/sds"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnSDS"
+        android:enabled="false"/>
 
     <Button
-        android:id="@+id/btnScanDetails"
+        android:id="@+id/button_scan_details"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
         android:layout_marginTop="@dimen/dialog_content_top_bottom_spacing2"
-        android:text="SCAN DETAILS"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/scan_details"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnScanDetails"
+        android:enabled="false"/>
 
     <Button
-        android:id="@+id/btnSafetyCheck"
+        android:id="@+id/button_safety_checks"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
         android:layout_marginTop="@dimen/dialog_content_top_bottom_spacing2"
-        android:text="SAFETY CHECKS"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/safety_checks"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnSafetyChecks"
+        android:enabled="false"/>
 
 </LinearLayout>

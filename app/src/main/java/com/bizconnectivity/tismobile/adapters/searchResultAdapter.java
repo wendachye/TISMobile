@@ -98,10 +98,10 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
 			super(itemView);
 
-			tvLoadingBayOrderId = (TextView) itemView.findViewById(R.id.tvLoadingBayOrderId);
-			tvLoadingBayCustomer = (TextView) itemView.findViewById(R.id.tvLoadingBayCustomer);
-			tvLoadingBayProduct = (TextView) itemView.findViewById(R.id.tvLoadingBayProduct);
-			tvLoadingBayTankNo = (TextView) itemView.findViewById(R.id.tvLoadingBayTankNo);
+			tvLoadingBayOrderId = (TextView) itemView.findViewById(R.id.text_job_id);
+			tvLoadingBayCustomer = (TextView) itemView.findViewById(R.id.text_customer_name);
+			tvLoadingBayProduct = (TextView) itemView.findViewById(R.id.text_product_name);
+			tvLoadingBayTankNo = (TextView) itemView.findViewById(R.id.text_tank_no);
 
 			itemView.setOnClickListener(this);
 		}

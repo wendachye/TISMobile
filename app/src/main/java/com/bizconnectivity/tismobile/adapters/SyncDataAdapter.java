@@ -1,6 +1,5 @@
 package com.bizconnectivity.tismobile.adapters;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,20 +7,18 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.classes.JobDetail;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
 
 import java.util.List;
 
 public class SyncDataAdapter extends RecyclerView.Adapter<SyncDataAdapter.ViewHolder>{
 
-	Context context;
-	List<JobDetail> items;
-	int itemLayout;
+	private List<JobDetail> items;
+	private int itemLayout;
 	AdapterCallBack adapterCallBack;
 
-	public SyncDataAdapter(Context context, List<JobDetail> items, int itemLayout, AdapterCallBack adapterCallBack) {
+	public SyncDataAdapter(List<JobDetail> items, int itemLayout, AdapterCallBack adapterCallBack) {
 
-		this.context = context;
 		this.items = items;
 		this.itemLayout =itemLayout;
 		this.adapterCallBack = adapterCallBack;
@@ -46,6 +43,7 @@ public class SyncDataAdapter extends RecyclerView.Adapter<SyncDataAdapter.ViewHo
 
 	@Override
 	public int getItemCount() {
+
 		return items.size();
 	}
 
@@ -53,21 +51,20 @@ public class SyncDataAdapter extends RecyclerView.Adapter<SyncDataAdapter.ViewHo
 
 		TextView tvLoadingBayOrderId, tvLoadingBayCustomer, tvLoadingBayProduct, tvLoadingBayTankNo;
 
-		public ViewHolder(View itemView) {
+		private ViewHolder(View itemView) {
 
 			super(itemView);
 
-			tvLoadingBayOrderId = (TextView) itemView.findViewById(R.id.tvLoadingBayOrderId);
-			tvLoadingBayCustomer = (TextView) itemView.findViewById(R.id.tvLoadingBayCustomer);
-			tvLoadingBayProduct = (TextView) itemView.findViewById(R.id.tvLoadingBayProduct);
-			tvLoadingBayTankNo = (TextView) itemView.findViewById(R.id.tvLoadingBayTankNo);
+			tvLoadingBayOrderId = (TextView) itemView.findViewById(R.id.text_job_id);
+			tvLoadingBayCustomer = (TextView) itemView.findViewById(R.id.text_customer_name);
+			tvLoadingBayProduct = (TextView) itemView.findViewById(R.id.text_product_name);
+			tvLoadingBayTankNo = (TextView) itemView.findViewById(R.id.text_tank_no);
 
 			itemView.setOnClickListener(this);
 		}
 
 		@Override
 		public void onClick(View v) {
-
 
 		}
 	}

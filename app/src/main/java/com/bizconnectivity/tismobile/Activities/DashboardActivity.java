@@ -19,11 +19,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.adapters.CustomExpandableListAdapter;
-import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.classes.LoadingBayList;
-import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
+import com.bizconnectivity.tismobile.database.models.JobList;
 import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
 
 import java.util.ArrayList;
@@ -32,30 +30,10 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
-import io.realm.RealmResults;
 import io.realm.Sort;
 
-import static com.bizconnectivity.tismobile.Common.formatCheckedInTruckLoadingBay;
-import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
-import static com.bizconnectivity.tismobile.Common.loadingBayString;
-import static com.bizconnectivity.tismobile.Constant.LOADING_BAY_NO_CHECK_IN;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_CUSTOMER_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_DATE;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_BAY;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGIN_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_START_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_STOP_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_RACK_OUT_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SDS_FILE_PATH;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_TANK_NO;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_WORK_INSTRUCTION;
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -86,25 +64,17 @@ public class DashboardActivity extends AppCompatActivity {
     ImageButton mImageButtonSettings;
 
     Realm realm;
-    RealmResults<LoadingBayDetail> loadingBayDetailResults;
+    ArrayList<JobDetail> childArrayList;
+    ArrayList<JobList> jobListArray;
+    JobList jobList;
+    JobDetail jobDetail;
+    LoadingBayDetail loadingBayDetail;
     PopupMenu popupMenu;
     Dialog exitDialog;
     CustomExpandableListAdapter customExpandableListAdapter;
     SharedPreferences sharedPref;
     String trunkBayString;
     boolean isActivityStarted = false;
-
-
-    TextView tvLoadingBayOrderId;
-
-    LoadingBayDetailDataSource loadingBayDetailDataSource;
-    JobDetailDataSource jobDetailDataSource;
-    LoadingBayList loadingBayLists;
-    JobDetail jobDetail;
-    ArrayList<LoadingBayList> loadingBayArraylist;
-    ArrayList<JobDetail> childArrayList;
-    ArrayList<String> groupArrayList;
-    String jobID;
     //endregion
 
     @Override
@@ -125,11 +95,14 @@ public class DashboardActivity extends AppCompatActivity {
         //region header
         mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
-        loadingBayDetailResults = realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING);
-
+        //region retrieve loading bay and job details
         trunkBayString = "";
+        jobListArray = new ArrayList<>();
 
-        for (LoadingBayDetail results : loadingBayDetailResults) {
+        for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING)) {
+
+            jobList = new JobList();
+            childArrayList = new ArrayList<>();
 
             if (trunkBayString.isEmpty()) {
 
@@ -139,16 +112,24 @@ public class DashboardActivity extends AppCompatActivity {
 
                 trunkBayString = loadingBayString(trunkBayString, results.getLoadingBayNo());
             }
+
+            for (JobDetail jobListResults : realm.where(JobDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).equalTo("jobStatus", "Pending").findAll()) {
+
+                childArrayList.add(jobListResults);
+            }
+
+            jobList.setLoadingBayNo(results.getLoadingBayNo());
+            jobList.setJobDetails(childArrayList);
+
+            jobListArray.add(jobList);
         }
+        //endregion
 
         mTextViewDashboardTitle.setText(formatCheckedInTruckLoadingBay(trunkBayString));
         //endregion
 
         //region expandable list view settings
-        loadingBayArraylist = new ArrayList<>();
-        loadingBayArraylist = retrieveAllLoadingBay();
-
-        customExpandableListAdapter = new CustomExpandableListAdapter(this, loadingBayArraylist);
+        customExpandableListAdapter = new CustomExpandableListAdapter(this, jobListArray);
         mExpandableListView.setAdapter(customExpandableListAdapter);
 
         //expand all the list view at the first time
@@ -163,17 +144,10 @@ public class DashboardActivity extends AppCompatActivity {
             @Override
             public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
 
-                //region retrieve job details
-                tvLoadingBayOrderId = (TextView) view.findViewById(R.id.tvLoadingBayOrderId);
-                jobID = tvLoadingBayOrderId.getText().toString();
-
+                //retrieve job details
+                TextView jobID = (TextView) view.findViewById(R.id.text_job_id);
                 jobDetail = new JobDetail();
-                jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-
-                jobDetailDataSource.open();
-                jobDetail = jobDetailDataSource.retrieveJobDetails(jobID);
-                jobDetailDataSource.close();
-                //endregion
+                jobDetail = realm.where(JobDetail.class).equalTo("jobID", jobID.getText().toString()).findFirst();
 
                 //store shared preferences
                 storeJobDetailSharedPref(jobDetail);
@@ -206,48 +180,6 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
         //endregion
-    }
-
-    public ArrayList<LoadingBayList> retrieveAllLoadingBay() {
-
-        loadingBayArraylist = new ArrayList<>();
-
-        //region retrieve all loading bay
-        groupArrayList = new ArrayList<>();
-        loadingBayDetailDataSource = new LoadingBayDetailDataSource(this);
-
-        loadingBayDetailDataSource.open();
-        groupArrayList = loadingBayDetailDataSource.retrieveAllLoadingBay();
-        loadingBayDetailDataSource.close();
-
-        //endregion
-
-        //region retrieve all job details
-        if (groupArrayList.size() > 0) {
-
-            for (int i = 0; i<groupArrayList.size(); i++) {
-
-                childArrayList = new ArrayList<>();
-                loadingBayLists = new LoadingBayList();
-
-                jobDetailDataSource = new JobDetailDataSource(this);
-
-                jobDetailDataSource.open();
-                childArrayList = jobDetailDataSource.retrieveAllPendingJobDetails(groupArrayList.get(i));
-                jobDetailDataSource.close();
-
-                //group title setter
-                loadingBayLists.setGroupTitle(groupArrayList.get(i));
-
-                //child details setter
-                loadingBayLists.setJobDetails(childArrayList);
-
-                loadingBayArraylist.add(loadingBayLists);
-            }
-        }
-        //endregion
-
-        return loadingBayArraylist;
     }
 
     public void storeJobDetailSharedPref(JobDetail jobDetail) {
@@ -342,38 +274,50 @@ public class DashboardActivity extends AppCompatActivity {
 
     public void exitApplication() {
 
-        if (exitDialog != null && exitDialog.isShowing())
-            return;
+        if (exitDialog != null && exitDialog.isShowing()) return;
 
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                //close exit dialog
-                exitDialog.dismiss();
-
                 //clear all shared preferences
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.clear().apply();
 
-                //delete all loading bay
-                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-                loadingBayDetailDataSource.deleteAllLoadingBay();
+                //check out all loading bay
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
+
+                            loadingBayDetail = new LoadingBayDetail();
+                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+                            realm.copyToRealmOrUpdate(loadingBayDetail);
+                        }
+                    }
+                });
+
+                //close exit dialog
+                exitDialog.dismiss();
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
                 intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
                 startActivity(intentLogin);
             }
         });
 
-        Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
+        Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override

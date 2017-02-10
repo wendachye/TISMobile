@@ -220,13 +220,12 @@ public class CheckOutActivity extends AppCompatActivity {
 
     public void exitApplication() {
 
-        if (exitDialog != null && exitDialog.isShowing())
-            return;
+        if (exitDialog != null && exitDialog.isShowing()) return;
 
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
@@ -242,18 +241,13 @@ public class CheckOutActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
-                        loadingBayDetailResults = realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll();
+                        for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                        if (loadingBayDetailResults.size() > 0) {
+                            loadingBayDetail = new LoadingBayDetail();
+                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
-                            for (int i = 0; i < loadingBayDetailResults.size(); i++) {
-
-                                loadingBayDetail = new LoadingBayDetail();
-                                loadingBayDetail.setLoadingBayNo(loadingBayDetailResults.get(i).getLoadingBayNo());
-                                loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
-
-                                realm.copyToRealmOrUpdate(loadingBayDetail);
-                            }
+                            realm.copyToRealmOrUpdate(loadingBayDetail);
                         }
                     }
                 });
@@ -269,7 +263,7 @@ public class CheckOutActivity extends AppCompatActivity {
             }
         });
 
-        Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
+        Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override

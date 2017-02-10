@@ -2,31 +2,48 @@
 
     <string name="app_name">TIS Mobile</string>
 
+    <!-- title / text / message -->
     <string name="welcome">WELCOME</string>
     <string name="prompt_username">Username</string>
     <string name="prompt_password">Password</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="truck_loading_bay">TRUCK LOADING BAY: </string>
     <string name="prompt_litre">Litre</string>
     <string name="prompt_metric_ton">Metric Ton</string>
-    <string name="action_sign_in_short">Sign in</string>
-    <string name="action_sign_in_cancel">Cancel</string>
-    <string name="truck_loading_bay">TRUCK LOADING BAY: </string>
+    <string name="metric_ton_message">%1$s MT</string>
+    <string name="metric_ton">Metric Ton</string>
     <string name="order">Order</string>
     <string name="customer">Customer</string>
     <string name="product">Product</string>
     <string name="tank_no">Tank No</string>
-
-    <string name="ok">OK</string>
     <string name="order_id">ORDER ID</string>
     <string name="customer_name">CUSTOMER NAME</string>
     <string name="loading_bay">Loading Bay</string>
-    <string name="metric_ton_message">%1$s MT</string>
-    <string name="metric_ton">Metric Ton</string>
-
-    <!-- dialog -->
     <string name="check_in_title">CHECK-IN</string>
     <string name="scan_technician_nric">Press to scan ID of Technician</string>
     <string name="scan_loading_bay">Press to scan Truck Loading Bay</string>
     <string name="check_out_title">CHECK-OUT TRUCK BAY</string>
+    <string name="job_main">DRIVER AND SAFETY CHECKS</string>
+    <string name="ppe">PPE</string>
+    <string name="sds">SDS</string>
+    <string name="scan_details">SCAN DETAILS</string>
+    <string name="safety_checks">SAFETY CHECKS</string>
+    <string name="product_ppe">PRODUCT PPE</string>
+    <string name="ghs_message">I can handle product</string>
+    <string name="ppe_message">I have the correct PPE</string>
+    <string name="loading_operation_title">LOADING OPERATION VERIFICATION</string>
+    <string name="scan_loading_arm">SCAN LOADING ARM</string>
+    <string name="batch_controller">BATCH CONTROLLER</string>
+    <string name="pump_start">PUMP START</string>
+    <string name="batch_controller_input">BATCH CONTROLLER INPUT</string>
+    <string name="stop_operation_title">STOP OPERATION VERIFICATION</string>
+    <string name="pump_stop">PUMP STOP</string>
+    <string name="scan_seal">SCAN SEAL</string>
+    <string name="departure">Departure</string>
+    <string name="detail_verification_title">DETAILS VERIFICATION</string>
+    <string name="operator_id">OPERATOR ID</string>
+    <string name="driver_id">DRIVER ID</string>
+    <string name="work_instruction">WORK INSTRUCTION</string>
 
     <!-- footer button -->
     <string name="menu_settings">Settings</string>

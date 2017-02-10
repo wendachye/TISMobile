@@ -1,10 +1,14 @@
 package com.bizconnectivity.tismobile.activities;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -20,58 +24,75 @@ import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.classes.GHS;
-import com.bizconnectivity.tismobile.classes.PPE;
-import com.bizconnectivity.tismobile.Common;
-import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.datasources.GHSDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.PPEDetailDataSource;
-import com.bizconnectivity.tismobile.webservices.PPEWSAsync;
-import com.bizconnectivity.tismobile.webservices.SDSWSAsync;
+import com.bizconnectivity.tismobile.database.models.GHSDetail;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
+import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
+import com.bizconnectivity.tismobile.database.models.PPEDetail;
+import com.bizconnectivity.tismobile.webservices.GHSWS;
+import com.bizconnectivity.tismobile.webservices.PPEWS;
+import com.bizconnectivity.tismobile.webservices.SDSWS;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
-import static com.bizconnectivity.tismobile.Common.shortToast;
-import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CHECK_PPE;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PENDING;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PPE;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
-import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.GHS_FILE_LOCATION;
-import static com.bizconnectivity.tismobile.webservices.ConstantWS.PPE_FILE_LOCATION;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
+import static com.bizconnectivity.tismobile.webservices.ConstantWS.*;
 
 public class JobMainActivity extends AppCompatActivity {
 
     //region declaration
-    ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
-    Dialog exitDialog, scanPPEDialog, safetyChecksDialog;
-    Button btnPPE, btnSDS, btnScanDetails, btnSafetyCheck;
-    LinearLayout footerLayout;
-    LinearLayout headerLayout;
-    LoadingBayDetailDataSource loadingBayDetailDataSource;
-    String jobStatus, welcomeMessage, jobID, customerName, loadingBay, loadingArm;
-    ArrayList<LinearLayout> linearLayoutArrayGHS;
-    ArrayList<LinearLayout> linearLayoutArrayPPE;
-    PPEDetailDataSource ppeDetailDataSource;
-    GHSDetailDataSource ghsDetailDataSource;
-    ArrayList<GHS> ghsArrayList;
-    ArrayList<PPE> ppeArrayList;
-    boolean isOffline = false;
-    boolean isActivityStarted = false;
-    //endregion
 
-    JobDetailDataSource jobDetailDataSource;
-    public SharedPreferences sharedPref;
+    //header
+    @BindView(R.id.header_job_main)
+    LinearLayout mLinearLayoutHeader;
+    @BindView(R.id.text_header)
+    TextView mTextViewHeader;
+    @BindView(R.id.text_job_id)
+    TextView mTextViewJobID;
+    @BindView(R.id.text_customer_name)
+    TextView mTextViewCustomerName;
+    @BindView(R.id.text_loading_bay)
+    TextView mTextViewLoadingBay;
+    @BindView(R.id.text_loading_arm)
+    TextView mTextViewLoadingArm;
+
+    //content
+    @BindView(R.id.button_ppe)
+    Button mButtonPPE;
+    @BindView(R.id.button_sds)
+    Button mButtonSDS;
+    @BindView(R.id.button_scan_details)
+    Button mButtonScanDetails;
+    @BindView(R.id.button_safety_checks)
+    Button mButtonSafetyChecks;
+
+    //footer
+    @BindView(R.id.footer_job_main)
+    LinearLayout mLinearLayoutFooter;
+    @BindView(R.id.button_home)
+    ImageButton mImageButtonHome;
+    @BindView(R.id.button_search)
+    ImageButton mImageButtonSearch;
+    @BindView(R.id.button_switch)
+    ImageButton mImageButtonSwitch;
+    @BindView(R.id.button_settings)
+    ImageButton mImageButtonSettings;
+
+    Realm realm;
+    LoadingBayDetail loadingBayDetail;
+    PopupMenu popupMenu;
+    Dialog exitDialog, scanPPEDialog, safetyChecksDialog;
+    SharedPreferences sharedPref;
+    boolean isActivityStarted = false;
+
+    //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +100,8 @@ public class JobMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_job_main);
 
+        ButterKnife.bind(this);
+        realm = Realm.getDefaultInstance();
         sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
         //region Header and Footer
@@ -86,185 +109,203 @@ public class JobMainActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        /*-------- Set User Login Details --------*/
-        setUserLoginDetails();
-
-        /*-------- footer buttons --------*/
-        setFooterMenu();
-        //endregion
-
-        //region button PPE
-        btnPPE = (Button) findViewById(R.id.btnScanPPE);
-        btnPPE.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (Common.isNetworkAvailable(getApplicationContext())) {
-
-                    isOffline = false;
-
-                    PPEWSAsync task = new PPEWSAsync(JobMainActivity.this, isOffline, btnPPE, sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
-                    task.execute();
-
-                } else {
-
-                    isOffline = true;
-
-                    ppeDetailDataSource = new PPEDetailDataSource(getApplicationContext());
-                    ppeArrayList = new ArrayList<>();
-                    ppeDetailDataSource.open();
-                    ppeArrayList = ppeDetailDataSource.retrievePPE(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                    ppeDetailDataSource.close();
-
-                    ghsDetailDataSource = new GHSDetailDataSource(getApplicationContext());
-                    ghsArrayList = new ArrayList<>();
-                    ghsDetailDataSource.open();
-                    ghsArrayList = ghsDetailDataSource.retrieveGHS(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                    ghsDetailDataSource.close();
-
-                    ppeDialog(isOffline, ppeArrayList, ghsArrayList);
-                }
-
-            }
-        });
-        //endregion
-
-        //region button SDS
-        btnSDS = (Button) findViewById(R.id.btnSDS);
-        btnSDS.setEnabled(false);
-        btnSDS.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (Common.isNetworkAvailable(getApplicationContext())) {
-
-                    btnScanDetails.setEnabled(true);
-
-                    SDSWSAsync task = new SDSWSAsync(JobMainActivity.this, btnSDS, sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                    task.execute();
-
-                } else {
-
-                    //update job status
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, Constant.STATUS_SDS).apply();
-
-                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-                    jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), Constant.STATUS_SDS);
-                    jobDetailDataSource.close();
-
-                    Intent intent = new Intent(getApplicationContext(), JobMainActivity.class);
-                    isActivityStarted = true;
-                    startActivity(intent);
-
-                    shortToast(getApplicationContext(), "No Internet Connection");
-                }
-            }
-        });
-        //endregion
-
-        //region button scan details
-        btnScanDetails = (Button) findViewById(R.id.btnScanDetails);
-        btnScanDetails.setEnabled(false);
-        btnScanDetails.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                Intent intent = new Intent(getApplicationContext(), ScanDetailsActivity.class);
-                isActivityStarted = true;
-                startActivity(intent);
-            }
-        });
-        //endregion
-
-        //region button safety checks onclick
-        btnSafetyCheck = (Button) findViewById(R.id.btnSafetyCheck);
-        btnSafetyCheck.setEnabled(false);
-        btnSafetyCheck.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                safetyChecks();
-            }
-        });
-        //endregion
+        //header
+        mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
+        mTextViewJobID.setText(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+        mTextViewCustomerName.setText(sharedPref.getString(SHARED_PREF_CUSTOMER_NAME, ""));
+        mTextViewLoadingBay.setText(sharedPref.getString(SHARED_PREF_LOADING_BAY, ""));
+        mTextViewLoadingArm.setText(sharedPref.getString(SHARED_PREF_LOADING_ARM, ""));
 
         //region status settings
 
         //retrieve job status from shared preferences
-        jobStatus = sharedPref.getString(SHARED_PREF_JOB_STATUS, "");
-
-        switch (jobStatus) {
+        switch (sharedPref.getString(SHARED_PREF_JOB_STATUS, "")) {
 
             case STATUS_PENDING:
-                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnPPE.getBackground().clearColorFilter();
+                mButtonPPE.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonPPE.getBackground().clearColorFilter();
 
-                btnSDS.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnSDS.getBackground().clearColorFilter();
+                mButtonSDS.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonSDS.getBackground().clearColorFilter();
 
-                btnScanDetails.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnScanDetails.getBackground().clearColorFilter();
+                mButtonScanDetails.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonScanDetails.getBackground().clearColorFilter();
 
-                btnSafetyCheck.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnSafetyCheck.getBackground().clearColorFilter();
+                mButtonSafetyChecks.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonSafetyChecks.getBackground().clearColorFilter();
                 break;
 
             case STATUS_PPE:
-                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                btnSDS.setEnabled(true);
+                mButtonSDS.setEnabled(true);
                 break;
 
             case STATUS_SDS:
-                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                btnSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnSDS.setEnabled(true);
+                mButtonSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonSDS.setEnabled(true);
 
-                btnScanDetails.setEnabled(true);
+                mButtonScanDetails.setEnabled(true);
                 break;
 
             case STATUS_WORK_INSTRUCTION:
-                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                btnSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnSDS.setEnabled(true);
+                mButtonSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonSDS.setEnabled(true);
 
-                btnScanDetails.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanDetails.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnScanDetails.setEnabled(true);
+                mButtonScanDetails.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonScanDetails.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonScanDetails.setEnabled(true);
 
-                btnSafetyCheck.setEnabled(true);
+                mButtonSafetyChecks.setEnabled(true);
                 break;
 
             default:
-                btnPPE.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnPPE.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-
-                btnSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-
-                btnScanDetails.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanDetails.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-
-                btnSafetyCheck.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnSafetyCheck.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
                 break;
         }
         //endregion
     }
 
-    public void ppeDialog(boolean isOffline, ArrayList<PPE> ppeArrayList, ArrayList<GHS> ghsArrayList) {
+    @OnClick(R.id.button_ppe)
+    public void btnPPE() {
 
-        if (scanPPEDialog != null && scanPPEDialog.isShowing())
-            return;
+        if (isNetworkAvailable(getApplicationContext())) {
+
+            //retrieve from web service
+            new PPEWSAsync(sharedPref.getString(SHARED_PREF_PRODUCT_NAME, "")).execute();
+
+        } else {
+
+            //retrieve from local database
+            if (realm.where(PPEDetail.class).equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0 ||
+                    realm.where(GHSDetail.class).equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
+
+                //retrieve from local database
+                productPpeOfflineDialog();
+
+            } else {
+
+                //display alert dialog
+                alertDialog(NO_PPE, NO_PPE_MESSAGE);
+            }
+        }
+    }
+
+    @OnClick(R.id.button_sds)
+    public void btnSDS() {
+
+        if (isNetworkAvailable(getApplicationContext())) {
+
+            //retrieve from web service
+            new SDSWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, "")).execute();
+
+        } else {
+
+            //update job status
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SDS).apply();
+
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    JobDetail jobDetail = new JobDetail();
+                    jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                    jobDetail.setJobStatus(STATUS_SDS);
+
+                    realm.copyToRealmOrUpdate(jobDetail);
+                }
+            });
+
+            //set button sds
+            mButtonSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+            mButtonSDS.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+            mButtonScanDetails.setEnabled(true);
+
+            shortToast(getApplicationContext(), "No Internet Connection");
+        }
+    }
+
+    @OnClick(R.id.button_scan_details)
+    public void btnScanDetails() {
+
+        Intent intent = new Intent(this, ScanDetailsActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.button_safety_checks)
+    public void btnSafetyChecks() {
+
+        safetyChecks();
+    }
+
+    //region Product PPE
+
+    //region retrieve ppe
+    private class PPEWSAsync extends AsyncTask<String, Void, Void> {
+
+        ArrayList<PPEDetail> ppeArrayList;
+        ArrayList<GHSDetail> ghsArrayList;
+        String productName;
+        ProgressDialog progressDialog;
+
+        private PPEWSAsync(String productName) {
+
+            this.productName = productName;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            ppeArrayList = PPEWS.invokeRetrievePPEWS(productName);
+            ghsArrayList = GHSWS.invokeRetrieveGHSWS(productName);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (ppeArrayList.size() > 0 || ghsArrayList.size() > 0) {
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                ppeDialog(ppeArrayList, ghsArrayList);
+
+            } else {
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //display alert dialog
+                alertDialog(NO_PPE, NO_PPE_MESSAGE);
+            }
+        }
+    }
+    //endregion
+
+    //region product ppe dialog
+    private void ppeDialog(ArrayList<PPEDetail> ppeArrayList, ArrayList<GHSDetail> ghsArrayList) {
+
+        //region initial dialog
+        if (scanPPEDialog != null && scanPPEDialog.isShowing()) return;
 
         scanPPEDialog = new Dialog(this);
         scanPPEDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -272,353 +313,136 @@ public class JobMainActivity extends AppCompatActivity {
 
         LinearLayout linearLayoutPPE = (LinearLayout) scanPPEDialog.findViewById(R.id.linearLayoutPPE);
         LinearLayout linearLayoutGHS = (LinearLayout) scanPPEDialog.findViewById(R.id.linearLayoutGHS);
-        TextView tvPPEProductName = (TextView) scanPPEDialog.findViewById(R.id.tvPPEProductName);
-        final RadioButton rbtnHandleProduct = (RadioButton) scanPPEDialog.findViewById(R.id.rbtnHandleProduct);
-        final RadioButton rbtnHavePPE = (RadioButton) scanPPEDialog.findViewById(R.id.rbtnHavePPE);
+        TextView mTextViewProductName = (TextView) scanPPEDialog.findViewById(R.id.text_product_name);
+        final RadioButton mRadioButtonGHS = (RadioButton) scanPPEDialog.findViewById(R.id.radio_ghs);
+        final RadioButton mRadioButtonPPE = (RadioButton) scanPPEDialog.findViewById(R.id.radio_ppe);
+        //endregion
 
         //set product name
-        tvPPEProductName.setText(sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
+        mTextViewProductName.setText(sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
 
         //region set radio button status
         if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_PENDING)) {
 
-            rbtnHandleProduct.setChecked(false);
-            rbtnHavePPE.setChecked(false);
+            mRadioButtonGHS.setChecked(false);
+            mRadioButtonPPE.setChecked(false);
 
         } else {
 
-            rbtnHandleProduct.setChecked(true);
-            rbtnHavePPE.setChecked(true);
+            mRadioButtonGHS.setChecked(true);
+            mRadioButtonPPE.setChecked(true);
         }
         //endregion
 
-        if (isOffline) {
-
-            //region ppe and ghs picture setup
-
-            int totalLinearLayoutGHS = (int) Math.ceil(ghsArrayList.size() / 4.0);
-            int totalLinearLayoutPPE = (int) Math.ceil(ppeArrayList.size() / 4.0);
-            int imagePerRow = 4;
-            int countGHS = 0;
-            int countPPE = 0;
-            int countLinearLayoutGHS = 0;
-            int countLinearLayoutPPE = 0;
-            linearLayoutArrayGHS = new ArrayList<>();
-            linearLayoutArrayPPE = new ArrayList<>();
-
-            //region ghs
-            for (int i = 0; i < totalLinearLayoutGHS; i++) {
-
-                LinearLayout linearLayout = new LinearLayout(this);
-                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                linearLayout.setGravity(Gravity.START);
-                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-                linearLayoutArrayGHS.add(linearLayout);
-
-                linearLayoutGHS.addView(linearLayoutArrayGHS.get(i));
-            }
-
-            for (int j = 0; j < ghsArrayList.size(); j++) {
-
-                ImageView image = new ImageView(this);
-
-                switch (ghsArrayList.get(j).getGhsPictureURL()) {
-
-                    case "1":
-                        Picasso.with(this)
-                                .load(R.drawable.acute_toxicity)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "2":
-                        Picasso.with(this)
-                                .load(R.drawable.aspiration_toxicity)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "3":
-                        Picasso.with(this)
-                                .load(R.drawable.corrosive)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "4":
-                        Picasso.with(this)
-                                .load(R.drawable.environment_toxicity)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "5":
-                        Picasso.with(this)
-                                .load(R.drawable.explosive)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "6":
-                        Picasso.with(this)
-                                .load(R.drawable.flammable)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "7":
-                        Picasso.with(this)
-                                .load(R.drawable.gases_under_pressure)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "8":
-                        Picasso.with(this)
-                                .load(R.drawable.irritant)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "9":
-                        Picasso.with(this)
-                                .load(R.drawable.oxidiser)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    default:
-                        break;
-                }
-
-                linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
-
-                countGHS++;
-
-                if ((countGHS % imagePerRow) == 0) {
-
-                    countLinearLayoutGHS++;
-                }
-            }
-            //endregion
-
-            //region ppe
-            for (int i = 0; i < totalLinearLayoutPPE; i++) {
-
-                LinearLayout linearLayout = new LinearLayout(this);
-                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                linearLayout.setGravity(Gravity.START);
-                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-                linearLayoutArrayPPE.add(linearLayout);
-
-                linearLayoutPPE.addView(linearLayoutArrayPPE.get(i));
-            }
-
-            for (int j = 0; j < ppeArrayList.size(); j++) {
-
-                ImageView image = new ImageView(this);
-
-                switch (ppeArrayList.get(j).getPpePictureURL()) {
-
-                    case "1":
-                        Picasso.with(this)
-                                .load(R.drawable.ear_protection)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "2":
-                        Picasso.with(this)
-                                .load(R.drawable.face_shield)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "3":
-                        Picasso.with(this)
-                                .load(R.drawable.foot_protection)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "4":
-                        Picasso.with(this)
-                                .load(R.drawable.hand_protection)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "5":
-                        Picasso.with(this)
-                                .load(R.drawable.head_protection)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "6":
-                        Picasso.with(this)
-                                .load(R.drawable.mandatory_instruction)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "7":
-                        Picasso.with(this)
-                                .load(R.drawable.pedestrian_route)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "8":
-                        Picasso.with(this)
-                                .load(R.drawable.protective_clothing)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "9":
-                        Picasso.with(this)
-                                .load(R.drawable.respirator)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "10":
-                        Picasso.with(this)
-                                .load(R.drawable.safety_glasses)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    case "11":
-                        Picasso.with(this)
-                                .load(R.drawable.safety_harness)
-                                .resize(100, 100)
-                                .into(image);
-                        break;
-
-                    default:
-                        break;
-                }
-
-                linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
-
-                countPPE++;
-
-                if ((countPPE % imagePerRow) == 0) {
-
-                    countLinearLayoutPPE++;
-                }
-            }
-            //endregion
-
-            //endregion
-
-        } else {
-
-            //region ppe and ghs picture setup
-
-            int totalLinearLayoutGHS = (int) Math.ceil(ghsArrayList.size() / 4.0);
-            int totalLinearLayoutPPE = (int) Math.ceil(ppeArrayList.size() / 4.0);
-            int imagePerRow = 4;
-            int countGHS = 0;
-            int countPPE = 0;
-            int countLinearLayoutGHS = 0;
-            int countLinearLayoutPPE = 0;
-            linearLayoutArrayGHS = new ArrayList<>();
-            linearLayoutArrayPPE = new ArrayList<>();
-
-            //region ghs
-            for (int i = 0; i < totalLinearLayoutGHS; i++) {
-
-                LinearLayout linearLayout = new LinearLayout(this);
-                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                linearLayout.setGravity(Gravity.START);
-                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-                linearLayoutArrayGHS.add(linearLayout);
-
-                linearLayoutGHS.addView(linearLayoutArrayGHS.get(i));
-            }
-
-            for (int j = 0; j < ghsArrayList.size(); j++) {
-
-                ImageView image = new ImageView(this);
-                String ghsPictureUrl = GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsPictureURL();
-                Picasso.with(this)
-                        .load(ghsPictureUrl)
-                        .resize(100, 100)
-                        .into(image);
-
-                linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
-
-                countGHS++;
-
-                if ((countGHS % imagePerRow) == 0) {
-
-                    countLinearLayoutGHS++;
-                }
-            }
-            //endregion
-
-            //region ppe
-            for (int i = 0; i < totalLinearLayoutPPE; i++) {
-
-                LinearLayout linearLayout = new LinearLayout(this);
-                linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                linearLayout.setGravity(Gravity.START);
-                linearLayout.setOrientation(LinearLayout.HORIZONTAL);
-                linearLayoutArrayPPE.add(linearLayout);
-
-                linearLayoutPPE.addView(linearLayoutArrayPPE.get(i));
-            }
-
-            for (int j = 0; j < ppeArrayList.size(); j++) {
-
-                ImageView image = new ImageView(this);
-                String ppePictureUrl = PPE_FILE_LOCATION + ppeArrayList.get(j).getPpePictureURL();
-                Picasso.with(this)
-                        .load(ppePictureUrl)
-                        .resize(100, 100)
-                        .into(image);
-
-                linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
-
-                countPPE++;
-
-                if ((countPPE % imagePerRow) == 0) {
-
-                    countLinearLayoutPPE++;
-                }
-            }
-            //endregion
-
-            //endregion
+        //region display ghs & ppe
+        int imagePerRow = 4;
+
+        //region ghs
+        int totalLinearLayoutGHS = (int) Math.ceil(ghsArrayList.size() / 4.0);
+        int countGHS = 0;
+        int countLinearLayoutGHS = 0;
+        ArrayList<LinearLayout> linearLayoutArrayGHS = new ArrayList<>();
+
+        for (int i = 0; i < totalLinearLayoutGHS; i++) {
+
+            LinearLayout linearLayout = new LinearLayout(this);
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            linearLayout.setGravity(Gravity.START);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayoutArrayGHS.add(linearLayout);
+
+            linearLayoutGHS.addView(linearLayoutArrayGHS.get(i));
         }
 
+        for (int j = 0; j < ghsArrayList.size(); j++) {
+
+            ImageView image = new ImageView(this);
+            String ghsPictureUrl = GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsURL();
+            Picasso.with(this)
+                    .load(ghsPictureUrl)
+                    .resize(100, 100)
+                    .into(image);
+
+            linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
+
+            countGHS++;
+
+            if ((countGHS % imagePerRow) == 0) {
+
+                countLinearLayoutGHS++;
+            }
+        }
+        //endregion
+
+        //region ppe
+        int totalLinearLayoutPPE = (int) Math.ceil(ppeArrayList.size() / 4.0);
+        int countPPE = 0;
+        int countLinearLayoutPPE = 0;
+        ArrayList<LinearLayout> linearLayoutArrayPPE = new ArrayList<>();
+
+        for (int i = 0; i < totalLinearLayoutPPE; i++) {
+
+            LinearLayout linearLayout = new LinearLayout(this);
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            linearLayout.setGravity(Gravity.START);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayoutArrayPPE.add(linearLayout);
+
+            linearLayoutPPE.addView(linearLayoutArrayPPE.get(i));
+        }
+
+        for (int j = 0; j < ppeArrayList.size(); j++) {
+
+            ImageView image = new ImageView(this);
+            String ppePictureUrl = PPE_FILE_LOCATION + ppeArrayList.get(j).getPpeURL();
+            Picasso.with(this)
+                    .load(ppePictureUrl)
+                    .resize(100, 100)
+                    .into(image);
+
+            linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
+
+            countPPE++;
+
+            if ((countPPE % imagePerRow) == 0) {
+
+                countLinearLayoutPPE++;
+            }
+        }
+        //endregion
+        //endregion
+
         //region button confirm
-        Button btnConfirm = (Button) scanPPEDialog.findViewById(R.id.btnConfirm);
+        Button btnConfirm = (Button) scanPPEDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 SharedPreferences.Editor editor = sharedPref.edit();
 
-                if (rbtnHandleProduct.isChecked() && rbtnHavePPE.isChecked()) {
+                if (mRadioButtonGHS.isChecked() && mRadioButtonPPE.isChecked()) {
 
-                    //region set job status
-                    editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_PPE).apply();
+                    //region update job status
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PPE).apply();
 
-                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-                    jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
-                    jobDetailDataSource.close();
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+
+                            JobDetail jobDetail = new JobDetail();
+                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            jobDetail.setJobStatus(STATUS_PPE);
+
+                            realm.copyToRealmOrUpdate(jobDetail);
+                        }
+                    });
                     //endregion
 
-                    scanPPEDialog.dismiss();
+                    mButtonPPE.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                    mButtonPPE.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                    mButtonSDS.setEnabled(true);
 
-                    Intent intent = getIntent();
-                    isActivityStarted = true;
-                    startActivity(intent);
+                    scanPPEDialog.dismiss();
 
                 } else {
 
@@ -629,7 +453,7 @@ public class JobMainActivity extends AppCompatActivity {
         //endregion
 
         //region button cancel
-        Button btnCancel = (Button) scanPPEDialog.findViewById(R.id.btnCancel);
+        Button btnCancel = (Button) scanPPEDialog.findViewById(R.id.button_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -648,70 +472,474 @@ public class JobMainActivity extends AppCompatActivity {
         scanPPEDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         scanPPEDialog.show();
     }
+    //endregion
 
-    public void safetyChecks() {
+    //region product ppe offline dialog
+    private void productPpeOfflineDialog() {
 
-        if (safetyChecksDialog != null && safetyChecksDialog.isShowing())
-            return;
+        //region initial dialog
+        if (scanPPEDialog != null && scanPPEDialog.isShowing()) return;
 
-        safetyChecksDialog = new Dialog(this);
-        safetyChecksDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        safetyChecksDialog.setContentView(R.layout.dialog_driver_safety_check_vehicle);
+        scanPPEDialog = new Dialog(this);
+        scanPPEDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        scanPPEDialog.setContentView(R.layout.dialog_driver_safety_check_ppe);
 
-        final RadioButton rbtnWheelChocked = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnWheelChocked);
-        final RadioButton rbtnBondingWire = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnBondingWire);
+        LinearLayout linearLayoutPPE = (LinearLayout) scanPPEDialog.findViewById(R.id.linearLayoutPPE);
+        LinearLayout linearLayoutGHS = (LinearLayout) scanPPEDialog.findViewById(R.id.linearLayoutGHS);
+        TextView mTextViewProductName = (TextView) scanPPEDialog.findViewById(R.id.text_product_name);
+        final RadioButton mRadioButtonGHS = (RadioButton) scanPPEDialog.findViewById(R.id.radio_ghs);
+        final RadioButton mRadioButtonPPE = (RadioButton) scanPPEDialog.findViewById(R.id.radio_ppe);
+        //endregion
+
+        //set product name
+        mTextViewProductName.setText(sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
 
         //region set radio button status
-        if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_SAFETY_CHECKS)) {
+        if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_PENDING)) {
 
-            rbtnWheelChocked.setChecked(true);
-            rbtnBondingWire.setChecked(true);
+            mRadioButtonGHS.setChecked(false);
+            mRadioButtonPPE.setChecked(false);
 
         } else {
 
-            rbtnWheelChocked.setChecked(false);
-            rbtnBondingWire.setChecked(false);
+            mRadioButtonGHS.setChecked(true);
+            mRadioButtonPPE.setChecked(true);
         }
         //endregion
 
+        //region display ghs & ppe
+        int imagePerRow = 4;
+
+        //region ghs
+        int totalLinearLayoutGHS = (int) Math.ceil(realm.where(GHSDetail.class).equalTo("jobID", SHARED_PREF_JOB_ID).count() / 4.0);
+        int countGHS = 0;
+        int countLinearLayoutGHS = 0;
+        ArrayList<LinearLayout> linearLayoutArrayGHS = new ArrayList<>();
+
+        for (int i=0; i<totalLinearLayoutGHS; i++) {
+
+            LinearLayout linearLayout = new LinearLayout(this);
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            linearLayout.setGravity(Gravity.START);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayoutArrayGHS.add(linearLayout);
+
+            linearLayoutGHS.addView(linearLayoutArrayGHS.get(i));
+        }
+
+        for (GHSDetail results : realm.where(GHSDetail.class).equalTo("jobID", SHARED_PREF_JOB_ID).findAll()) {
+
+            ImageView image = new ImageView(this);
+
+            switch (results.getGhsName()) {
+
+                case "AcuteToxicity":
+                    Picasso.with(this)
+                            .load(R.drawable.acute_toxicity)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "AspirationToxicity":
+                    Picasso.with(this)
+                            .load(R.drawable.aspiration_toxicity)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "Corrosive":
+                    Picasso.with(this)
+                            .load(R.drawable.corrosive)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "EnvironmentToxicity":
+                    Picasso.with(this)
+                            .load(R.drawable.environment_toxicity)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "Explosive":
+                    Picasso.with(this)
+                            .load(R.drawable.explosive)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "Flammable":
+                    Picasso.with(this)
+                            .load(R.drawable.flammable)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "GasesUnderPressure":
+                    Picasso.with(this)
+                            .load(R.drawable.gases_under_pressure)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "Irritant":
+                    Picasso.with(this)
+                            .load(R.drawable.irritant)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "Oxidiser":
+                    Picasso.with(this)
+                            .load(R.drawable.oxidiser)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                default:
+                    break;
+            }
+
+            linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
+
+            countGHS++;
+
+            if ((countGHS % imagePerRow) == 0) {
+
+                countLinearLayoutGHS++;
+            }
+        }
+        //endregion
+
+        //region ppe
+        int totalLinearLayoutPPE = (int) Math.ceil(realm.where(PPEDetail.class).equalTo("jobID", SHARED_PREF_JOB_ID).count() / 4.0);
+        int countPPE = 0;
+        int countLinearLayoutPPE = 0;
+        ArrayList<LinearLayout> linearLayoutArrayPPE = new ArrayList<>();
+
+        for (int i = 0; i < totalLinearLayoutPPE; i++) {
+
+            LinearLayout linearLayout = new LinearLayout(this);
+            linearLayout.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+            linearLayout.setGravity(Gravity.START);
+            linearLayout.setOrientation(LinearLayout.HORIZONTAL);
+            linearLayoutArrayPPE.add(linearLayout);
+
+            linearLayoutPPE.addView(linearLayoutArrayPPE.get(i));
+        }
+
+        for (PPEDetail results : realm.where(PPEDetail.class).equalTo("jobID", SHARED_PREF_JOB_ID).findAll()) {
+
+            ImageView image = new ImageView(this);
+
+            switch (results.getPpeName()) {
+
+                case "ear_protection":
+                    Picasso.with(this)
+                            .load(R.drawable.ear_protection)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "face_shield":
+                    Picasso.with(this)
+                            .load(R.drawable.face_shield)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "foot_protection":
+                    Picasso.with(this)
+                            .load(R.drawable.foot_protection)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "hand_protection":
+                    Picasso.with(this)
+                            .load(R.drawable.hand_protection)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "head_protection":
+                    Picasso.with(this)
+                            .load(R.drawable.head_protection)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "mandatory_instruction":
+                    Picasso.with(this)
+                            .load(R.drawable.mandatory_instruction)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "pedestrian_route":
+                    Picasso.with(this)
+                            .load(R.drawable.pedestrian_route)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "protective_clothing":
+                    Picasso.with(this)
+                            .load(R.drawable.protective_clothing)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "respirator":
+                    Picasso.with(this)
+                            .load(R.drawable.respirator)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "safety_glasses":
+                    Picasso.with(this)
+                            .load(R.drawable.safety_glasses)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                case "safety_harness":
+                    Picasso.with(this)
+                            .load(R.drawable.safety_harness)
+                            .resize(100, 100)
+                            .into(image);
+                    break;
+
+                default:
+                    break;
+            }
+
+            linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
+
+            countPPE++;
+
+            if ((countPPE % imagePerRow) == 0) {
+
+                countLinearLayoutPPE++;
+            }
+        }
+        //endregion
+        //endregion
+
         //region button confirm
-        Button btnConfirm = (Button) safetyChecksDialog.findViewById(R.id.btnConfirm);
+        Button btnConfirm = (Button) scanPPEDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 SharedPreferences.Editor editor = sharedPref.edit();
 
-                if (rbtnWheelChocked.isChecked() && rbtnBondingWire.isChecked()) {
+                if (mRadioButtonGHS.isChecked() && mRadioButtonPPE.isChecked()) {
 
-                    //region set job status
-                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SAFETY_CHECKS).apply();
+                    //region update job status
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PPE).apply();
 
-                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-                    jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SAFETY_CHECKS);
-                    jobDetailDataSource.close();
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+
+                            JobDetail jobDetail = new JobDetail();
+                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            jobDetail.setJobStatus(STATUS_PPE);
+
+                            realm.copyToRealmOrUpdate(jobDetail);
+                        }
+                    });
                     //endregion
 
-                    safetyChecksDialog.dismiss();
+                    mButtonPPE.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                    mButtonPPE.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                    mButtonSDS.setEnabled(true);
 
-                    Intent intent = new Intent(getApplicationContext(), LoadingOperationActivity.class);
-                    isActivityStarted = true;
-                    startActivity(intent);
+                    scanPPEDialog.dismiss();
 
                 } else {
 
-                    shortToast(getApplicationContext(), "Please Answer All The Question");
+                    shortToast(getApplicationContext(), ERR_MSG_CHECK_PPE);
                 }
             }
         });
         //endregion
 
         //region button cancel
-        Button btnCancel = (Button) safetyChecksDialog.findViewById(R.id.btnCancel);
+        Button btnCancel = (Button) scanPPEDialog.findViewById(R.id.button_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                scanPPEDialog.dismiss();
+            }
+        });
+        //endregion
+
+        int dividerId = scanPPEDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
+        View divider = scanPPEDialog.findViewById(dividerId);
+        if (divider != null) {
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
+        }
+        assert scanPPEDialog.getWindow() != null;
+        scanPPEDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        scanPPEDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        scanPPEDialog.show();
+    }
+    //endregion
+
+    //endregion
+
+    //region SDS File
+    private class SDSWSAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID, sdsURL;
+        ProgressDialog progressDialog;
+
+        private SDSWSAsync(String jobID) {
+
+            this.jobID = jobID;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            sdsURL = SDSWS.invokeRetrieveSDSWS(jobID);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (!sdsURL.isEmpty()) {
+
+                //update job status
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SDS).apply();
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        JobDetail jobDetail = new JobDetail();
+                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                        jobDetail.setJobStatus(STATUS_SDS);
+
+                        realm.copyToRealmOrUpdate(jobDetail);
+                    }
+                });
+
+                //set button sds
+                mButtonSDS.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonSDS.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mButtonScanDetails.setEnabled(true);
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //open sds file in browser
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(SDS_FILE_LOCATION + sdsURL));
+                startActivity(browserIntent);
+
+            } else {
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //display alert dialog
+                alertDialog(NO_SDS, NO_SDS_MESSAGE);
+
+                mButtonSDS.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonSDS.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mButtonScanDetails.setEnabled(true);
+            }
+        }
+    }
+    //endregion
+
+    //region Safety Checks
+    public void safetyChecks() {
+
+        if (safetyChecksDialog != null && safetyChecksDialog.isShowing()) return;
+
+        safetyChecksDialog = new Dialog(this);
+        safetyChecksDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        safetyChecksDialog.setContentView(R.layout.dialog_driver_safety_check_vehicle);
+
+        final RadioButton mRadioButtonWheelChoked = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnWheelChocked);
+        final RadioButton mRadioButtonBondingWire = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnBondingWire);
+
+        //region set radio button status
+        if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_SAFETY_CHECKS)) {
+
+            mRadioButtonWheelChoked.setChecked(true);
+            mRadioButtonBondingWire.setChecked(true);
+
+        } else {
+
+            mRadioButtonWheelChoked.setChecked(false);
+            mRadioButtonBondingWire.setChecked(false);
+        }
+        //endregion
+
+        //region button confirm
+        Button btnConfirm = (Button) safetyChecksDialog.findViewById(R.id.button_confirm);
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                SharedPreferences.Editor editor = sharedPref.edit();
+
+                if (mRadioButtonWheelChoked.isChecked() && mRadioButtonBondingWire.isChecked()) {
+
+                    //region update job status
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SAFETY_CHECKS).apply();
+
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+
+                            JobDetail jobDetail = new JobDetail();
+                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            jobDetail.setJobStatus(STATUS_SAFETY_CHECKS);
+
+                            realm.copyToRealmOrUpdate(jobDetail);
+                        }
+                    });
+                    //endregion
+
+                    //close safety checks dialog
+                    safetyChecksDialog.dismiss();
+
+                    //navigate to loading operation activity
+                    Intent intent = new Intent(getApplicationContext(), LoadingOperationActivity.class);
+                    isActivityStarted = true;
+                    startActivity(intent);
+
+                } else {
+
+                    shortToast(getApplicationContext(), SAFETY_CHECKS_MESSAGE);
+                }
+            }
+        });
+        //endregion
+
+        //region button cancel
+        Button btnCancel = (Button) safetyChecksDialog.findViewById(R.id.button_cancel);
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //close safety checks dialog
                 safetyChecksDialog.dismiss();
             }
         });
@@ -727,115 +955,61 @@ public class JobMainActivity extends AppCompatActivity {
         safetyChecksDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         safetyChecksDialog.show();
     }
+    //endregion
 
-    //region Header
-    /*-------- Set User Login Details --------*/
-    public void setUserLoginDetails() {
+    //region alert dialog
+    private void alertDialog(String title, String message) {
 
-        headerLayout = (LinearLayout) findViewById(R.id.headerJobMain);
-        headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-        tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
-        tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
-        tv_loadingBay = (TextView) headerLayout.findViewById(R.id.tvBay);
-        tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
-
-        //retrieve shared preferences
-        welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
-        jobID = sharedPref.getString(Constant.SHARED_PREF_JOB_ID, "");
-        customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
-        loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
-        loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
-
-        headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
-        tv_jobID.setText(jobID);
-        tv_customerName.setText(customerName);
-        tv_loadingBay.setText(loadingArm);
-        tv_loadingArm.setText(loadingBay);
-
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        alertDialog.setTitle(title);
+        alertDialog.setMessage(message);
+        alertDialog.setIcon(R.drawable.ic_alert_circle_outline);
+        alertDialog.setPositiveButton(OK, null);
+        alertDialog.show();
     }
     //endregion
 
     //region Footer
-    public void setFooterMenu() {
-
-        footerLayout = (LinearLayout) findViewById(R.id.footer);
-
-        btnAlert = (ImageButton) footerLayout.findViewById(R.id.button_home);
-        btnAlert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnHomeClicked();
-            }
-        });
-
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.button_search);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSearchClicked();
-            }
-        });
-
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.button_switch);
-        btnSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSwitchClicked();
-            }
-        });
-
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.button_settings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSettingsClicked(view);
-            }
-        });
-    }
-
-    public void btnHomeClicked() {
+    @OnClick(R.id.button_home)
+    public void btnHome(View view) {
 
         Intent intent = new Intent(this, DashboardActivity.class);
         isActivityStarted = true;
         startActivity(intent);
     }
 
-    public void btnSearchClicked() {
+    @OnClick(R.id.button_search)
+    public void btnSearch(View view) {
 
         Intent intent = new Intent(this, SearchJobActivity.class);
         isActivityStarted = true;
         startActivity(intent);
     }
 
-    public void btnSwitchClicked() {
+    @OnClick(R.id.button_switch)
+    public void btnSwitch(View view) {
 
         Intent intent = new Intent(this, SwitchJobActivity.class);
         isActivityStarted = true;
         startActivity(intent);
     }
 
-    public void btnSettingsClicked(View view) {
+    @OnClick(R.id.button_settings)
+    public void btnSettings(View view) {
 
-        settingsMenuOptions(view);
-    }
-
-    public void settingsMenuOptions(View view) {
-
-        PopupMenu popup = new PopupMenu(this, view);
+        popupMenu = new PopupMenu(this, view);
 
         // This activity implements OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+
                 switch (item.getItemId()) {
+
                     case R.id.menu_check_in:
                         Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
                         isActivityStarted = true;
                         startActivity(intentCheckIn);
-                        return true;
-
-                    case R.id.menu_exit:
-                        exitApplication();
                         return true;
 
                     case R.id.menu_check_out:
@@ -850,52 +1024,65 @@ public class JobMainActivity extends AppCompatActivity {
                         startActivity(intentSyncData);
                         return true;
 
+                    case R.id.menu_exit:
+                        exitApplication();
+                        return true;
+
                     default:
                         return false;
                 }
             }
         });
-        popup.inflate(R.menu.settings_menu);
-        popup.show();
+        popupMenu.inflate(R.menu.settings_menu);
+        popupMenu.show();
     }
 
     public void exitApplication() {
 
-        if (exitDialog != null && exitDialog.isShowing())
-            return;
+        if (exitDialog != null && exitDialog.isShowing()) return;
 
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-        //region button confirm
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
+        // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-                //close exit dialog
-                exitDialog.dismiss();
 
                 //clear all shared preferences
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.clear().apply();
 
-                //delete all loading bay
-                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-                loadingBayDetailDataSource.deleteAllLoadingBay();
+                //check out all the loading bay
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
+
+                            loadingBayDetail = new LoadingBayDetail();
+                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+                            realm.copyToRealmOrUpdate(loadingBayDetail);
+                        }
+                    }
+                });
+
+                //close exit dialog
+                exitDialog.dismiss();
 
                 //clear all activity and start login activity
                 Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 isActivityStarted = true;
                 startActivity(intentLogin);
             }
         });
-        //endregion
 
-        //region button cancel
-        Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
+        Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -904,7 +1091,6 @@ public class JobMainActivity extends AppCompatActivity {
                 exitDialog.dismiss();
             }
         });
-        //endregion
 
         int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = exitDialog.findViewById(dividerId);
@@ -935,5 +1121,13 @@ public class JobMainActivity extends AppCompatActivity {
 
             finish();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        realm.close();
     }
 }

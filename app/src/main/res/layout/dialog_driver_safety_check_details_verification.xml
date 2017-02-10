@@ -5,58 +5,59 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/tvDetailsVerificationTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:gravity="center_horizontal"
-        android:text="DETAILS VERIFICATION"
+        android:textAlignment="center"
+        android:text="@string/detail_verification_title"
         android:textSize="@dimen/header_title_text"
         android:textStyle="bold"/>
 
     <Button
-        android:id="@+id/btnScanOperatorId"
+        android:id="@+id/button_operator_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
         android:layout_marginTop="@dimen/dialog_content_left_right_spacing"
-        android:text="OPERATOR ID"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/operator_id"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnOperatorID"/>
 
     <TextView
-        android:id="@+id/tvOperatorId"
+        android:id="@+id/text_operator_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:textSize="@dimen/default_app_text" />
 
     <Button
-        android:id="@+id/btnScanDriverId"
+        android:id="@+id/button_driver_id"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
-        android:text="DRIVER ID"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/driver_id"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnDriverID"
+        android:enabled="false"/>
 
     <TextView
-        android:id="@+id/tvDriverId"
+        android:id="@+id/text_driver_id"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:textSize="@dimen/default_app_text" />
 
     <Button
-        android:id="@+id/btnScanWorkInstruction"
+        android:id="@+id/button_work_instruction"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
-        android:text="WORK INSTRUCTION"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/work_instruction"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnWorkInstruction"
+        android:enabled="false"/>
 
 </LinearLayout>

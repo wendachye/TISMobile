@@ -28,7 +28,7 @@
             android:weightSum="1">
 
             <TextView
-                android:id="@+id/tvLoadingBayOrderId"
+                android:id="@+id/text_job_id"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -47,7 +47,7 @@
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayCustomer"
+                android:id="@+id/text_customer_name"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -66,7 +66,7 @@
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayProduct"
+                android:id="@+id/text_product_name"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -85,7 +85,7 @@
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayTankNo"
+                android:id="@+id/text_tank_no"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"

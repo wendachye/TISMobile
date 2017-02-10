@@ -73,12 +73,24 @@ public class Constant {
     public static String MSG_CUSTOMER_NAME_REQUIRED = "Customer Name is required";
     public static String MSG_ORDER_ID_NOT_FOUND = "Order ID not found.";
     public static String MSG_CUSTOMER_NAME_NOT_FOUND = "Customer Name not found.";
-    public static String ERR_MSG_CHECK_PPE = "Please check the PPE and GHS.";
+    public static String ERR_MSG_CHECK_PPE = "Please check the Product PPE.";
 
     /*--------Text Messages--------*/
     public static String LOADING_BAY_NO_CHECK_IN = "Check In";
     public static String LOADING_BAY_NO_CHECK_OUT = "Check Out";
     public static String TRUCK_BAY_CHECKED_OUT = " have been check-out.";
+    public static String NO_PPE = "NO PPE";
+    public static String NO_PPE_MESSAGE = "This product don't have PPE. Please contact the Safety Department.";
+    public static String NO_SDS = "NO SDS";
+    public static String NO_SDS_MESSAGE = "This product don't have SDS. Please contact the Safety Department.";
+    public static String OK = "OK";
+    public static String SAFETY_CHECKS_MESSAGE = "Please do the Safety Checks.";
+    public static String BATCH_CONTROLLER_MESSAGE = "Please fill in the Batch Controller Input.";
+    public static String DEPARTURE_MESSAGE = "Data stored in local due to no internet connection, please sync the data after the internet available.";
+    public static String ERR_MSG_DEPARTURE = "Fail to departure, please try again.";
+    public static String NO_DATA_SYNC = "No data to sync.";
+    public static String NO_INTERNET = "No Internet Connection.";
+    public static String SUCCESS_SYNC = "Data has been synced.";
 
     /*--------Barcode Scanner--------*/
     public static String SCAN_MSG_CANCEL_SCANNING = "Scanning is cancelled";

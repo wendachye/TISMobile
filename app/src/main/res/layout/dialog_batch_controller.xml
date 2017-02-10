@@ -15,13 +15,12 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvCheckInTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:paddingBottom="@dimen/dialog_header_title_text_spacing"
             android:paddingTop="@dimen/dialog_header_title_text_spacing"
-            android:text="BATCH CONTROLLER INPUT"
+            android:text="@string/batch_controller_input"
             android:textStyle="bold"
             android:textSize="@dimen/header_title_text" />
 
@@ -34,19 +33,19 @@
         android:background="@drawable/dialog_content_bg">
 
         <TextView
-            android:id="@+id/tvMetricTon"
+            android:id="@+id/text_metric_ton"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:layout_margin="@dimen/big_spacing"
             android:text="@string/prompt_metric_ton"
-            android:textSize="17sp"
+            android:textSize="@dimen/default_app_text"
             android:textAlignment="center"
             android:padding="@dimen/summary_spacing"
             android:background="@drawable/dialog_outline"
             android:maxLines="1"/>
 
         <EditText
-            android:id="@+id/etLitre"
+            android:id="@+id/edit_litre"
             android:layout_width="match_parent"
             android:layout_height="40dp"
             android:hint="@string/prompt_litre"
@@ -63,21 +62,21 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/btnCancel"
+                android:id="@+id/button_cancel"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="1"
-                android:text="Cancel"
+                android:text="@android:string/cancel"
                 android:textSize="@dimen/default_app_text" />
 
             <Button
-                android:id="@+id/btnConfirm"
+                android:id="@+id/button_confirm"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="1"
-                android:text="OK"
+                android:text="@android:string/ok"
                 android:textSize="@dimen/default_app_text" />
 
         </LinearLayout>

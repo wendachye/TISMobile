@@ -13,8 +13,6 @@ import android.text.method.TextKeyListener;
 import android.view.View;
 
 import com.bizconnectivity.tismobile.database.models.UserDetail;
-import com.bizconnectivity.tismobile.Common;
-import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.webservices.UserWS;
 import com.scottyab.aescrypt.AESCrypt;
@@ -26,13 +24,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
 
-import static com.bizconnectivity.tismobile.Common.shortToast;
-import static com.bizconnectivity.tismobile.Constant.ERR_MSG_LOGIN_INCORRECT;
-import static com.bizconnectivity.tismobile.Constant.KEY_ENCRYPT;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGIN_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
-import static com.bizconnectivity.tismobile.Constant.TEST_PASSWORD;
-import static com.bizconnectivity.tismobile.Constant.TEST_USERNAME;
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -96,19 +89,19 @@ public class LoginActivity extends AppCompatActivity {
 
 		if (TextUtils.isEmpty(username)) {
 
-			mEditTextUsername.setError(Constant.ERR_MSG_USERNAME_REQUIRED);
+			mEditTextUsername.setError(ERR_MSG_USERNAME_REQUIRED);
 			focusView = mEditTextUsername;
 			focusView.requestFocus();
 
 		} else if (TextUtils.isEmpty(password)) {
 
-			mEditTextPassword.setError(Constant.ERR_MSG_PASSWORD_REQUIRED);
+			mEditTextPassword.setError(ERR_MSG_PASSWORD_REQUIRED);
 			focusView = mEditTextPassword;
 			focusView.requestFocus();
 
 		} else {
 
-			if (Common.isNetworkAvailable(getApplicationContext())) {
+			if (isNetworkAvailable(getApplicationContext())) {
 
 				if (username.equals(TEST_USERNAME) && password.equals(TEST_PASSWORD)) {
 

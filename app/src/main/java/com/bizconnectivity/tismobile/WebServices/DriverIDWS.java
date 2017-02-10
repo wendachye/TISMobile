@@ -42,7 +42,7 @@ public class DriverIDWS {
 
 			if (envelope.bodyIn instanceof SoapFault) {
 
-				SoapFault response = (SoapFault) envelope.bodyIn;
+				returnResult = false;
 
 			} else {
 

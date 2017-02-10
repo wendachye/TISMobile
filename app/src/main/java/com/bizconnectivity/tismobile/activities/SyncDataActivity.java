@@ -24,10 +24,11 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.adapters.SyncDataAdapter;
-import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.SealDetailDataSource;
+import com.bizconnectivity.tismobile.database.models.GHSDetail;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
+import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
+import com.bizconnectivity.tismobile.database.models.PPEDetail;
+import com.bizconnectivity.tismobile.database.models.SealDetail;
 import com.bizconnectivity.tismobile.webservices.AddSealWS;
 import com.bizconnectivity.tismobile.webservices.DepartureWS;
 import com.bizconnectivity.tismobile.webservices.PumpStartWS;
@@ -35,26 +36,53 @@ import com.bizconnectivity.tismobile.webservices.PumpStopWS;
 
 import java.util.ArrayList;
 
-import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
-import static com.bizconnectivity.tismobile.Common.isNetworkAvailable;
-import static com.bizconnectivity.tismobile.Common.shortToast;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGIN_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmResults;
+
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapter.AdapterCallBack{
 
-	ImageButton btnHome, btnSearch, btnSwitch, btnSettings;
-	TextView headerMessage;
-	Dialog exitDialog;
-	RecyclerView recyclerView;
-	LinearLayout footerLayout;
-	LinearLayout headerLayout;
-	SharedPreferences sharedPref;
-	LoadingBayDetailDataSource loadingBayDetailDataSource;
-	JobDetailDataSource jobDetailDataSource;
+	//region declaration
+
+	//header
+	@BindView(R.id.header_sync)
+	LinearLayout mLinearLayoutHeader;
+	@BindView(R.id.text_header)
+	TextView mTextViewHeader;
+
+	//content
+	@BindView(R.id.recycler_view)
+	RecyclerView mRecyclerView;
+
+	//footer
+	@BindView(R.id.footer_sync)
+	LinearLayout mLinearLayoutFooter;
+	@BindView(R.id.button_home)
+	ImageButton mImageButtonHome;
+	@BindView(R.id.button_search)
+	ImageButton mImageButtonSearch;
+	@BindView(R.id.button_switch)
+	ImageButton mImageButtonSwitch;
+	@BindView(R.id.button_settings)
+	ImageButton mImageButtonSettings;
+
+	Realm realm;
+	RealmResults<JobDetail> jobDetailRealmResults;
+	LoadingBayDetail loadingBayDetail;
 	ArrayList<JobDetail> jobDetailArrayList;
+	Dialog exitDialog;
+	PopupMenu popupMenu;
 	SyncDataAdapter adapter;
+	SharedPreferences sharedPref;
 	boolean isActivityStarted = false;
+
+	//endregion
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -62,32 +90,50 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_sync_data);
 
+		ButterKnife.bind(this);
+		realm = Realm.getDefaultInstance();
 		sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-		//region Header and Footer
+		//action bar
 		assert getSupportActionBar() != null;
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        /*-------- Set User Login Details --------*/
-		setUserLoginDetails();
+        //header
+		mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
-        /*-------- Footer Buttons --------*/
-		setFooterMenu();
-		//endregion
-
+		//retrieve unsync data
+		jobDetailRealmResults = realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll();
 		jobDetailArrayList = new ArrayList<>();
-		jobDetailDataSource = new JobDetailDataSource(this);
-		jobDetailDataSource.open();
-		jobDetailArrayList = jobDetailDataSource.retrieveUnsyncJob();
-		jobDetailDataSource.close();
 
-		recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-		recyclerView.setLayoutManager(new LinearLayoutManager(this));
-		adapter = new SyncDataAdapter(this, jobDetailArrayList, R.layout.list_view_search_result, this);
-		recyclerView.setAdapter(adapter);
+		for (JobDetail results : jobDetailRealmResults) {
+
+			jobDetailArrayList.add(results);
+		}
+
+		//recycler view setup
+		mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+		adapter = new SyncDataAdapter(jobDetailArrayList, R.layout.list_view_search_result, this);
+		mRecyclerView.setAdapter(adapter);
+
+		//auto update unsync data
+		jobDetailRealmResults.addChangeListener(new RealmChangeListener<RealmResults<JobDetail>>() {
+			@Override
+			public void onChange(RealmResults<JobDetail> element) {
+
+				for (JobDetail results : jobDetailRealmResults) {
+
+					jobDetailArrayList.add(results);
+				}
+
+				mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+				adapter = new SyncDataAdapter(jobDetailArrayList, R.layout.list_view_search_result, SyncDataActivity.this);
+				mRecyclerView.setAdapter(adapter);
+			}
+		});
 	}
 
+	//region Menu
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -106,21 +152,18 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 			if (jobDetailArrayList.size() > 0) {
 
-				if (isNetworkAvailable(getApplicationContext())) {
+				if (isNetworkAvailable(this)) {
 
-					String updatedBy = sharedPref.getString(SHARED_PREF_LOGIN_NAME, "");
-
-					departureAsync task = new departureAsync(jobDetailArrayList, updatedBy);
-					task.execute();
+					new departureAsync(jobDetailArrayList, sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")).execute();
 
 				} else {
 
-					shortToast(getApplicationContext(), "No Internet Connection.");
+					shortToast(this, NO_INTERNET);
 				}
 
 			} else {
 
-				shortToast(this, "No data to sync.");
+				shortToast(this, NO_DATA_SYNC);
 			}
 
 			return true;
@@ -128,14 +171,14 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 		return super.onOptionsItemSelected(item);
 	}
+	//endregion
 
+	//region Sync Data
 	private class departureAsync extends AsyncTask<String, Void, Void> {
 
-		ProgressDialog progressDialog;
-		ArrayList<JobDetail> jobDetailArrayList ;
 		String updatedBy;
-		SealDetailDataSource sealDetailDataSource;
-		ArrayList<String> sealNo;
+		ArrayList<JobDetail> jobDetailArrayList ;
+		ProgressDialog progressDialog;
 
 		private departureAsync(ArrayList<JobDetail> jobDetailArrayList, String updatedBy) {
 
@@ -153,30 +196,47 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		@Override
 		protected Void doInBackground(String... params) {
 
-			for (int i=0; i<jobDetailArrayList.size(); i++) {
+			for (final JobDetail results : jobDetailArrayList) {
 
-				sealDetailDataSource = new SealDetailDataSource(getApplicationContext());
-				sealDetailDataSource.open();
-				sealNo = sealDetailDataSource.retrieveSealNo(jobDetailArrayList.get(i).getJobID());
-				sealDetailDataSource.close();
+				PumpStartWS.invokeUpdatePumpStartWS(results.getJobID(), results.getPumpStartTime(), updatedBy);
+				PumpStopWS.invokeUpdatePumpStopWS(results.getJobID(), results.getPumpStopTime(), updatedBy);
+				DepartureWS.invokeAddDepartureWS(results.getJobID(), results.getRackOutTime(), updatedBy);
 
-				AddSealWS.invokeAddSealWS2(sealNo, jobDetailArrayList.get(i).getJobID(), "bottom", updatedBy);
-				DepartureWS.invokeAddDepartureWS(jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getRackOutTime(), updatedBy);
-				PumpStartWS.invokeUpdatePumpStartWS(jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getPumpStartTime(), updatedBy);
-				PumpStopWS.invokeUpdatePumpStopWS(jobDetailArrayList.get(i).getJobID(), jobDetailArrayList.get(i).getPumpStopTime(), updatedBy);
+				for (SealDetail seals : realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).findAll()) {
 
-				jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-				jobDetailDataSource.open();
-				jobDetailDataSource.deleteFinishedJob(jobDetailArrayList.get(i).getJobID());
-				jobDetailDataSource.close();
+					AddSealWS.invokeAddSealWS(seals.getSealNo(), seals.getJobID(), "bottom", updatedBy);
+				}
+
+				//delete job ghs & ppe from local database
+				realm.executeTransaction(new Realm.Transaction() {
+					@Override
+					public void execute(Realm realm) {
+
+						realm.where(GHSDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
+						realm.where(PPEDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
+					}
+				});
 			}
 
+			//delete all finished job from local database
+			realm.executeTransaction(new Realm.Transaction() {
+				@Override
+				public void execute(Realm realm) {
+
+					realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll().deleteAllFromRealm();
+				}
+			});
+
+			//delete all seal from local database
+			realm.executeTransaction(new Realm.Transaction() {
+				@Override
+				public void execute(Realm realm) {
+
+					realm.where(SealDetail.class).findAll().deleteAllFromRealm();
+				}
+			});
+
 			return null;
-		}
-
-		@Override
-		protected void onProgressUpdate(Void... values) {
-
 		}
 
 		@Override
@@ -185,99 +245,44 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 			//close progress dialog
 			progressDialog.dismiss();
 
-			shortToast(getApplicationContext(), "Data has been synced.");
-
-			Intent intent = new Intent(getApplicationContext(), SyncDataActivity.class);
-			isActivityStarted = true;
-			startActivity(intent);
+			//display success message
+			shortToast(getApplicationContext(), SUCCESS_SYNC);
 		}
-	}
-
-	//region Header
-    /*-------- Set User Login Details --------*/
-	public void setUserLoginDetails() {
-
-		headerLayout = (LinearLayout) findViewById(R.id.headerResult);
-
-		headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-		headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 	}
 	//endregion
 
 	//region Footer
-	public void setFooterMenu() {
-
-		footerLayout = (LinearLayout) findViewById(R.id.footer);
-
-		btnHome = (ImageButton) footerLayout.findViewById(R.id.button_home);
-		btnHome.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				btnHomeClicked();
-			}
-		});
-
-		btnSearch = (ImageButton) footerLayout.findViewById(R.id.button_search);
-		btnSearch.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				btnSearchClicked();
-			}
-		});
-
-		btnSwitch = (ImageButton) footerLayout.findViewById(R.id.button_switch);
-		btnSwitch.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				btnSwitchClicked();
-			}
-		});
-
-		btnSettings = (ImageButton) footerLayout.findViewById(R.id.button_settings);
-		btnSettings.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				btnSettingsClicked(view);
-			}
-		});
-	}
-
-	public void btnSearchClicked() {
-
-		Intent intent = new Intent(this, SearchJobActivity.class);
-		isActivityStarted = true;
-		startActivity(intent);
-	}
-
-	public void btnHomeClicked() {
+	@OnClick(R.id.button_home)
+	public void btnHome(View view) {
 
 		Intent intent = new Intent(this, DashboardActivity.class);
 		isActivityStarted = true;
 		startActivity(intent);
 	}
 
-	public void btnSwitchClicked() {
+	@OnClick(R.id.button_search)
+	public void btnSearch(View view) {
+
+		Intent intent = new Intent(this, SearchJobActivity.class);
+		isActivityStarted = true;
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.button_switch)
+	public void btnSwitch(View view) {
 
 		Intent intent = new Intent(this, SwitchJobActivity.class);
 		isActivityStarted = true;
 		startActivity(intent);
 	}
 
-	public void btnSettingsClicked(View view) {
+	@OnClick(R.id.button_settings)
+	public void btnSettings(View view) {
 
-		settingsMenuOptions(view);
-	}
-
-	public void settingsMenuOptions(View view) {
-
-		PopupMenu popup = new PopupMenu(this, view);
+		popupMenu = new PopupMenu(this, view);
 
 		// This activity implements OnMenuItemClickListener
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+		popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 
@@ -287,10 +292,6 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 						Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
 						isActivityStarted = true;
 						startActivity(intentCheckIn);
-						return true;
-
-					case R.id.menu_exit:
-						exitApplication();
 						return true;
 
 					case R.id.menu_check_out:
@@ -305,61 +306,73 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 						startActivity(intentSyncData);
 						return true;
 
+					case R.id.menu_exit:
+						exitApplication();
+						return true;
+
 					default:
 						return false;
 				}
 			}
 		});
-		popup.inflate(R.menu.settings_menu);
-		popup.show();
+		popupMenu.inflate(R.menu.settings_menu);
+		popupMenu.show();
 	}
 
 	public void exitApplication() {
 
-		if (exitDialog != null && exitDialog.isShowing())
-			return;
+		if (exitDialog != null && exitDialog.isShowing()) return;
 
 		exitDialog = new Dialog(this);
 		exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		exitDialog.setContentView(R.layout.dialog_exit_app);
+		Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-		//region button confirm
-		Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
+		// if button is clicked, close the custom dialog
 		btnConfirm.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-
-				//close exit dialog
-				exitDialog.dismiss();
 
 				//clear all shared preferences
 				SharedPreferences.Editor editor = sharedPref.edit();
 				editor.clear().apply();
 
-				//delete all loading bay
-				loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-				loadingBayDetailDataSource.deleteAllLoadingBay();
+				//check out all loading bay
+				realm.executeTransaction(new Realm.Transaction() {
+					@Override
+					public void execute(Realm realm) {
+
+						for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
+
+							loadingBayDetail = new LoadingBayDetail();
+							loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+							loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+							realm.copyToRealmOrUpdate(loadingBayDetail);
+						}
+					}
+				});
+
+				//close exit dialog
+				exitDialog.dismiss();
 
 				//clear all activity and start login activity
 				Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-				intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				isActivityStarted = true;
 				startActivity(intentLogin);
 			}
 		});
-		//endregion
 
-		//region button cancel
-		Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
+		Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
+		// if button is clicked, close the custom dialog
 		btnCancel.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 
-				//close exit dialog
 				exitDialog.dismiss();
 			}
 		});
-		//endregion
 
 		int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
 		View divider = exitDialog.findViewById(dividerId);
@@ -371,12 +384,10 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
 		exitDialog.show();
 	}
+	//endregion
 
 	@Override
-	public void adapterOnClick(int adapterPosition) {
-
-	}
-	//endregion
+	public void adapterOnClick(int adapterPosition) {}
 
 	@Override
 	public void onBackPressed() {
@@ -393,5 +404,13 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 			finish();
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+
+		super.onDestroy();
+
+		realm.close();
 	}
 }

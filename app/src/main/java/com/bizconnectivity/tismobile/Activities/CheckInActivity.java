@@ -271,6 +271,7 @@ public class CheckInActivity extends AppCompatActivity {
     }
     //endregion
 
+    //region retrieve loading bay
     private class loadingBayAsync extends AsyncTask<String, Void, Void> {
 
         LoadingBayDetail loadingBayDetail;
@@ -354,7 +355,9 @@ public class CheckInActivity extends AppCompatActivity {
             }
         }
     }
+    //endregion
 
+    //region retrieve job details
     private class jobDetailsAsync extends AsyncTask<String, Void, Void> {
 
         String rackNo;
@@ -405,7 +408,9 @@ public class CheckInActivity extends AppCompatActivity {
             }
         }
     }
+    //endregion
 
+    //region retrieve ppe and ghs
     private class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 
         ArrayList<PPEDetail> ppeArrayList;
@@ -511,7 +516,9 @@ public class CheckInActivity extends AppCompatActivity {
             }
         }
     }
+    //endregion
 
+    //region retrieve seal
     private class sealNoAsync extends AsyncTask<String, Void, Void> {
 
         String jobID;
@@ -550,6 +557,7 @@ public class CheckInActivity extends AppCompatActivity {
             }
         }
     }
+    //endregion
 
     //region Footer
     @OnClick(R.id.button_home)
@@ -626,7 +634,7 @@ public class CheckInActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
@@ -642,18 +650,13 @@ public class CheckInActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
-                        loadingBayDetailResults = realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll();
+                        for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                        if (loadingBayDetailResults.size() > 0) {
+                            loadingBayDetail = new LoadingBayDetail();
+                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
-                            for (int i = 0; i < loadingBayDetailResults.size(); i++) {
-
-                                loadingBayDetail = new LoadingBayDetail();
-                                loadingBayDetail.setLoadingBayNo(loadingBayDetailResults.get(i).getLoadingBayNo());
-                                loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
-
-                                realm.copyToRealmOrUpdate(loadingBayDetail);
-                            }
+                            realm.copyToRealmOrUpdate(loadingBayDetail);
                         }
                     }
                 });
@@ -669,7 +672,7 @@ public class CheckInActivity extends AppCompatActivity {
             }
         });
 
-        Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
+        Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -698,7 +701,7 @@ public class CheckInActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onStop() {
+    protected void onStop() {
 
         super.onStop();
 

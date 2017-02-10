@@ -5,62 +5,64 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/tvLoadingOperationTitle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:gravity="center_horizontal"
-        android:text="LOADING OPERATION VERIFICATION"
+        android:text="@string/loading_operation_title"
         android:textStyle="bold"
+        android:textAlignment="center"
         android:textSize="@dimen/header_title_text" />
 
     <Button
-        android:id="@+id/btnScanLoadingArm"
+        android:id="@+id/button_scan_loading_arm"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
         android:layout_marginTop="@dimen/dialog_content_left_right_spacing"
-        android:text="SCAN LOADING ARM"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/scan_loading_arm"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnScanLoadingArm"/>
 
     <TextView
-        android:id="@+id/tvScanLoadingArm"
+        android:id="@+id/text_scan_loading_arm"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:textSize="@dimen/default_app_text" />
 
     <Button
-        android:id="@+id/btnBatchController"
+        android:id="@+id/button_batch_controller"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
-        android:text="BATCH CONTROLLER"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/batch_controller"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnBatchController"
+        android:enabled="false"/>
 
     <TextView
-        android:id="@+id/tvBatchController"
+        android:id="@+id/text_batch_controller"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:textSize="@dimen/default_app_text" />
 
     <Button
-        android:id="@+id/btnPumpStart"
+        android:id="@+id/button_pump_start"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
         android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
-        android:text="PUMP START"
-        android:textSize="@dimen/default_app_text" />
+        android:text="@string/pump_start"
+        android:textSize="@dimen/default_app_text"
+        android:onClick="btnPumpStart"
+        android:enabled="false"/>
 
     <TextView
-        android:id="@+id/tvPumpStart"
+        android:id="@+id/text_pump_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"

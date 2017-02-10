@@ -7,21 +7,23 @@ public class ConstantWS {
 
     /*--------BCPL Development Server--------*/
     public static String URL = "http://192.168.2.91/TISWS/MobileWebService.asmx";
-
-	/*--------BCPL Development Server--------*/
     public static String SDS_FILE_LOCATION = "http://192.168.2.91/tis/Core/MSDS Files/";
     public static String GHS_FILE_LOCATION = "http://192.168.2.91/tis/Images/GHS/";
     public static String PPE_FILE_LOCATION = "http://192.168.2.91/tis/Images/PPE/";
 
 	/*--------Live Server--------*/
 //	public static String URL = "http://10.129.114.48/WS_UAT/MobileWebService.asmx";
-
-	/*--------Live Server--------*/
 //	public static String SDS_FILE_LOCATION = "http://10.129.114.48/Penjuru_UAT/Core/MSDS Files/";
 //	public static String GHS_FILE_LOCATION = "http://10.129.114.48/Penjuru_UAT/Images/GHS/";
 //	public static String PPE_FILE_LOCATION = "http://10.129.114.48/Penjuru_UAT/Images/PPE/";
 
-    /*-------- Mobile Web Service --------*/
+	/*--------Live Server--------*/
+//	public static String URL = "http://10.129.114.48/WS/MobileWebService.asmx";
+//	public static String SDS_FILE_LOCATION = "http://10.129.114.48/penjuru/Core/MSDS%20Files/";
+//	public static String GHS_FILE_LOCATION = "http://10.129.114.48/penjuru/images/ghs/";
+//	public static String PPE_FILE_LOCATION = "http://10.129.114.48/penjuru/images/ppe/";
+
+	/*-------- Mobile Web Service --------*/
     public static String WS_VALIDATE_AD_USER = "Mobile_ValidateADUser";
     public static String WS_CHECK_TECHNICIAN_NRIC = "Mobile_CheckTechnicianNRIC";
     public static String WS_CHECK_TRUCK_RACK_EXISTS = "Mobile_CheckTruckRackExists";

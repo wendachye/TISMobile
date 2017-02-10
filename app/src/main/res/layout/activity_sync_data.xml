@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_search_result"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -15,31 +13,29 @@
         android:orientation="vertical">
 
         <include
-            android:id="@+id/headerResult"
+            android:id="@+id/header_sync"
             layout="@layout/header_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <TextView
-            android:id="@+id/tvTruckBayTitle"
+            android:id="@+id/text_loading_bay"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginBottom="@dimen/header_title_text_spacing"
             android:layout_marginTop="@dimen/header_title_text_spacing"
             android:gravity="center_horizontal"
-            android:text="SYNC DATA"
+            android:text="@string/sync_data"
             android:textStyle="bold"
             android:textSize="@dimen/header_title_text" />
 
         <TextView
-            android:id="@+id/hDivider"
             android:layout_width="match_parent"
             android:layout_height="@dimen/separator_width"
             android:background="@color/colorBlack" />
 
         <LinearLayout
-            android:id="@+id/tvTruckBayListHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/list_view_header_color"
@@ -47,7 +43,7 @@
             android:weightSum="1">
 
             <TextView
-                android:id="@+id/tvLoadingBayOrderId"
+                android:id="@+id/text_job_id"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -60,14 +56,13 @@
                 android:textSize="@dimen/default_app_text" />
 
             <TextView
-                android:id="@+id/separator1"
                 android:layout_width="@dimen/separator_width"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayCustomer"
+                android:id="@+id/text_customer_name"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -80,14 +75,13 @@
                 android:textSize="@dimen/default_app_text" />
 
             <TextView
-                android:id="@+id/separator2"
                 android:layout_width="@dimen/separator_width"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayProduct"
+                android:id="@+id/text_product_name"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -100,14 +94,13 @@
                 android:textSize="@dimen/default_app_text" />
 
             <TextView
-                android:id="@+id/separator3"
                 android:layout_width="@dimen/separator_width"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:background="@color/colorBlack" />
 
             <TextView
-                android:id="@+id/tvLoadingBayTankNo"
+                android:id="@+id/text_tank_no"
                 android:layout_width="@dimen/no_width"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/list_item_spacing"
@@ -122,7 +115,6 @@
         </LinearLayout>
 
         <TextView
-            android:id="@+id/hDivider1"
             android:layout_width="match_parent"
             android:layout_height="@dimen/separator_width"
             android:background="@color/colorBlack" />
@@ -135,13 +127,12 @@
     </LinearLayout>
 
     <RelativeLayout
-        android:id="@+id/footerRelativeLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
 
         <include
-            android:id="@+id/footer"
+            android:id="@+id/footer_sync"
             layout="@layout/footer_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

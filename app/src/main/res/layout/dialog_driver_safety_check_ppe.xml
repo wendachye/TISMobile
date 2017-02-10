@@ -15,13 +15,12 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvProductNameTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:paddingBottom="@dimen/dialog_header_title_text_spacing"
             android:paddingTop="@dimen/dialog_header_title_text_spacing"
-            android:text="PRODUCT PPE"
+            android:text="@string/product_ppe"
             android:textStyle="bold"
             android:textSize="@dimen/header_title_text" />
 
@@ -43,21 +42,19 @@
                 android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/tvPPEProductName"
+                    android:id="@+id/text_product_name"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="@dimen/ppe_border_width"
                     android:layout_marginTop="@dimen/ppe_border_width"
                     android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
                     android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
-                    android:text="Product Name"
                     android:textStyle="bold"
                     android:textSize="@dimen/default_app_text" />
 
             </LinearLayout>
 
             <TextView
-                android:id="@+id/hDivider1"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/separator_width"
                 android:background="@color/colorBlack" />
@@ -79,21 +76,19 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tvHandleProduct"
                     android:layout_width="@dimen/dialog_textview_width"
                     android:layout_height="wrap_content"
-                    android:text="I can handle product"
+                    android:text="@string/ghs_message"
                     android:textSize="@dimen/default_app_text" />
 
                 <RadioButton
-                    android:id="@+id/rbtnHandleProduct"
+                    android:id="@+id/radio_ghs"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>
 
             <TextView
-                android:id="@+id/hDivider2"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/separator_width"
                 android:background="@color/colorBlack" />
@@ -115,21 +110,19 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tvHavePPE"
                     android:layout_width="@dimen/dialog_textview_width"
                     android:layout_height="wrap_content"
-                    android:text="I have the correct PPE"
+                    android:text="@string/ppe_message"
                     android:textSize="@dimen/default_app_text" />
 
                 <RadioButton
-                    android:id="@+id/rbtnHavePPE"
+                    android:id="@+id/radio_ppe"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
 
             </LinearLayout>
 
             <TextView
-                android:id="@+id/hDivider4"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/separator_width"
                 android:background="@color/colorBlack" />
@@ -143,22 +136,22 @@
                 android:background="@drawable/dialog_content_bg">
 
                 <Button
-                    android:id="@+id/btnCancel"
+                    android:id="@+id/button_ppe_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_weight="1"
-                    android:text="Cancel"
-                    android:textSize="@dimen/default_app_text" />
+                    android:text="@android:string/cancel"
+                    android:textSize="@dimen/default_app_text"/>
 
                 <Button
-                    android:id="@+id/btnConfirm"
+                    android:id="@+id/button_ppe_submit"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_weight="1"
-                    android:text="OK"
-                    android:textSize="@dimen/default_app_text" />
+                    android:text="@android:string/ok"
+                    android:textSize="@dimen/default_app_text"/>
 
             </LinearLayout>
 

@@ -1,10 +1,12 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,47 +19,71 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.Common;
-import com.bizconnectivity.tismobile.Constant;
-import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
-import com.bizconnectivity.tismobile.webservices.DriverIDWSAsync;
-import com.bizconnectivity.tismobile.webservices.WorkInstructionWSAsync;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
+import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
+import com.bizconnectivity.tismobile.webservices.DriverIDWS;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
-import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_OPERATOR_ID;
-import static com.bizconnectivity.tismobile.Constant.SCAN_MSG_PROMPT_WORK_INSTRUCTION;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_OPERATOR_ID;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_WORK_INSTRUCTION;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SCAN_VALUE;
-import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
-import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 public class ScanDetailsActivity extends AppCompatActivity {
 
     //region declaration
-    TextView headerMessage, tvOperatorId, tvDriverId, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
-    ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
+
+    //header
+    @BindView(R.id.header_scan_details)
+    LinearLayout mLinearLayoutHeader;
+    @BindView(R.id.text_header)
+    TextView mTextViewHeader;
+    @BindView(R.id.text_job_id)
+    TextView mTextViewJobID;
+    @BindView(R.id.text_customer_name)
+    TextView mTextViewCustomerName;
+    @BindView(R.id.text_loading_bay)
+    TextView mTextViewLoadingBay;
+    @BindView(R.id.text_loading_arm)
+    TextView mTextViewLoadingArm;
+
+    //content
+    @BindView(R.id.button_operator_id)
+    Button mButtonOperatorID;
+    @BindView(R.id.button_driver_id)
+    Button mButtonDriverID;
+    @BindView(R.id.button_work_instruction)
+    Button mButtonWorkInstruction;
+    @BindView(R.id.text_operator_id)
+    TextView mTextViewOperatorID;
+    @BindView(R.id.text_driver_id)
+    TextView mTextViewDriverID;
+
+    //footer
+    @BindView(R.id.footer_scan_details)
+    LinearLayout mLinearLayoutFooter;
+    @BindView(R.id.button_home)
+    ImageButton mImageButtonHome;
+    @BindView(R.id.button_search)
+    ImageButton mImageButtonSearch;
+    @BindView(R.id.button_switch)
+    ImageButton mImageButtonSwitch;
+    @BindView(R.id.button_settings)
+    ImageButton mImageButtonSettings;
+
+    Realm realm;
+    LoadingBayDetail loadingBayDetail;
     Dialog exitDialog;
-    LinearLayout footerLayout;
-    LinearLayout headerLayout;
-    Button btnScanOperatorId, btnScanDriverId, btnScanWorkInstruction;
+    PopupMenu popupMenu;
+    String jobStatus, operatorID, driverID;
     SharedPreferences sharedPref;
-    JobDetailDataSource jobDetailDataSource;
-    LoadingBayDetailDataSource loadingBayDetailDataSource;
-    String jobStatus, operatorID, driverID, welcomeMessage, jobID, customerName, loadingBay, loadingArm;
     boolean isActivityStarted = false;
+
     //endregion
 
     @Override
@@ -66,53 +92,21 @@ public class ScanDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_details);
 
+        ButterKnife.bind(this);
+        realm = Realm.getDefaultInstance();
         sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-        //region Header and Footer
+        //action bar
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        /*-------- Set User Login Details --------*/
-        setUserLoginDetails();
-
-        /*-------- footer buttons --------*/
-        setFooterMenu();
-        //endregion
-
-        //region button operator id
-        tvOperatorId = (TextView) findViewById(R.id.tvOperatorId);
-        btnScanOperatorId = (Button) findViewById(R.id.btnScanOperatorId);
-        btnScanOperatorId.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnScanOperatorIdClicked();
-            }
-        });
-        //endregion
-
-        //region button driver id
-        tvDriverId = (TextView) findViewById(R.id.tvDriverId);
-        btnScanDriverId = (Button) findViewById(R.id.btnScanDriverId);
-        btnScanDriverId.setEnabled(false);
-        btnScanDriverId.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnScanDriverIdClicked();
-            }
-        });
-        //endregion
-
-        //region button work instruction
-        btnScanWorkInstruction = (Button) findViewById(R.id.btnScanWorkInstruction);
-        btnScanWorkInstruction.setEnabled(false);
-        btnScanWorkInstruction.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnScanWorkInstructionClicked();
-            }
-        });
-        //endregion
+        //header
+        mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
+        mTextViewJobID.setText(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+        mTextViewCustomerName.setText(sharedPref.getString(SHARED_PREF_CUSTOMER_NAME, ""));
+        mTextViewLoadingBay.setText(sharedPref.getString(SHARED_PREF_LOADING_BAY, ""));
+        mTextViewLoadingArm.setText(sharedPref.getString(SHARED_PREF_LOADING_ARM, ""));
 
         //region status settings
 
@@ -124,247 +118,48 @@ public class ScanDetailsActivity extends AppCompatActivity {
         switch (jobStatus) {
 
             case STATUS_SDS:
-                btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnScanOperatorId.getBackground().clearColorFilter();
-                tvOperatorId.setText("");
+                mButtonOperatorID.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonOperatorID.getBackground().clearColorFilter();
+                mTextViewOperatorID.setText("");
 
-                btnScanDriverId.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnScanDriverId.getBackground().clearColorFilter();
-                tvDriverId.setText("");
+                mButtonDriverID.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonDriverID.getBackground().clearColorFilter();
+                mTextViewDriverID.setText("");
 
-                btnScanWorkInstruction.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnScanWorkInstruction.getBackground().clearColorFilter();
+                mButtonWorkInstruction.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonWorkInstruction.getBackground().clearColorFilter();
                 break;
 
             case STATUS_OPERATOR_ID:
-                btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanOperatorId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                tvOperatorId.setText(operatorID);
+                mButtonOperatorID.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonOperatorID.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mTextViewOperatorID.setText(operatorID);
 
-                btnScanDriverId.setEnabled(true);
+                mButtonDriverID.setEnabled(true);
                 break;
 
             case STATUS_DRIVER_ID:
-                btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanOperatorId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                tvOperatorId.setText(operatorID);
+                mButtonOperatorID.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonOperatorID.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mTextViewOperatorID.setText(operatorID);
 
-                btnScanDriverId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanDriverId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnScanDriverId.setEnabled(true);
-                tvDriverId.setText(driverID);
+                mButtonDriverID.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonDriverID.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonDriverID.setEnabled(true);
+                mTextViewDriverID.setText(driverID);
 
-                btnScanWorkInstruction.setEnabled(true);
+                mButtonWorkInstruction.setEnabled(true);
                 break;
 
             default:
-                btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanOperatorId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                tvOperatorId.setText(operatorID);
-
-                btnScanDriverId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanDriverId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnScanDriverId.setEnabled(true);
-                tvDriverId.setText(driverID);
-
-                btnScanWorkInstruction.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanWorkInstruction.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnScanWorkInstruction.setEnabled(true);
                 break;
-
         }
 
         //endregion
     }
 
-    //region Header
-    /*-------- Set User Login Details --------*/
-    public void setUserLoginDetails() {
-
-        headerLayout = (LinearLayout) findViewById(R.id.headerSD);
-        headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-        tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
-        tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
-        tv_loadingBay = (TextView) headerLayout.findViewById(R.id.tvBay);
-        tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
-
-        //retrieve shared preferences
-        sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
-        welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
-        jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
-        customerName = sharedPref.getString(Constant.SHARED_PREF_CUSTOMER_NAME, "");
-        loadingBay = sharedPref.getString(Constant.SHARED_PREF_LOADING_BAY, "");
-        loadingArm = sharedPref.getString(Constant.SHARED_PREF_LOADING_ARM, "");
-
-        headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
-        tv_jobID.setText(jobID);
-        tv_customerName.setText(customerName);
-        tv_loadingBay.setText(loadingArm);
-        tv_loadingArm.setText(loadingBay);
-    }
-    //endregion
-
-    //region Footer
-    public void setFooterMenu() {
-
-        footerLayout = (LinearLayout) findViewById(R.id.footer);
-
-        btnAlert = (ImageButton) footerLayout.findViewById(R.id.button_home);
-        btnAlert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnHomeClicked();
-            }
-        });
-
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.button_search);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSearchClicked();
-            }
-        });
-
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.button_switch);
-        btnSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSwitchClicked();
-            }
-        });
-
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.button_settings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSettingsClicked(view);
-            }
-        });
-    }
-
-    public void btnHomeClicked() {
-
-        Intent intentHome = new Intent(this, DashboardActivity.class);
-        isActivityStarted = true;
-        startActivity(intentHome);
-    }
-
-    public void btnSearchClicked() {
-
-        Intent intentSearchJob = new Intent(this, SearchJobActivity.class);
-        isActivityStarted = true;
-        startActivity(intentSearchJob);
-    }
-
-    public void btnSwitchClicked() {
-
-        Intent intentSwitchTruckBay = new Intent(this, SwitchJobActivity.class);
-        isActivityStarted = true;
-        startActivity(intentSwitchTruckBay);
-    }
-
-    public void btnSettingsClicked(View view) {
-
-        settingsMenuOptions(view);
-    }
-
-    public void settingsMenuOptions(View view) {
-        PopupMenu popup = new PopupMenu(this, view);
-
-        // This activity implements OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.menu_check_in:
-                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
-                        isActivityStarted = true;
-                        startActivity(intentCheckIn);
-                        return true;
-
-                    case R.id.menu_exit:
-                        exitApplication();
-                        return true;
-
-                    case R.id.menu_check_out:
-                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
-                        isActivityStarted = true;
-                        startActivity(intentCheckOut);
-                        return true;
-
-                    case R.id.menu_sync_data:
-                        Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        isActivityStarted = true;
-                        startActivity(intentSyncData);
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
-        });
-        popup.inflate(R.menu.settings_menu);
-        popup.show();
-    }
-
-    public void exitApplication() {
-
-        if (exitDialog != null && exitDialog.isShowing())
-            return;
-
-        exitDialog = new Dialog(this);
-        exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        exitDialog.setContentView(R.layout.dialog_exit_app);
-
-        //region button confirm
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                //close exit dialog
-                exitDialog.dismiss();
-
-                //clear all shared preferences
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear().apply();
-
-                //delete all loading bay
-                loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-                loadingBayDetailDataSource.deleteAllLoadingBay();
-
-                //clear all activity and start login activity
-                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-                intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                isActivityStarted = true;
-                startActivity(intentLogin);
-            }
-        });
-        //endregion
-
-        //region button cancel
-        Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitDialog.dismiss();
-            }
-        });
-        //endregion
-
-        int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
-        View divider = exitDialog.findViewById(dividerId);
-        if (divider != null) {
-            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
-        }
-        assert exitDialog.getWindow() != null;
-        exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        exitDialog.show();
-    }
-    //endregion
-
-    public void btnScanOperatorIdClicked() {
+    @OnClick(R.id.button_operator_id)
+    public void btnOperatorID() {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_OPERATOR_ID).apply();
@@ -376,7 +171,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
         integrator.initiateScan();
     }
 
-    public void btnScanDriverIdClicked() {
+    @OnClick(R.id.button_driver_id)
+    public void btnDriverID() {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_DRIVER_ID).apply();
@@ -388,7 +184,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
         integrator.initiateScan();
     }
 
-    public void btnScanWorkInstructionClicked() {
+    @OnClick(R.id.button_work_instruction)
+    public void btnWorkInstruction() {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_WORK_INSTRUCTION).apply();
@@ -423,92 +220,323 @@ public class ScanDetailsActivity extends AppCompatActivity {
                     //region update job status
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_OPERATOR_ID).commit();
 
-                    jobDetailDataSource = new JobDetailDataSource(this);
-                    jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_OPERATOR_ID);
-                    jobDetailDataSource.close();
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+
+                            JobDetail jobDetail = new JobDetail();
+                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            jobDetail.setJobStatus(STATUS_OPERATOR_ID);
+
+                            realm.copyToRealmOrUpdate(jobDetail);
+                        }
+                    });
                     //endregion
 
-                    //region button operator setup
-                    tvOperatorId.setText(scanContent);
-                    btnScanOperatorId.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                    btnScanOperatorId.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                    //set operator id button
+                    mTextViewOperatorID.setText(scanContent);
+                    mButtonOperatorID.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                    mButtonOperatorID.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
-                    btnScanDriverId.setEnabled(true);
-                    //endregion
+                    mButtonDriverID.setEnabled(true);
 
                 } else if (returnScanValue.equals(SCAN_VALUE_DRIVER_ID)) {
 
-                    if (Common.isNetworkAvailable(this)) {
+                    if (isNetworkAvailable(this)) {
 
-                        DriverIDWSAsync task = new DriverIDWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        task.execute();
+                        new driverIDWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent).execute();
 
                     } else {
 
                         if (scanContent.equals(sharedPref.getString(SHARED_PREF_DRIVER_ID, ""))) {
 
-                            editor.putString(Constant.SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).apply();
+                            //region update job status
+                            editor.putString(SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).apply();
 
-                            jobDetailDataSource = new JobDetailDataSource(this);
-                            jobDetailDataSource.open();
-                            jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_DRIVER_ID);
-                            jobDetailDataSource.close();
+                            realm.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
 
-                            Intent intent = new Intent(this, ScanDetailsActivity.class);
-                            isActivityStarted = true;
-                            startActivity(intent);
+                                    JobDetail jobDetail = new JobDetail();
+                                    jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                                    jobDetail.setJobStatus(STATUS_DRIVER_ID);
+
+                                    realm.copyToRealmOrUpdate(jobDetail);
+                                }
+                            });
+                            //endregion
+
+                            //set driver id button
+                            mButtonDriverID.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                            mButtonDriverID.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                            mTextViewDriverID.setText(scanContent);
+                            mButtonWorkInstruction.setEnabled(true);
 
                         } else {
 
-                            Common.shortToast(this, Constant.SCAN_MSG_INVALID_DRIVER_ID_RECEIVED);
+                            //show error message
+                            shortToast(this, SCAN_MSG_INVALID_DRIVER_ID_RECEIVED);
                         }
                     }
 
                 } else if (returnScanValue.equals(SCAN_VALUE_WORK_INSTRUCTION)) {
 
-                    if (Common.isNetworkAvailable(this)) {
+                    if (scanContent.equals(sharedPref.getString(SHARED_PREF_JOB_ID, ""))) {
 
-                        WorkInstructionWSAsync task = new WorkInstructionWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        task.execute();
+                        //region update job status
+                        editor.putString(SHARED_PREF_JOB_STATUS, STATUS_WORK_INSTRUCTION).apply();
+
+                        realm.executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+
+                                JobDetail jobDetail = new JobDetail();
+                                jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                                jobDetail.setJobStatus(STATUS_WORK_INSTRUCTION);
+                                 realm.copyToRealmOrUpdate(jobDetail);
+
+                            }
+                        });
+                        //endregion
+
+                        //navigate to job main activity
+                        Intent intent = new Intent(this, JobMainActivity.class);
+                        isActivityStarted = true;
+                        startActivity(intent);
 
                     } else {
 
-                        if (scanContent.equals(sharedPref.getString(SHARED_PREF_JOB_ID, ""))) {
-
-                            editor.putString(SHARED_PREF_JOB_STATUS, STATUS_WORK_INSTRUCTION).apply();
-
-                            jobDetailDataSource = new JobDetailDataSource(this);
-                            jobDetailDataSource.open();
-                            jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_WORK_INSTRUCTION);
-                            jobDetailDataSource.close();
-
-                            Intent intent = new Intent(this, JobMainActivity.class);
-                            isActivityStarted = true;
-                            startActivity(intent);
-
-                        } else {
-
-                            Common.shortToast(this, Constant.SCAN_MSG_INVALID_WORK_INSTRUCTION_RECEIVED);
-                        }
+                        //show error message
+                        shortToast(this, SCAN_MSG_INVALID_WORK_INSTRUCTION_RECEIVED);
                     }
 
                 } else {
-                    Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
+
+                    shortToast(this, SCAN_MSG_INVALID_DATA_RECEIVED);
                 }
+
             } else {
-                Common.shortToast(this, Constant.SCAN_MSG_NO_DATA_RECEIVED);
+
+                shortToast(this, SCAN_MSG_NO_DATA_RECEIVED);
             }
+
         } else {
             // If scan data is not received (for example, if the user cancels the scan by pressing the back button),
             // we can simply output a message.
-            Common.shortToast(this, Constant.SCAN_MSG_CANCEL_SCANNING);
+            shortToast(this, SCAN_MSG_CANCEL_SCANNING);
         }
+    }
+
+    private class driverIDWSAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID, driverID;
+        Boolean response;
+        ProgressDialog progressDialog;
+
+        private driverIDWSAsync(String jobID, String driverID) {
+
+            this.jobID = jobID;
+            this.driverID = driverID;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            response = DriverIDWS.invokeRetrieveDriverID(jobID, driverID);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (response) {
+
+                //region update job status
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).apply();
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        JobDetail jobDetail = new JobDetail();
+                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                        jobDetail.setJobStatus(STATUS_DRIVER_ID);
+
+                        realm.copyToRealmOrUpdate(jobDetail);
+                    }
+                });
+                //endregion
+
+                //set driver id button
+                mButtonDriverID.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonDriverID.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mTextViewDriverID.setText(driverID);
+                mButtonWorkInstruction.setEnabled(true);
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+            } else {
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //show error message
+                shortToast(getApplicationContext(), SCAN_MSG_INVALID_DRIVER_ID_RECEIVED);
+            }
+        }
+    }
+    //endregion
+
+    //region Footer
+    @OnClick(R.id.button_home)
+    public void btnHome(View view) {
+
+        Intent intent = new Intent(this, DashboardActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.button_search)
+    public void btnSearch(View view) {
+
+        Intent intent = new Intent(this, SearchJobActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.button_switch)
+    public void btnSwitch(View view) {
+
+        Intent intent = new Intent(this, SwitchJobActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.button_settings)
+    public void btnSettings(View view) {
+
+        popupMenu = new PopupMenu(this, view);
+
+        // This activity implements OnMenuItemClickListener
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                switch (item.getItemId()) {
+
+                    case R.id.menu_check_in:
+                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
+                        isActivityStarted = true;
+                        startActivity(intentCheckIn);
+                        return true;
+
+                    case R.id.menu_check_out:
+                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
+                        isActivityStarted = true;
+                        startActivity(intentCheckOut);
+                        return true;
+
+                    case R.id.menu_sync_data:
+                        Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
+                        isActivityStarted = true;
+                        startActivity(intentSyncData);
+                        return true;
+
+                    case R.id.menu_exit:
+                        exitApplication();
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+        popupMenu.inflate(R.menu.settings_menu);
+        popupMenu.show();
+    }
+
+    public void exitApplication() {
+
+        if (exitDialog != null && exitDialog.isShowing()) return;
+
+        exitDialog = new Dialog(this);
+        exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        exitDialog.setContentView(R.layout.dialog_exit_app);
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
+
+        // if button is clicked, close the custom dialog
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //clear all shared preferences
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.clear().apply();
+
+                //check out all the loading bay
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
+
+                            loadingBayDetail = new LoadingBayDetail();
+                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+                            realm.copyToRealmOrUpdate(loadingBayDetail);
+                        }
+                    }
+                });
+
+                //close exit dialog
+                exitDialog.dismiss();
+
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
+                startActivity(intentLogin);
+            }
+        });
+
+        Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
+        // if button is clicked, close the custom dialog
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                exitDialog.dismiss();
+            }
+        });
+
+        int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
+        View divider = exitDialog.findViewById(dividerId);
+        if (divider != null) {
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
+        }
+        assert exitDialog.getWindow() != null;
+        exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        exitDialog.show();
     }
     //endregion
 
 	public void onBackPressed() {
 
+        Intent intent = new Intent(this, DashboardActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
 	}
 
     @Override
@@ -520,5 +548,13 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
             finish();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        realm.close();
     }
 }

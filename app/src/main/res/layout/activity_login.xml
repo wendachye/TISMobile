@@ -80,7 +80,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/margin_15"
-                    android:text="@string/action_sign_in_cancel"
+                    android:text="@android:string/cancel"
                     android:layout_weight="1"
                     android:textSize="@dimen/default_app_text"
                     android:onClick="btnSignInCancel"/>

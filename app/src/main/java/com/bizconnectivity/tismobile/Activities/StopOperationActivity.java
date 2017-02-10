@@ -1,10 +1,12 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,403 +19,225 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bizconnectivity.tismobile.Common;
-import com.bizconnectivity.tismobile.Constant;
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
 import com.bizconnectivity.tismobile.database.datasources.SealDetailDataSource;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
+import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
+import com.bizconnectivity.tismobile.database.models.SealDetail;
 import com.bizconnectivity.tismobile.webservices.AddSealWSAsync;
 import com.bizconnectivity.tismobile.webservices.CheckSealWSAsync;
-import com.bizconnectivity.tismobile.webservices.DepartureWSAsync;
-import com.bizconnectivity.tismobile.webservices.PumpStopWSAsync;
+import com.bizconnectivity.tismobile.webservices.DepartureWS;
+import com.bizconnectivity.tismobile.webservices.PumpStopWS;
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import static com.bizconnectivity.tismobile.Common.isNetworkAvailable;
-import static com.bizconnectivity.tismobile.Common.longToast;
-import static com.bizconnectivity.tismobile.Constant.ERR_MSG_CANNOT_ADD_SEAL;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL1;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL2;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL3;
-import static com.bizconnectivity.tismobile.Constant.SCAN_VALUE_BOTTOM_SEAL4;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_BATCH_CONTROLLER;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_BATCH_CONTROLLER_LITRE;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_CUSTOMER_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_DATE;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_BAY;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_START_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_STOP_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_RACK_OUT_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SDS_FILE_PATH;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_TANK_NO;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_WORK_INSTRUCTION;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
-import static com.bizconnectivity.tismobile.Constant.simpleDateFormat2;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 public class StopOperationActivity extends AppCompatActivity {
 
     //region declaration
-    Context context;
-    LinearLayout footerLayout;
-    LinearLayout headerLayout;
-    ImageButton btnAlert, btnSearch, btnSwitch, btnSettings;
-    TextView headerMessage, tvPumpStop, tv_jobID, tv_customerName, tv_loadingBay, tv_loadingArm;
-    Dialog exitDialog, pumpStopDialog, scanSealDialog, departureDialog;
-    Button btnPumpStop, btnScanSeal, btnDeparture;
+
+    //header
+    @BindView(R.id.header_stop_operation)
+    LinearLayout mLinearLayoutHeader;
+    @BindView(R.id.text_header)
+    TextView mTextViewHeader;
+    @BindView(R.id.text_job_id)
+    TextView mTextViewJobID;
+    @BindView(R.id.text_customer_name)
+    TextView mTextViewCustomerName;
+    @BindView(R.id.text_loading_bay)
+    TextView mTextViewLoadingBay;
+    @BindView(R.id.text_loading_arm)
+    TextView mTextViewLoadingArm;
+
+    //content
+    @BindView(R.id.button_pump_stop)
+    Button mButtonPumpStop;
+    @BindView(R.id.button_scan_seal)
+    Button mButtonScanSeal;
+    @BindView(R.id.button_departure)
+    Button mButtonDeparture;
+    @BindView(R.id.text_pump_stop)
+    TextView mTextViewPumpStop;
+
+    //footer
+    @BindView(R.id.footer_stop_operation)
+    LinearLayout mLinearLayoutFooter;
+    @BindView(R.id.button_home)
+    ImageButton mImageButtonHome;
+    @BindView(R.id.button_search)
+    ImageButton mImageButtonSearch;
+    @BindView(R.id.button_switch)
+    ImageButton mImageButtonSwitch;
+    @BindView(R.id.button_settings)
+    ImageButton mImageButtonSettings;
+
+    Realm realm;
+    LoadingBayDetail loadingBayDetail;
     SharedPreferences sharedPref;
-    JobDetailDataSource jobDetailDataSource;
-    SealDetailDataSource sealDetailDataSource;
+    PopupMenu popupMenu;
+    Dialog exitDialog, pumpStopDialog, scanSealDialog, departureDialog;
     boolean isActivityStarted = false;
+
     //endregion
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stop_operation);
 
-        context = this;
-        sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
+        ButterKnife.bind(this);
+        realm = Realm.getDefaultInstance();
+        sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-        //region Header and Footer
+        //action bar
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        /*-------- Set User Login Details --------*/
-        setUserLoginDetails();
-
-        /*-------- footer buttons --------*/
-        setFooterMenu();
-        //endregion
-
-        //region button pump stop
-        tvPumpStop = (TextView) findViewById(R.id.tvPumpStop);
-        btnPumpStop = (Button) findViewById(R.id.btnPumpStop);
-        btnPumpStop.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnPumpStopClicked();
-            }
-        });
-        //endregion
-
-        //region button scan seal
-        btnScanSeal = (Button) findViewById(R.id.btnScanSeal);
-        btnScanSeal.setEnabled(false);
-        btnScanSeal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnScanSealClicked();
-            }
-        });
-        //endregion
-
-        //region button departure
-        btnDeparture = (Button) findViewById(R.id.btnDeparture);
-        btnDeparture.setEnabled(false);
-        btnDeparture.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                btnDepartureClicked();
-            }
-        });
-        //endregion
+        //header
+        mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
+        mTextViewJobID.setText(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+        mTextViewCustomerName.setText(sharedPref.getString(SHARED_PREF_CUSTOMER_NAME, ""));
+        mTextViewLoadingBay.setText(sharedPref.getString(SHARED_PREF_LOADING_BAY, ""));
+        mTextViewLoadingArm.setText(sharedPref.getString(SHARED_PREF_LOADING_ARM, ""));
 
         //region status settings
 
         //retrieve job status from shared preferences
-        String jobStatus = sharedPref.getString(SHARED_PREF_JOB_STATUS, "");
-        String pumpStopTime = sharedPref.getString(SHARED_PREF_PUMP_STOP_TIME, "");
-
-        switch (jobStatus) {
+        switch (sharedPref.getString(SHARED_PREF_JOB_STATUS, "")) {
 
             case STATUS_PUMP_START:
-                btnPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnPumpStop.getBackground().clearColorFilter();
-                tvPumpStop.setText("");
+                mButtonPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonPumpStop.getBackground().clearColorFilter();
+                mTextViewPumpStop.setText("");
 
-                btnScanSeal.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnScanSeal.getBackground().clearColorFilter();
+                mButtonScanSeal.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonScanSeal.getBackground().clearColorFilter();
 
-                btnDeparture.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
-                btnDeparture.getBackground().clearColorFilter();
+                mButtonDeparture.setTextColor(ContextCompat.getColor(this, R.color.colorBlack));
+                mButtonDeparture.getBackground().clearColorFilter();
                 break;
 
             case STATUS_PUMP_STOP:
-                btnPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnPumpStop.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnPumpStop.setEnabled(false);
-                tvPumpStop.setText(pumpStopTime);
+                mButtonPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonPumpStop.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonPumpStop.setEnabled(false);
+                mTextViewPumpStop.setText(sharedPref.getString(SHARED_PREF_PUMP_STOP_TIME, ""));
 
-                btnScanSeal.setEnabled(true);
+                mButtonScanSeal.setEnabled(true);
                 break;
 
             case STATUS_SCAN_SEAL:
-                btnPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnPumpStop.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnPumpStop.setEnabled(false);
-                tvPumpStop.setText(pumpStopTime);
+                mButtonPumpStop.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonPumpStop.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonPumpStop.setEnabled(false);
+                mTextViewPumpStop.setText(sharedPref.getString(SHARED_PREF_PUMP_STOP_TIME, ""));
 
-                btnScanSeal.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
-                btnScanSeal.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
-                btnScanSeal.setEnabled(true);
+                mButtonScanSeal.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                mButtonScanSeal.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+                mButtonScanSeal.setEnabled(true);
 
-                btnDeparture.setEnabled(true);
+                mButtonDeparture.setEnabled(true);
                 break;
 
             default:
-
                 break;
         }
-
         //endregion
     }
 
-    //region Header
-    /*-------- Set User Login Details --------*/
-    public void setUserLoginDetails() {
+    @OnClick(R.id.button_pump_stop)
+    public void btnPumpStop() {
 
-        headerLayout = (LinearLayout) findViewById(R.id.headerSO);
-        headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-        tv_jobID = (TextView) headerLayout.findViewById(R.id.tvOrderId);
-        tv_customerName = (TextView) headerLayout.findViewById(R.id.tvCustomer);
-        tv_loadingBay = (TextView) headerLayout.findViewById(R.id.tvBay);
-        tv_loadingArm = (TextView) headerLayout.findViewById(R.id.tvArm);
-
-        //retrieve shared preferences
-        String welcomeMessage = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
-        String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
-        String customerName = sharedPref.getString(SHARED_PREF_CUSTOMER_NAME, "");
-        String loadingBay = sharedPref.getString(SHARED_PREF_LOADING_BAY, "");
-        String loadingArm = sharedPref.getString(SHARED_PREF_LOADING_ARM, "");
-
-        //set text
-        headerMessage.setText(Common.formatWelcomeMsg(welcomeMessage));
-        tv_jobID.setText(jobID);
-        tv_customerName.setText(customerName);
-        tv_loadingBay.setText(loadingArm);
-        tv_loadingArm.setText(loadingBay);
-    }
-    //endregion
-
-    //region Footer
-    public void setFooterMenu() {
-
-        footerLayout = (LinearLayout) findViewById(R.id.footer);
-        btnAlert = (ImageButton) footerLayout.findViewById(R.id.button_home);
-        btnAlert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnHomeClicked();
-            }
-        });
-
-        btnSearch = (ImageButton) footerLayout.findViewById(R.id.button_search);
-        btnSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSearchClicked();
-            }
-        });
-
-        btnSwitch = (ImageButton) footerLayout.findViewById(R.id.button_switch);
-        btnSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSwitchClicked();
-            }
-        });
-
-        btnSettings = (ImageButton) footerLayout.findViewById(R.id.button_settings);
-        btnSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                btnSettingsClicked(view);
-            }
-        });
+        btnPumpStopClicked();
     }
 
-    public void btnHomeClicked() {
+    @OnClick(R.id.button_scan_seal)
+    public void btnScanSeal() {
 
-        Intent intentHome = new Intent(context, DashboardActivity.class);
-        isActivityStarted = true;
-        startActivity(intentHome);
+        btnScanSealClicked();
     }
 
-    public void btnSearchClicked() {
+    @OnClick(R.id.button_departure)
+    public void btnDeparture() {
 
-        Intent intentSearchJob = new Intent(context, SearchJobActivity.class);
-        isActivityStarted = true;
-        startActivity(intentSearchJob);
+        btnDepartureClicked();
     }
 
-    public void btnSwitchClicked() {
-
-        Intent intentSwitchTruckBay = new Intent(context, SwitchJobActivity.class);
-        isActivityStarted = true;
-        startActivity(intentSwitchTruckBay);
-    }
-
-    public void btnSettingsClicked(View view) {
-        settingsMenuOptions(view);
-    }
-
-    public void settingsMenuOptions(View view) {
-        PopupMenu popup = new PopupMenu(this, view);
-
-        // This activity implements OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-
-                switch (item.getItemId()) {
-                    case R.id.menu_check_in:
-                        Intent intentCheckIn = new Intent(context, CheckInActivity.class);
-                        isActivityStarted = true;
-                        startActivity(intentCheckIn);
-                        return true;
-
-                    case R.id.menu_exit:
-                        exitApplication();
-                        return true;
-
-                    case R.id.menu_check_out:
-                        Intent intentCheckOut = new Intent(context, CheckOutActivity.class);
-                        isActivityStarted = true;
-                        startActivity(intentCheckOut);
-                        return true;
-
-                    case R.id.menu_sync_data:
-                        Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
-                        isActivityStarted = true;
-                        startActivity(intentSyncData);
-                        return true;
-
-                    default:
-                        return false;
-                }
-            }
-        });
-        popup.inflate(R.menu.settings_menu);
-        popup.show();
-    }
-
-    public void exitApplication() {
-
-        if (exitDialog != null && exitDialog.isShowing())
-            return;
-
-        exitDialog = new Dialog(this);
-        exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-        exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
-
-        // if button is clicked, close the custom dialog
-        btnConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitDialog.dismiss();
-                SharedPreferences sharedPref = getSharedPreferences(Constant.SHARED_PREF_NAME, Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPref.edit();
-                editor.clear();
-                editor.apply();
-
-                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                isActivityStarted = true;
-                startActivity(intent);
-            }
-        });
-
-        Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
-        btnCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exitDialog.dismiss();
-            }
-        });
-
-        int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
-        View divider = exitDialog.findViewById(dividerId);
-        if (divider != null) {
-            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
-        }
-        assert exitDialog.getWindow() != null;
-        exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
-        exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        exitDialog.show();
-    }
-    //endregion
-
+    //region Pump Stop
     public void btnPumpStopClicked() {
 
-        if (pumpStopDialog != null && pumpStopDialog.isShowing())
-            return;
+        if (pumpStopDialog != null && pumpStopDialog.isShowing()) return;
 
         pumpStopDialog = new Dialog(this);
         pumpStopDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         pumpStopDialog.setContentView(R.layout.dialog_pump_stop);
 
         //region button confirm
-        Button btnConfirm = (Button) pumpStopDialog.findViewById(R.id.btnConfirm);
-        // if button is clicked, close the custom dialog
+        Button btnConfirm = (Button) pumpStopDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-				String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
-				String loginName = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
+                if (isNetworkAvailable(getApplicationContext())) {
 
-                if (isNetworkAvailable(context)) {
-
-                    PumpStopWSAsync task = new PumpStopWSAsync(context, pumpStopDialog, jobID, loginName);
-                    task.execute();
+                    new pumpStopWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")).execute();
 
                 } else {
 
-                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-                    jobDetailDataSource.open();
-                    jobDetailDataSource.updatePumpStop(jobID);
-                    jobDetailDataSource.updateJobStatus(sharedPref.getString(Constant.SHARED_PREF_JOB_ID, ""), STATUS_PUMP_STOP);
-                    jobDetailDataSource.close();
-
+                    //region update job status
                     Calendar calendar = Calendar.getInstance();
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime()));
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PUMP_STOP);
                     editor.apply();
 
-                    pumpStopDialog.dismiss();
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
 
-                    Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
-                    isActivityStarted = true;
-                    startActivity(intent);
+                            JobDetail jobDetail = new JobDetail();
+                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            jobDetail.setJobStatus(STATUS_PUMP_STOP);
+
+                            realm.copyToRealmOrUpdate(jobDetail);
+                        }
+                    });
+                    //endregion
+
+                    //set button pump stop
+                    mButtonPumpStop.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                    mButtonPumpStop.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                    mButtonPumpStop.setEnabled(false);
+                    mButtonScanSeal.setEnabled(true);
+
+                    //close pump stop dialog
+                    pumpStopDialog.dismiss();
                 }
             }
         });
         //endregion
 
         //region button cancel
-        Button btnCancel = (Button) pumpStopDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
+        Button btnCancel = (Button) pumpStopDialog.findViewById(R.id.button_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                //close pump stop dialog
                 pumpStopDialog.dismiss();
             }
         });
@@ -421,14 +245,85 @@ public class StopOperationActivity extends AppCompatActivity {
 
         int dividerId = pumpStopDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = pumpStopDialog.findViewById(dividerId);
-        if (divider != null) {
-            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
-        }
+        if (divider != null) divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         assert pumpStopDialog.getWindow() != null;
         pumpStopDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         pumpStopDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         pumpStopDialog.show();
     }
+
+    private class pumpStopWSAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID, updatedBy;
+        Boolean response;
+        ProgressDialog progressDialog;
+
+        private pumpStopWSAsync(String jobID, String updatedBy) {
+
+            this.jobID = jobID;
+            this.updatedBy = updatedBy;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            Calendar calendar = Calendar.getInstance();
+            response = PumpStopWS.invokeUpdatePumpStopWS(jobID, simpleDateFormat3.format(calendar.getTime()), updatedBy);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (response) {
+
+                //region update job status
+                Calendar calendar = Calendar.getInstance();
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime()));
+                editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PUMP_STOP);
+                editor.apply();
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        JobDetail jobDetail = new JobDetail();
+                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                        jobDetail.setJobStatus(STATUS_PUMP_STOP);
+
+                        realm.copyToRealmOrUpdate(jobDetail);
+                    }
+                });
+                //endregion
+
+                //set button pump stop
+                mButtonPumpStop.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonPumpStop.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mButtonPumpStop.setEnabled(false);
+                mButtonScanSeal.setEnabled(true);
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+            } else {
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                shortToast(getApplicationContext(), "ERROR, PLEASE CONTACT CUSTOMER SERVICE.");
+            }
+        }
+    }
+    //endregion
 
     public void btnScanSealClicked() {
 
@@ -436,11 +331,11 @@ public class StopOperationActivity extends AppCompatActivity {
 
         if (sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "").isEmpty()) {
 
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL1).apply();
+            editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL1).apply();
 
             IntentIntegrator integrator = new IntentIntegrator(this);
             integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-            integrator.setPrompt(Constant.SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL);
+            integrator.setPrompt(SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL);
             integrator.setBeepEnabled(true);
             integrator.initiateScan();
 
@@ -452,8 +347,7 @@ public class StopOperationActivity extends AppCompatActivity {
 
     public void scanSealDialog() {
 
-        if (scanSealDialog != null && scanSealDialog.isShowing())
-            return;
+        if (scanSealDialog != null && scanSealDialog.isShowing()) return;
 
         scanSealDialog = new Dialog(this);
         scanSealDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -537,45 +431,53 @@ public class StopOperationActivity extends AppCompatActivity {
         //endregion
 
         //region button confirm
-	    Button btnConfirm = (Button) scanSealDialog.findViewById(R.id.btnConfirm);
+	    Button btnConfirm = (Button) scanSealDialog.findViewById(R.id.button_confirm);
         // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
 	            String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
-	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
+	            String updatedBy = sharedPref.getString(SHARED_PREF_LOGIN_NAME, "");
 	            String sealPos = "bottom";
 	            int totalCount = countSeal.size();
 
                 if (isNetworkAvailable(getApplicationContext())) {
 
-                    AddSealWSAsync task = new AddSealWSAsync(context, scanSealDialog, totalCount, countSeal, jobID, sealPos, updatedBy);
+                    AddSealWSAsync task = new AddSealWSAsync(getApplicationContext(), scanSealDialog, totalCount, countSeal, jobID, sealPos, updatedBy);
                     task.execute();
 
                 } else {
 
                     for (int i=0; i<countSeal.size(); i++) {
 
-                        sealDetailDataSource = new SealDetailDataSource(getApplicationContext());
-                        sealDetailDataSource.open();
-                        sealDetailDataSource.insertSealDetails(jobID, countSeal.get(i));
-                        sealDetailDataSource.close();
+//                        sealDetailDataSource = new SealDetailDataSource(getApplicationContext());
+//                        sealDetailDataSource.open();
+//                        sealDetailDataSource.insertSealDetails(jobID, countSeal.get(i));
+//                        sealDetailDataSource.close();
                     }
 
+                    //region update job status
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
 
-                    jobDetailDataSource = new JobDetailDataSource(context);
-                    jobDetailDataSource.open();
-                    jobDetailDataSource.updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_SEAL);
-                    jobDetailDataSource.close();
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
 
+                            JobDetail jobDetail = new JobDetail();
+                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            jobDetail.setJobStatus(STATUS_SCAN_SEAL);
+
+                            realm.copyToRealmOrUpdate(jobDetail);
+                        }
+                    });
+                    //endregion
+
+                    //close scan seal dialog
                     scanSealDialog.dismiss();
 
-                    Intent intent = new Intent(getApplicationContext(), StopOperationActivity.class);
-                    isActivityStarted = true;
-                    startActivity(intent);
+
                 }
 
             }
@@ -583,7 +485,7 @@ public class StopOperationActivity extends AppCompatActivity {
         //endregion
 
         //region button cancel
-        Button btnCancel = (Button) scanSealDialog.findViewById(R.id.btnCancel);
+        Button btnCancel = (Button) scanSealDialog.findViewById(R.id.button_cancel);
         // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -615,55 +517,61 @@ public class StopOperationActivity extends AppCompatActivity {
 
         if (seal2.isEmpty()) {
 
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL2).apply();
+            editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL2).apply();
 
         } else if (seal3.isEmpty()) {
 
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL3).apply();
+            editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL3).apply();
 
         } else if (seal4.isEmpty()) {
 
-            editor.putString(Constant.SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL4).apply();
+            editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL4).apply();
         }
 
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-        integrator.setPrompt(Constant.SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL);
+        integrator.setPrompt(SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL);
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
 
+    //region Departure
     public void btnDepartureClicked() {
 
-        if (departureDialog != null && departureDialog.isShowing())
-            return;
+        if (departureDialog != null && departureDialog.isShowing()) return;
 
         departureDialog = new Dialog(this);
         departureDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         departureDialog.setContentView(R.layout.dialog_departure);
 
         //region button confirm
-        Button btnConfirm = (Button) departureDialog.findViewById(R.id.btnConfirm);
-        // if button is clicked, close the custom dialog
+        Button btnConfirm = (Button) departureDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-	            String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
-	            String updatedBy = sharedPref.getString(Constant.SHARED_PREF_LOGIN_NAME, "");
-
                 if (isNetworkAvailable(getApplicationContext())) {
 
-                    DepartureWSAsync task = new DepartureWSAsync(context, departureDialog, jobID, updatedBy);
-                    task.execute();
+                    new departureWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")).execute();
 
                 } else {
 
-                    jobDetailDataSource = new JobDetailDataSource(getApplicationContext());
-                    jobDetailDataSource.open();
-                    jobDetailDataSource.updateDepartureTime(jobID);
-                    jobDetailDataSource.close();
+                    //update job rack out time
+                    realm.executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
 
+                            Calendar calendar = Calendar.getInstance();
+
+                            JobDetail jobDetail = new JobDetail();
+                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            jobDetail.setRackOutTime(simpleDateFormat3.format(calendar.getTime()));
+
+                            realm.copyToRealmOrUpdate(jobDetail);
+                        }
+                    });
+
+                    //region remove shared preferences
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.remove(SHARED_PREF_JOB_ID);
                     editor.remove(SHARED_PREF_CUSTOMER_NAME);
@@ -687,11 +595,15 @@ public class StopOperationActivity extends AppCompatActivity {
                     editor.remove(SCAN_VALUE_BOTTOM_SEAL3);
                     editor.remove(SCAN_VALUE_BOTTOM_SEAL4);
                     editor.apply();
+                    //endregion
 
+                    //close departure dialog
                     departureDialog.dismiss();
 
-                    longToast(getApplicationContext(), "Data stored in local due to no internet connection, please sync the data after the internet available.");
+                    //display message
+                    longToast(getApplicationContext(), DEPARTURE_MESSAGE);
 
+                    //navigate to dashboard activity
                     Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
                     isActivityStarted = true;
                     startActivity(intent);
@@ -701,12 +613,12 @@ public class StopOperationActivity extends AppCompatActivity {
         //endregion
 
         //region button cancel
-        Button btnCancel = (Button) departureDialog.findViewById(R.id.btnCancel);
-        // if button is clicked, close the custom dialog
+        Button btnCancel = (Button) departureDialog.findViewById(R.id.button_cancel);
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                //close departure dialog
                 departureDialog.dismiss();
             }
         });
@@ -714,14 +626,99 @@ public class StopOperationActivity extends AppCompatActivity {
 
         int dividerId = departureDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
         View divider = departureDialog.findViewById(dividerId);
-        if (divider != null) {
-            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
-        }
+        if (divider != null) divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
         assert departureDialog.getWindow() != null;
         departureDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
         departureDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         departureDialog.show();
     }
+
+    private class departureWSAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID, updatedBy;
+        Boolean response;
+        ProgressDialog progressDialog;
+
+        private departureWSAsync(String jobID, String updatedBy) {
+
+            this.jobID = jobID;
+            this.updatedBy = updatedBy;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            Calendar calendar = Calendar.getInstance();
+            response = DepartureWS.invokeAddDepartureWS(jobID, simpleDateFormat3.format(calendar.getTime()), updatedBy);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (response) {
+
+                //region remove job details shared pref
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.remove(SHARED_PREF_JOB_ID);
+                editor.remove(SHARED_PREF_CUSTOMER_NAME);
+                editor.remove(SHARED_PREF_PRODUCT_NAME);
+                editor.remove(SHARED_PREF_TANK_NO);
+                editor.remove(SHARED_PREF_LOADING_BAY);
+                editor.remove(SHARED_PREF_LOADING_ARM);
+                editor.remove(SHARED_PREF_SDS_FILE_PATH);
+                editor.remove(SHARED_PREF_OPERATOR_ID);
+                editor.remove(SHARED_PREF_DRIVER_ID);
+                editor.remove(SHARED_PREF_WORK_INSTRUCTION);
+                editor.remove(SHARED_PREF_PUMP_START_TIME);
+                editor.remove(SHARED_PREF_PUMP_STOP_TIME);
+                editor.remove(SHARED_PREF_RACK_OUT_TIME);
+                editor.remove(SHARED_PREF_JOB_STATUS);
+                editor.remove(SHARED_PREF_JOB_DATE);
+                editor.remove(SHARED_PREF_BATCH_CONTROLLER);
+                editor.remove(SHARED_PREF_BATCH_CONTROLLER_LITRE);
+                editor.remove(SCAN_VALUE_BOTTOM_SEAL1);
+                editor.remove(SCAN_VALUE_BOTTOM_SEAL2);
+                editor.remove(SCAN_VALUE_BOTTOM_SEAL3);
+                editor.remove(SCAN_VALUE_BOTTOM_SEAL4);
+                editor.apply();
+                //endregion
+
+                //delete the job from local database
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                    }
+                });
+
+                //end progress dialog
+                progressDialog.dismiss();
+
+                //navigate to dashboard activity
+                Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+                isActivityStarted = true;
+                startActivity(intent);
+
+            } else {
+
+                //end progress dialog
+                progressDialog.dismiss();
+
+                //show error message
+                shortToast(getApplicationContext(), ERR_MSG_DEPARTURE);
+            }
+        }
+    }
+    //endregion
 
     //region Barcode Scanner
     @Override
@@ -735,7 +732,7 @@ public class StopOperationActivity extends AppCompatActivity {
 
             if (scanContent != null) {
 
-                String returnScanValue = sharedPref.getString(Constant.SHARED_PREF_SCAN_VALUE, "");
+                String returnScanValue = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
 
                 if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL1)) {
 
@@ -746,12 +743,8 @@ public class StopOperationActivity extends AppCompatActivity {
 
                     } else {
 
-                        sealDetailDataSource = new SealDetailDataSource(this);
-                        sealDetailDataSource.open();
-                        boolean response = sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        sealDetailDataSource.close();
-
-                        if (response) {
+                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
+                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
 
                             String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
 
@@ -762,14 +755,14 @@ public class StopOperationActivity extends AppCompatActivity {
 
                             } else {
 
-                                Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
                             }
 
                             scanSealDialog();
 
                         } else {
 
-                            Common.shortToast(context, Constant.ERR_MSG_INVALID_SEAL_NO);
+                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
                         }
                     }
 
@@ -782,12 +775,8 @@ public class StopOperationActivity extends AppCompatActivity {
 
                     } else {
 
-                        sealDetailDataSource = new SealDetailDataSource(this);
-                        sealDetailDataSource.open();
-                        boolean response = sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        sealDetailDataSource.close();
-
-                        if (response) {
+                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
+                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
 
                             String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
 
@@ -798,14 +787,14 @@ public class StopOperationActivity extends AppCompatActivity {
 
                             } else {
 
-                                Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
                             }
 
                             scanSealDialog();
 
                         } else {
 
-                            Common.shortToast(context, Constant.ERR_MSG_INVALID_SEAL_NO);
+                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
                         }
                     }
 
@@ -818,12 +807,8 @@ public class StopOperationActivity extends AppCompatActivity {
 
                     } else {
 
-                        sealDetailDataSource = new SealDetailDataSource(this);
-                        sealDetailDataSource.open();
-                        boolean response = sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        sealDetailDataSource.close();
-
-                        if (response) {
+                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
+                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
 
                             String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
                             String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
@@ -835,14 +820,14 @@ public class StopOperationActivity extends AppCompatActivity {
 
                             } else {
 
-                                Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
                             }
 
                             scanSealDialog();
 
                         } else {
 
-                            Common.shortToast(context, Constant.ERR_MSG_INVALID_SEAL_NO);
+                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
                         }
                     }
 
@@ -855,12 +840,8 @@ public class StopOperationActivity extends AppCompatActivity {
 
                     } else {
 
-                        sealDetailDataSource = new SealDetailDataSource(this);
-                        sealDetailDataSource.open();
-                        boolean response = sealDetailDataSource.checkRetrieveSealNo(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        sealDetailDataSource.close();
-
-                        if (response) {
+                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
+                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
 
                             String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
                             String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
@@ -873,37 +854,175 @@ public class StopOperationActivity extends AppCompatActivity {
 
                             } else {
 
-                                Common.shortToast(context, ERR_MSG_CANNOT_ADD_SEAL);
+                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
                             }
 
                             scanSealDialog();
 
                         } else {
 
-                            Common.shortToast(context, Constant.ERR_MSG_INVALID_SEAL_NO);
+                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
                         }
                     }
 
                 } else {
 
-                    Common.shortToast(this, Constant.SCAN_MSG_INVALID_DATA_RECEIVED);
+                    shortToast(this, SCAN_MSG_INVALID_DATA_RECEIVED);
                 }
 
             } else {
 
-                Common.shortToast(this, Constant.SCAN_MSG_NO_DATA_RECEIVED);
+                shortToast(this, SCAN_MSG_NO_DATA_RECEIVED);
             }
 
         } else {
             // If scan data is not received (for example, if the user cancels the scan by pressing the back button),
             // we can simply output a message.
-            Common.shortToast(this, Constant.SCAN_MSG_CANCEL_SCANNING);
+            shortToast(this, SCAN_MSG_CANCEL_SCANNING);
         }
+    }
+    //endregion
+
+    //region Footer
+    @OnClick(R.id.button_home)
+    public void btnHome(View view) {
+
+        Intent intent = new Intent(this, DashboardActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.button_search)
+    public void btnSearch(View view) {
+
+        Intent intent = new Intent(this, SearchJobActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.button_switch)
+    public void btnSwitch(View view) {
+
+        Intent intent = new Intent(this, SwitchJobActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
+    }
+
+    @OnClick(R.id.button_settings)
+    public void btnSettings(View view) {
+
+        popupMenu = new PopupMenu(this, view);
+
+        // This activity implements OnMenuItemClickListener
+        popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                switch (item.getItemId()) {
+
+                    case R.id.menu_check_in:
+                        Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
+                        isActivityStarted = true;
+                        startActivity(intentCheckIn);
+                        return true;
+
+                    case R.id.menu_check_out:
+                        Intent intentCheckOut = new Intent(getApplicationContext(), CheckOutActivity.class);
+                        isActivityStarted = true;
+                        startActivity(intentCheckOut);
+                        return true;
+
+                    case R.id.menu_sync_data:
+                        Intent intentSyncData = new Intent(getApplicationContext(), SyncDataActivity.class);
+                        isActivityStarted = true;
+                        startActivity(intentSyncData);
+                        return true;
+
+                    case R.id.menu_exit:
+                        exitApplication();
+                        return true;
+
+                    default:
+                        return false;
+                }
+            }
+        });
+        popupMenu.inflate(R.menu.settings_menu);
+        popupMenu.show();
+    }
+
+    public void exitApplication() {
+
+        if (exitDialog != null && exitDialog.isShowing()) return;
+
+        exitDialog = new Dialog(this);
+        exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        exitDialog.setContentView(R.layout.dialog_exit_app);
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
+
+        // if button is clicked, close the custom dialog
+        btnConfirm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //clear all shared preferences
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.clear().apply();
+
+                //check out all the loading bay
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
+
+                            loadingBayDetail = new LoadingBayDetail();
+                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+                            realm.copyToRealmOrUpdate(loadingBayDetail);
+                        }
+                    }
+                });
+
+                //close exit dialog
+                exitDialog.dismiss();
+
+                //clear all activity and start login activity
+                Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
+                intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                isActivityStarted = true;
+                startActivity(intentLogin);
+            }
+        });
+
+        Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
+        // if button is clicked, close the custom dialog
+        btnCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                exitDialog.dismiss();
+            }
+        });
+
+        int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
+        View divider = exitDialog.findViewById(dividerId);
+        if (divider != null) {
+            divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
+        }
+        assert exitDialog.getWindow() != null;
+        exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
+        exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        exitDialog.show();
     }
     //endregion
 
 	public void onBackPressed() {
 
+        Intent intent = new Intent(this, DashboardActivity.class);
+        isActivityStarted = true;
+        startActivity(intent);
 	}
 
     @Override
@@ -915,5 +1034,13 @@ public class StopOperationActivity extends AppCompatActivity {
 
             finish();
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+
+        super.onDestroy();
+
+        realm.close();
     }
 }

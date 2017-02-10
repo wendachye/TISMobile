@@ -1,26 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_job_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.bizconnectivity.tismobile.activities.JobMainActivity">
 
     <LinearLayout
-        android:id="@+id/headerLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
         <include
-            android:id="@+id/headerJobMain"
+            android:id="@+id/header_job_main"
             layout="@layout/job_header_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
         <include
-            android:id="@+id/driverSafetyCheck"
             layout="@layout/dialog_driver_safety_check"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
@@ -33,7 +30,7 @@
         android:layout_alignParentBottom="true">
 
         <include
-            android:id="@+id/footer"
+            android:id="@+id/footer_job_main"
             layout="@layout/footer_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />

@@ -205,7 +205,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 		exitDialog.setContentView(R.layout.dialog_exit_app);
 
 		//region button confirm
-		Button btnConfirm = (Button) exitDialog.findViewById(R.id.btnConfirm);
+		Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 		btnConfirm.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -231,7 +231,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 		//endregion
 
 		//region button cancel
-		Button btnCancel = (Button) exitDialog.findViewById(R.id.btnCancel);
+		Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
 		btnCancel.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
