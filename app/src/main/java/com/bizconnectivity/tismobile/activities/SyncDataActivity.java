@@ -190,7 +190,7 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		protected void onPreExecute() {
 
 			//start progress dialog
-			progressDialog = ProgressDialog.show(SyncDataActivity.this, "Please wait..", "Loading...", true);
+			progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
 		}
 
 		@Override
@@ -214,6 +214,7 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 						realm.where(GHSDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
 						realm.where(PPEDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
+						realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
 					}
 				});
 			}
@@ -232,7 +233,6 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 				@Override
 				public void execute(Realm realm) {
 
-					realm.where(SealDetail.class).findAll().deleteAllFromRealm();
 				}
 			});
 
@@ -326,9 +326,9 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		exitDialog = new Dialog(this);
 		exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 		exitDialog.setContentView(R.layout.dialog_exit_app);
-		Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-		// if button is clicked, close the custom dialog
+		//region button confirm
+		Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 		btnConfirm.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -363,9 +363,10 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 				startActivity(intentLogin);
 			}
 		});
+		//endregion
 
+		//region button cancel
 		Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
-		// if button is clicked, close the custom dialog
 		btnCancel.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
@@ -373,12 +374,11 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 				exitDialog.dismiss();
 			}
 		});
+		//endregion
 
 		int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
 		View divider = exitDialog.findViewById(dividerId);
-		if (divider != null) {
-			divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
-		}
+		if (divider != null) divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
 		assert exitDialog.getWindow() != null;
 		exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 		exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);

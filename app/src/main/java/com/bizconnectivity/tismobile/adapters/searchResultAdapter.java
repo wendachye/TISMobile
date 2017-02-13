@@ -15,48 +15,19 @@ import com.bizconnectivity.tismobile.activities.LoadingOperationActivity;
 import com.bizconnectivity.tismobile.activities.ScanDetailsActivity;
 import com.bizconnectivity.tismobile.activities.SearchResultActivity;
 import com.bizconnectivity.tismobile.activities.StopOperationActivity;
-import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
 
 import java.util.List;
 
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_CUSTOMER_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_DATE;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_JOB_STATUS;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_ARM;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOADING_BAY;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_OPERATOR_ID;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PRODUCT_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_START_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_PUMP_STOP_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_RACK_OUT_TIME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_SDS_FILE_PATH;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_TANK_NO;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_WORK_INSTRUCTION;
-import static com.bizconnectivity.tismobile.Constant.STATUS_BATCH_CONTROLLER;
-import static com.bizconnectivity.tismobile.Constant.STATUS_DRIVER_ID;
-import static com.bizconnectivity.tismobile.Constant.STATUS_OPERATOR_ID;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PENDING;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PPE;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_START;
-import static com.bizconnectivity.tismobile.Constant.STATUS_PUMP_STOP;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SAFETY_CHECKS;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_LOADING_ARM;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SCAN_SEAL;
-import static com.bizconnectivity.tismobile.Constant.STATUS_SDS;
-import static com.bizconnectivity.tismobile.Constant.STATUS_WORK_INSTRUCTION;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder>{
 
 	//region declaration
 	Context context;
-	List<JobDetail> items;
-	int itemLayout;
+	private List<JobDetail> items;
+	private int itemLayout;
 	AdapterCallBack adapterCallBack;
-	JobDetailDataSource jobDetailDataSource;
 	JobDetail jobDetail;
 	//endregion
 
@@ -114,12 +85,12 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 			//region retrieve job details
 			String jobID = items.get(getAdapterPosition()).getJobID();
 
-			jobDetail = new JobDetail();
-			jobDetailDataSource = new JobDetailDataSource(context);
-
-			jobDetailDataSource.open();
-			jobDetail = jobDetailDataSource.retrieveJobDetails(jobID);
-			jobDetailDataSource.close();
+//			jobDetail = new JobDetail();
+//			jobDetailDataSource = new JobDetailDataSource(context);
+//
+//			jobDetailDataSource.open();
+//			jobDetail = jobDetailDataSource.retrieveJobDetails(jobID);
+//			jobDetailDataSource.close();
 			//endregion
 
 			//store shared preferences

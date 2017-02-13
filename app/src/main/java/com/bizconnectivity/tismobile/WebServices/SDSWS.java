@@ -1,10 +1,5 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import android.util.Log;
-
-import com.bizconnectivity.tismobile.classes.SDS;
-import com.bizconnectivity.tismobile.Constant;
-
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;
 import org.ksoap2.serialization.PropertyInfo;
@@ -16,7 +11,7 @@ public class SDSWS {
 
 	public static String invokeRetrieveSDSWS (String timeslotID) {
 
-		SDS sds = new SDS();
+		String sdsURL = "";
 
 		//create request
 		SoapObject request = new SoapObject(ConstantWS.NAMESPACE, ConstantWS.WS_TS_GET_SDS_PDF);
@@ -46,7 +41,7 @@ public class SDSWS {
 
 			if(envelope.bodyIn instanceof SoapFault) {
 
-				sds.setSdsFileURL("");
+				sdsURL = "";
 
 			} else {
 
@@ -63,9 +58,12 @@ public class SDSWS {
 				SoapObject table = (SoapObject) newDataSet.getProperty(0);
 
 				if (!table.getProperty("MSDSfileName").toString().equals("anyType{}")) {
-					sds.setSdsFileURL(table.getProperty("MSDSfileName").toString());
+
+					sdsURL = table.getProperty("MSDSfileName").toString();
+
 				} else {
-					sds.setSdsFileURL("");
+
+					sdsURL = "";
 				}
 			}
 
@@ -74,6 +72,6 @@ public class SDSWS {
 			e.printStackTrace();
 		}
 
-		return sds.getSdsFileURL();
+		return sdsURL;
 	}
 }

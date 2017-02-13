@@ -1,6 +1,6 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import com.bizconnectivity.tismobile.classes.JobDetail;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
 
 import org.ksoap2.SoapEnvelope;
 import org.ksoap2.SoapFault;

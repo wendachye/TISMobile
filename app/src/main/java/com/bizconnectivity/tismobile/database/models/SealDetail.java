@@ -10,6 +10,12 @@ public class SealDetail extends RealmObject {
 	private String sealNo;
 	@Index
 	private String jobID;
+	private String status;
+
+	public SealDetail() {
+
+		this.status = "Unused";
+	}
 
 	public String getSealNo() {
 		return sealNo;
@@ -25,5 +31,13 @@ public class SealDetail extends RealmObject {
 
 	public void setJobID(String jobID) {
 		this.jobID = jobID;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
 	}
 }

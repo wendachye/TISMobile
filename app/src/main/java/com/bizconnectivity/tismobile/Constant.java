@@ -4,11 +4,12 @@ import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class Constant {
-    public static String KEY_ENCRYPT = "TISMOBILE";
     public static String SHARED_PREF_NAME = "SP_NAME";
     public static String SHARED_PREF_LOGIN_NAME = "SP_LOGIN_NAME";
     public static String SHARED_PREF_SCAN_VALUE = "SP_SCAN_VALUE";
     public static String SHARED_PREF_TECHNICIAN_ID = "SP_TECHNICIAN_ID";
+    public static final String KEY_ENCRYPT = "TISMOBILE";
+    public static final String KEY_SEARCH = "KEY_SEARCH";
 
     /*--------Job Details--------*/
 

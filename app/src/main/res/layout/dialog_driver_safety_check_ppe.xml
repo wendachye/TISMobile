@@ -136,7 +136,7 @@
                 android:background="@drawable/dialog_content_bg">
 
                 <Button
-                    android:id="@+id/button_ppe_cancel"
+                    android:id="@+id/button_cancel"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -145,7 +145,7 @@
                     android:textSize="@dimen/default_app_text"/>
 
                 <Button
-                    android:id="@+id/button_ppe_submit"
+                    android:id="@+id/button_confirm"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"

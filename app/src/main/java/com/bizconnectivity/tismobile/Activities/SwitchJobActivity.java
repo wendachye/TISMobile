@@ -47,8 +47,6 @@ public class SwitchJobActivity extends AppCompatActivity {
     TextView mTextViewHeader;
 
     //content
-    @BindView(R.id.text_switch_title)
-    TextView mTextViewSwitchTitle;
     @BindView(R.id.expandable_list_view)
     ExpandableListView mExpandableListView;
 
@@ -75,7 +73,6 @@ public class SwitchJobActivity extends AppCompatActivity {
     CustomExpandableListAdapter customExpandableListAdapter;
     PopupMenu popupMenu;
     Dialog exitDialog;
-    String trunkBayString;
     boolean isActivityStarted = false;
     //endregion
 
@@ -94,26 +91,21 @@ public class SwitchJobActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        //region header
+        //header
         mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
+        JobDetail jobDetailsss = realm.where(JobDetail.class).notEqualTo("jobStatus", "Pending").findFirst();
+
+
+        Log.d("LOG", "aa" + jobDetailsss.getLoadingBayNo());
+
         //region retrieve loading bay and job details
-        trunkBayString = "";
         jobListArray = new ArrayList<>();
 
         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING)) {
 
             jobList = new JobList();
             childArrayList = new ArrayList<>();
-
-            if (trunkBayString.isEmpty()) {
-
-                trunkBayString = results.getLoadingBayNo();
-
-            } else {
-
-                trunkBayString = loadingBayString(trunkBayString, results.getLoadingBayNo());
-            }
 
             for (JobDetail jobListResults : realm.where(JobDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo())
                     .notEqualTo("jobStatus", "Pending").equalTo("rackOutTime", "").findAll()) {
@@ -126,9 +118,6 @@ public class SwitchJobActivity extends AppCompatActivity {
 
             jobListArray.add(jobList);
         }
-        //endregion
-
-        mTextViewSwitchTitle.setText(formatCheckedInTruckLoadingBay(trunkBayString));
         //endregion
 
         //region expandable list view settings

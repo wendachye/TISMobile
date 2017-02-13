@@ -1,5 +1,7 @@
 package com.bizconnectivity.tismobile.webservices;
 
+import android.util.Log;
+
 import com.bizconnectivity.tismobile.database.models.JobDetail;
 
 import org.ksoap2.SoapEnvelope;
@@ -119,6 +121,7 @@ public class JobDetailWS {
 				}
 
 				if (!table.getProperty("LoadingBayNo").toString().equals("anyType{}")) {
+					Log.d("LOG", "aa" + table.getProperty("LoadingBayNo").toString());
 					jobDetail.setLoadingBayNo(table.getProperty("LoadingBayNo").toString());
 				} else {
 					jobDetail.setLoadingBayNo("");

@@ -20,12 +20,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.database.datasources.JobDetailDataSource;
-import com.bizconnectivity.tismobile.database.datasources.SealDetailDataSource;
+import com.bizconnectivity.tismobile.database.models.GHSDetail;
 import com.bizconnectivity.tismobile.database.models.JobDetail;
 import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
+import com.bizconnectivity.tismobile.database.models.PPEDetail;
 import com.bizconnectivity.tismobile.database.models.SealDetail;
-import com.bizconnectivity.tismobile.webservices.AddSealWSAsync;
+import com.bizconnectivity.tismobile.webservices.AddSealWS;
 import com.bizconnectivity.tismobile.webservices.CheckSealWSAsync;
 import com.bizconnectivity.tismobile.webservices.DepartureWS;
 import com.bizconnectivity.tismobile.webservices.PumpStopWS;
@@ -345,6 +345,7 @@ public class StopOperationActivity extends AppCompatActivity {
         }
     }
 
+    //region Seal
     public void scanSealDialog() {
 
         if (scanSealDialog != null && scanSealDialog.isShowing()) return;
@@ -432,30 +433,37 @@ public class StopOperationActivity extends AppCompatActivity {
 
         //region button confirm
 	    Button btnConfirm = (Button) scanSealDialog.findViewById(R.id.button_confirm);
-        // if button is clicked, close the custom dialog
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
 	            String jobID = sharedPref.getString(SHARED_PREF_JOB_ID, "");
 	            String updatedBy = sharedPref.getString(SHARED_PREF_LOGIN_NAME, "");
-	            String sealPos = "bottom";
-	            int totalCount = countSeal.size();
+	            String sealPosition = "bottom";
 
                 if (isNetworkAvailable(getApplicationContext())) {
 
-                    AddSealWSAsync task = new AddSealWSAsync(getApplicationContext(), scanSealDialog, totalCount, countSeal, jobID, sealPos, updatedBy);
-                    task.execute();
+                    new addSealWSAsync(countSeal, jobID, sealPosition, updatedBy).execute();
 
                 } else {
 
+                    //region update seal used
                     for (int i=0; i<countSeal.size(); i++) {
 
-//                        sealDetailDataSource = new SealDetailDataSource(getApplicationContext());
-//                        sealDetailDataSource.open();
-//                        sealDetailDataSource.insertSealDetails(jobID, countSeal.get(i));
-//                        sealDetailDataSource.close();
+                        final int finalI = i;
+                        realm.executeTransaction(new Realm.Transaction() {
+                            @Override
+                            public void execute(Realm realm) {
+
+                                SealDetail sealDetail = new SealDetail();
+                                sealDetail.setSealNo(countSeal.get(finalI));
+                                sealDetail.setStatus("Used");
+
+                                realm.copyToRealmOrUpdate(sealDetail);
+                            }
+                        });
                     }
+                    //endregion
 
                     //region update job status
                     SharedPreferences.Editor editor = sharedPref.edit();
@@ -476,8 +484,6 @@ public class StopOperationActivity extends AppCompatActivity {
 
                     //close scan seal dialog
                     scanSealDialog.dismiss();
-
-
                 }
 
             }
@@ -486,11 +492,11 @@ public class StopOperationActivity extends AppCompatActivity {
 
         //region button cancel
         Button btnCancel = (Button) scanSealDialog.findViewById(R.id.button_cancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                //close scan seal dialog
 	            scanSealDialog.dismiss();
             }
         });
@@ -534,6 +540,71 @@ public class StopOperationActivity extends AppCompatActivity {
         integrator.setBeepEnabled(true);
         integrator.initiateScan();
     }
+
+    private class addSealWSAsync extends AsyncTask<String, Void, Void> {
+
+        String sealPosition, updatedBy, jobID;
+        ArrayList<String> sealDetailArrayList;
+        Boolean response;
+        ProgressDialog progressDialog;
+
+        private addSealWSAsync(ArrayList<String> sealNo, String jobID, String sealPosition, String updatedBy) {
+
+            this.sealDetailArrayList = sealNo;
+            this.jobID = jobID;
+            this.sealPosition = sealPosition;
+            this.updatedBy = updatedBy;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            for (int i = 0; i < sealDetailArrayList.size(); i++) {
+
+                response = AddSealWS.invokeAddSealWS(sealDetailArrayList.get(i), jobID, sealPosition, updatedBy);
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            if (response) {
+
+                //region set job status
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        JobDetail jobDetail = new JobDetail();
+                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                        jobDetail.setJobStatus(STATUS_SCAN_SEAL);
+
+                        realm.copyToRealmOrUpdate(jobDetail);
+                    }
+                });
+                //endregion
+
+            } else {
+
+                //show error message
+                shortToast(getApplicationContext(), ERR_MSG_SEAL_CANNOT_ADD);
+            }
+        }
+    }
+
+    //endregion
 
     //region Departure
     public void btnDepartureClicked() {
@@ -697,6 +768,10 @@ public class StopOperationActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
+                        realm.where(JobDetail.class).equalTo("jobID", jobID).findFirst().deleteFromRealm();
+                        realm.where(GHSDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
+                        realm.where(PPEDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
+                        realm.where(SealDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
                     }
                 });
 

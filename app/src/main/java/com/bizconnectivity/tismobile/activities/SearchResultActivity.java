@@ -21,29 +21,57 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.adapters.SearchResultAdapter;
-import com.bizconnectivity.tismobile.classes.JobDetail;
-import com.bizconnectivity.tismobile.database.datasources.LoadingBayDetailDataSource;
+import com.bizconnectivity.tismobile.database.models.JobDetail;
+import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
-import static com.bizconnectivity.tismobile.Common.formatWelcomeMsg;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_LOGIN_NAME;
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import io.realm.Realm;
+
+import static com.bizconnectivity.tismobile.Common.*;
+import static com.bizconnectivity.tismobile.Constant.*;
 
 public class SearchResultActivity extends AppCompatActivity implements SearchResultAdapter.AdapterCallBack{
 
 	//region declaration
-	ImageButton btnHome, btnSearch, btnSwitch, btnSettings;
-	TextView headerMessage;
-	Dialog exitDialog;
+
+	//header
+	@BindView(R.id.header_search_result)
+	LinearLayout mLinearLayoutHeader;
+	@BindView(R.id.text_header)
+	TextView mTextViewHeader;
+
+	//content
+	@BindView(R.id.recycler_view)
 	RecyclerView recyclerView;
-	LinearLayout footerLayout;
-	LinearLayout headerLayout;
+
+	//footer
+	@BindView(R.id.footer_search_result)
+	LinearLayout mLinearLayoutFooter;
+	@BindView(R.id.button_home)
+	ImageButton mImageButtonHome;
+	@BindView(R.id.button_search)
+	ImageButton mImageButtonSearch;
+	@BindView(R.id.button_switch)
+	ImageButton mImageButtonSwitch;
+	@BindView(R.id.button_settings)
+	ImageButton mImageButtonSettings;
+
+	Realm realm;
+	LoadingBayDetail loadingBayDetail;
+	ArrayList<JobDetail> jobDetailArrayList;
+	PopupMenu popupMenu;
+	Dialog exitDialog;
 	SharedPreferences sharedPref;
 	SearchResultAdapter searchResultAdapter;
-	LoadingBayDetailDataSource loadingBayDetailDataSource;
-	ArrayList<JobDetail> jobDetailArrayList;
 	boolean isActivityStarted = false;
+
 	//endregion
 
 	@Override
@@ -52,113 +80,66 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_search_result);
 
+		ButterKnife.bind(this);
+		realm = Realm.getDefaultInstance();
 		sharedPref = getSharedPreferences(SHARED_PREF_NAME, Context.MODE_PRIVATE);
 
-		//region Header and Footer
+		//action bar
 		assert getSupportActionBar() != null;
 		getSupportActionBar().setDisplayShowHomeEnabled(true);
 		getSupportActionBar().setIcon(R.mipmap.ic_launcher);
 
-        /*-------- Set User Login Details --------*/
-		setUserLoginDetails();
+		//header
+		mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
-        /*-------- Footer Buttons --------*/
-		setFooterMenu();
-		//endregion
+		//get job details from intent
+		Intent intent = getIntent();
+		String json = intent.getExtras().getString(KEY_SEARCH);
 
-		jobDetailArrayList = (ArrayList<JobDetail>) getIntent().getSerializableExtra("jobDetailArrayList");
+		//convert to array list from json
+		Gson gson = new Gson();
+		Type type = new TypeToken<ArrayList<JobDetail>>(){}.getType();
+		jobDetailArrayList = gson.fromJson(json, type);
 
-		recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+		//recycler view setup
 		recyclerView.setLayoutManager(new LinearLayoutManager(this));
 		searchResultAdapter = new SearchResultAdapter(this, jobDetailArrayList, R.layout.list_view_search_result, this);
 		recyclerView.setAdapter(searchResultAdapter);
 	}
 
-	//region Header
-    /*-------- Set User Login Details --------*/
-	public void setUserLoginDetails() {
-
-		headerLayout = (LinearLayout) findViewById(R.id.headerResult);
-
-		headerMessage = (TextView) headerLayout.findViewById(R.id.headerMessage);
-		headerMessage.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
-	}
-	//endregion
 
 	//region Footer
-	public void setFooterMenu() {
-
-		footerLayout = (LinearLayout) findViewById(R.id.footer);
-
-		btnHome = (ImageButton) footerLayout.findViewById(R.id.button_home);
-		btnHome.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				btnHomeClicked();
-			}
-		});
-
-		btnSearch = (ImageButton) footerLayout.findViewById(R.id.button_search);
-		btnSearch.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				btnSearchClicked();
-			}
-		});
-
-		btnSwitch = (ImageButton) footerLayout.findViewById(R.id.button_switch);
-		btnSwitch.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				btnSwitchClicked();
-			}
-		});
-
-		btnSettings = (ImageButton) footerLayout.findViewById(R.id.button_settings);
-		btnSettings.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-
-				btnSettingsClicked(view);
-			}
-		});
-	}
-
-	public void btnSearchClicked() {
-
-		Intent intent = new Intent(this, SearchJobActivity.class);
-		isActivityStarted = true;
-		startActivity(intent);
-	}
-
-	public void btnHomeClicked() {
+	@OnClick(R.id.button_home)
+	public void btnHome(View view) {
 
 		Intent intent = new Intent(this, DashboardActivity.class);
 		isActivityStarted = true;
 		startActivity(intent);
 	}
 
-	public void btnSwitchClicked() {
+	@OnClick(R.id.button_search)
+	public void btnSearch(View view) {
+
+		Intent intent = new Intent(this, SearchJobActivity.class);
+		isActivityStarted = true;
+		startActivity(intent);
+	}
+
+	@OnClick(R.id.button_switch)
+	public void btnSwitch(View view) {
 
 		Intent intent = new Intent(this, SwitchJobActivity.class);
 		isActivityStarted = true;
 		startActivity(intent);
 	}
 
-	public void btnSettingsClicked(View view) {
+	@OnClick(R.id.button_settings)
+	public void btnSettings(View view) {
 
-		settingsMenuOptions(view);
-	}
-
-	public void settingsMenuOptions(View view) {
-
-		PopupMenu popup = new PopupMenu(this, view);
+		popupMenu = new PopupMenu(this, view);
 
 		// This activity implements OnMenuItemClickListener
-		popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+		popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 
@@ -168,10 +149,6 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 						Intent intentCheckIn = new Intent(getApplicationContext(), CheckInActivity.class);
 						isActivityStarted = true;
 						startActivity(intentCheckIn);
-						return true;
-
-					case R.id.menu_exit:
-						exitApplication();
 						return true;
 
 					case R.id.menu_check_out:
@@ -186,19 +163,22 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 						startActivity(intentSyncData);
 						return true;
 
+					case R.id.menu_exit:
+						exitApplication();
+						return true;
+
 					default:
 						return false;
 				}
 			}
 		});
-		popup.inflate(R.menu.settings_menu);
-		popup.show();
+		popupMenu.inflate(R.menu.settings_menu);
+		popupMenu.show();
 	}
 
 	public void exitApplication() {
 
-		if (exitDialog != null && exitDialog.isShowing())
-			return;
+		if (exitDialog != null && exitDialog.isShowing()) return;
 
 		exitDialog = new Dialog(this);
 		exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
@@ -210,20 +190,32 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 			@Override
 			public void onClick(View v) {
 
-				//close exit dialog
-				exitDialog.dismiss();
-
 				//clear all shared preferences
 				SharedPreferences.Editor editor = sharedPref.edit();
 				editor.clear().apply();
 
-				//delete all loading bay
-				loadingBayDetailDataSource = new LoadingBayDetailDataSource(getApplicationContext());
-				loadingBayDetailDataSource.deleteAllLoadingBay();
+				//check out all loading bay
+				realm.executeTransaction(new Realm.Transaction() {
+					@Override
+					public void execute(Realm realm) {
+
+						for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
+
+							loadingBayDetail = new LoadingBayDetail();
+							loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+							loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
+
+							realm.copyToRealmOrUpdate(loadingBayDetail);
+						}
+					}
+				});
+
+				//close exit dialog
+				exitDialog.dismiss();
 
 				//clear all activity and start login activity
 				Intent intentLogin = new Intent(getApplicationContext(), LoginActivity.class);
-				intentLogin.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+				intentLogin.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 				isActivityStarted = true;
 				startActivity(intentLogin);
 			}
@@ -236,7 +228,6 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 			@Override
 			public void onClick(View v) {
 
-				//close exit dialog
 				exitDialog.dismiss();
 			}
 		});
@@ -244,9 +235,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 
 		int dividerId = exitDialog.getContext().getResources().getIdentifier("android:id/titleDivider", null, null);
 		View divider = exitDialog.findViewById(dividerId);
-		if (divider != null) {
-			divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
-		}
+		if (divider != null) divider.setBackgroundColor(ContextCompat.getColor(this, R.color.colorTransparent));
 		assert exitDialog.getWindow() != null;
 		exitDialog.getWindow().setBackgroundDrawable(new ColorDrawable(android.graphics.Color.TRANSPARENT));
 		exitDialog.getWindow().setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -263,9 +252,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 	}
 
 	@Override
-	public void adapterOnClick(int adapterPosition) {
-
-	}
+	public void adapterOnClick(int adapterPosition) {}
 
 	@Override
 	protected void onStop() {
@@ -276,5 +263,13 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 
 			finish();
 		}
+	}
+
+	@Override
+	protected void onDestroy() {
+
+		super.onDestroy();
+
+		realm.close();
 	}
 }

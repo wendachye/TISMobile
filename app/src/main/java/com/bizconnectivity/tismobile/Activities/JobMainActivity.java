@@ -267,7 +267,7 @@ public class JobMainActivity extends AppCompatActivity {
         protected void onPreExecute() {
 
             //start progress dialog
-            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+            progressDialog = ProgressDialog.show(JobMainActivity.this, "Please wait..", "Loading...", true);
         }
 
         @Override
@@ -304,7 +304,6 @@ public class JobMainActivity extends AppCompatActivity {
     //region product ppe dialog
     private void ppeDialog(ArrayList<PPEDetail> ppeArrayList, ArrayList<GHSDetail> ghsArrayList) {
 
-        //region initial dialog
         if (scanPPEDialog != null && scanPPEDialog.isShowing()) return;
 
         scanPPEDialog = new Dialog(this);
@@ -316,7 +315,6 @@ public class JobMainActivity extends AppCompatActivity {
         TextView mTextViewProductName = (TextView) scanPPEDialog.findViewById(R.id.text_product_name);
         final RadioButton mRadioButtonGHS = (RadioButton) scanPPEDialog.findViewById(R.id.radio_ghs);
         final RadioButton mRadioButtonPPE = (RadioButton) scanPPEDialog.findViewById(R.id.radio_ppe);
-        //endregion
 
         //set product name
         mTextViewProductName.setText(sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
@@ -360,7 +358,7 @@ public class JobMainActivity extends AppCompatActivity {
             String ghsPictureUrl = GHS_FILE_LOCATION + ghsArrayList.get(j).getGhsURL();
             Picasso.with(this)
                     .load(ghsPictureUrl)
-                    .resize(100, 100)
+                    .resize(110, 100)
                     .into(image);
 
             linearLayoutArrayGHS.get(countLinearLayoutGHS).addView(image);
@@ -397,7 +395,7 @@ public class JobMainActivity extends AppCompatActivity {
             String ppePictureUrl = PPE_FILE_LOCATION + ppeArrayList.get(j).getPpeURL();
             Picasso.with(this)
                     .load(ppePictureUrl)
-                    .resize(100, 100)
+                    .resize(110, 100)
                     .into(image);
 
             linearLayoutArrayPPE.get(countLinearLayoutPPE).addView(image);
@@ -446,6 +444,7 @@ public class JobMainActivity extends AppCompatActivity {
 
                 } else {
 
+                    //show error message
                     shortToast(getApplicationContext(), ERR_MSG_CHECK_PPE);
                 }
             }
@@ -536,63 +535,63 @@ public class JobMainActivity extends AppCompatActivity {
                 case "AcuteToxicity":
                     Picasso.with(this)
                             .load(R.drawable.acute_toxicity)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "AspirationToxicity":
                     Picasso.with(this)
                             .load(R.drawable.aspiration_toxicity)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "Corrosive":
                     Picasso.with(this)
                             .load(R.drawable.corrosive)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "EnvironmentToxicity":
                     Picasso.with(this)
                             .load(R.drawable.environment_toxicity)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "Explosive":
                     Picasso.with(this)
                             .load(R.drawable.explosive)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "Flammable":
                     Picasso.with(this)
                             .load(R.drawable.flammable)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "GasesUnderPressure":
                     Picasso.with(this)
                             .load(R.drawable.gases_under_pressure)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "Irritant":
                     Picasso.with(this)
                             .load(R.drawable.irritant)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "Oxidiser":
                     Picasso.with(this)
                             .load(R.drawable.oxidiser)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
@@ -637,77 +636,77 @@ public class JobMainActivity extends AppCompatActivity {
                 case "ear_protection":
                     Picasso.with(this)
                             .load(R.drawable.ear_protection)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "face_shield":
                     Picasso.with(this)
                             .load(R.drawable.face_shield)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "foot_protection":
                     Picasso.with(this)
                             .load(R.drawable.foot_protection)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "hand_protection":
                     Picasso.with(this)
                             .load(R.drawable.hand_protection)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "head_protection":
                     Picasso.with(this)
                             .load(R.drawable.head_protection)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "mandatory_instruction":
                     Picasso.with(this)
                             .load(R.drawable.mandatory_instruction)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "pedestrian_route":
                     Picasso.with(this)
                             .load(R.drawable.pedestrian_route)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "protective_clothing":
                     Picasso.with(this)
                             .load(R.drawable.protective_clothing)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "respirator":
                     Picasso.with(this)
                             .load(R.drawable.respirator)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "safety_glasses":
                     Picasso.with(this)
                             .load(R.drawable.safety_glasses)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
                 case "safety_harness":
                     Picasso.with(this)
                             .load(R.drawable.safety_harness)
-                            .resize(100, 100)
+                            .resize(110, 100)
                             .into(image);
                     break;
 
@@ -806,7 +805,7 @@ public class JobMainActivity extends AppCompatActivity {
         protected void onPreExecute() {
 
             //start progress dialog
-            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+            progressDialog = ProgressDialog.show(JobMainActivity.this, "Please wait..", "Loading...", true);
         }
 
         @Override
