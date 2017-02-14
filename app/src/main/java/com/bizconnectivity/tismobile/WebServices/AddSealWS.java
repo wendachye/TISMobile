@@ -8,8 +8,6 @@ import org.ksoap2.serialization.SoapPrimitive;
 import org.ksoap2.serialization.SoapSerializationEnvelope;
 import org.ksoap2.transport.HttpTransportSE;
 
-import java.util.ArrayList;
-
 public class AddSealWS {
 
 	public static boolean invokeAddSealWS(String sealNo, String TimeSlotID, String sealPos, String UpdatedBy) {
@@ -76,7 +74,7 @@ public class AddSealWS {
 
 			if (envelope.bodyIn instanceof SoapFault) {
 
-				SoapFault response = (SoapFault) envelope.bodyIn;
+				returnResult = false;
 
 			} else {
 

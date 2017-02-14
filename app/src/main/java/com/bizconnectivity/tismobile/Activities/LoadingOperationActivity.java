@@ -184,7 +184,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_scan_loading_arm)
-    public void btnScanLoadingArm() {
+    public void btnScanLoadingArm(View view) {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_LOADING_ARM).apply();
@@ -197,13 +197,13 @@ public class LoadingOperationActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_batch_controller)
-    public void btnBatchController() {
+    public void btnBatchController(View view) {
 
         batchController();
     }
 
     @OnClick(R.id.button_pump_start)
-    public void btnPumpStart() {
+    public void btnPumpStart(View view) {
 
         btnPumpStartClicked();
     }

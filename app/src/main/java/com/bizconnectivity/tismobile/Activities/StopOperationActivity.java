@@ -159,13 +159,13 @@ public class StopOperationActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_pump_stop)
-    public void btnPumpStop() {
+    public void btnPumpStop(View view) {
 
         btnPumpStopClicked();
     }
 
     @OnClick(R.id.button_scan_seal)
-    public void btnScanSeal() {
+    public void btnScanSeal(View view) {
 
         if (sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "").isEmpty()) {
 
@@ -185,7 +185,7 @@ public class StopOperationActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_departure)
-    public void btnDeparture() {
+    public void btnDeparture(View view) {
 
         btnDepartureClicked();
     }

@@ -36,7 +36,7 @@ public class SDSWS {
 		HttpTransportSE androidHttpTransport = new HttpTransportSE(ConstantWS.URL);
 
 		try {
-			//invole web service
+			//invoke web service
 			androidHttpTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_GET_SDS_PDF, envelope);
 
 			if(envelope.bodyIn instanceof SoapFault) {

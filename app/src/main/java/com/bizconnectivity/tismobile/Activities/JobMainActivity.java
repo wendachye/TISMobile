@@ -173,7 +173,7 @@ public class JobMainActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_ppe)
-    public void btnPPE() {
+    public void btnPPE(View view) {
 
         if (isNetworkAvailable(getApplicationContext())) {
 
@@ -208,7 +208,7 @@ public class JobMainActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_sds)
-    public void btnSDS() {
+    public void btnSDS(View view) {
 
         if (isNetworkAvailable(getApplicationContext())) {
 
@@ -232,7 +232,7 @@ public class JobMainActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_scan_details)
-    public void btnScanDetails() {
+    public void btnScanDetails(View view) {
 
         Intent intent = new Intent(this, ScanDetailsActivity.class);
         isActivityStarted = true;
@@ -240,7 +240,7 @@ public class JobMainActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_safety_checks)
-    public void btnSafetyChecks() {
+    public void btnSafetyChecks(View view) {
 
         safetyChecksDialog();
     }
@@ -856,8 +856,8 @@ public class JobMainActivity extends AppCompatActivity {
         safetyChecksDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         safetyChecksDialog.setContentView(R.layout.dialog_driver_safety_check_vehicle);
 
-        final RadioButton mRadioButtonWheelChoked = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnWheelChocked);
-        final RadioButton mRadioButtonBondingWire = (RadioButton) safetyChecksDialog.findViewById(R.id.rbtnBondingWire);
+        final RadioButton mRadioButtonWheelChoked = (RadioButton) safetyChecksDialog.findViewById(R.id.radio_wheel_chocked);
+        final RadioButton mRadioButtonBondingWire = (RadioButton) safetyChecksDialog.findViewById(R.id.radio_bonding_wire);
 
         //region set radio button status
         if (sharedPref.getString(SHARED_PREF_JOB_STATUS, "").equals(STATUS_SAFETY_CHECKS)) {

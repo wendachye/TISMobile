@@ -21,7 +21,7 @@
             android:gravity="center_horizontal"
             android:paddingBottom="@dimen/dialog_header_title_text_spacing"
             android:paddingTop="@dimen/dialog_header_title_text_spacing"
-            android:text="SCAN BOTTOM SEAL"
+            android:text="@string/scan_seal"
             android:textStyle="bold"
             android:textSize="@dimen/header_title_text" />
     </LinearLayout>
@@ -43,12 +43,12 @@
             android:layout_marginLeft="@dimen/dialog_content_left_right_spacing"
             android:layout_marginRight="@dimen/dialog_content_left_right_spacing"
             android:layout_marginTop="@dimen/dialog_content_left_right_spacing"
-            android:text="SCAN MORE SEALS"
+            android:text="@string/scan_more_seal"
             android:textSize="@dimen/default_app_text" />
 
         <TextView
             android:id="@+id/tvSeal1"
-            android:layout_width="@dimen/dialog_textview_width"
+            android:layout_width="@dimen/dialog_text_view_width"
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_margin="@dimen/summary_spacing"
@@ -61,7 +61,7 @@
 
         <TextView
             android:id="@+id/tvSeal2"
-            android:layout_width="@dimen/dialog_textview_width"
+            android:layout_width="@dimen/dialog_text_view_width"
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_margin="@dimen/summary_spacing"
@@ -74,7 +74,7 @@
 
         <TextView
             android:id="@+id/tvSeal3"
-            android:layout_width="@dimen/dialog_textview_width"
+            android:layout_width="@dimen/dialog_text_view_width"
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_margin="@dimen/summary_spacing"
@@ -87,7 +87,7 @@
 
         <TextView
             android:id="@+id/tvSeal4"
-            android:layout_width="@dimen/dialog_textview_width"
+            android:layout_width="@dimen/dialog_text_view_width"
             android:layout_height="40dp"
             android:layout_gravity="center"
             android:layout_margin="@dimen/summary_spacing"
@@ -115,7 +115,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="@dimen/dialog_header_content_spacing"
                 android:layout_weight="1"
-                android:text="Cancel"
+                android:text="@android:string/cancel"
                 android:textSize="@dimen/default_app_text" />
 
             <Button
@@ -124,7 +124,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="1"
-                android:text="OK"
+                android:text="@android:string/ok"
                 android:textSize="@dimen/default_app_text" />
 
         </LinearLayout>

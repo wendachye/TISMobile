@@ -39,7 +39,7 @@ public class GHSWS {
 		HttpTransportSE androidHTTPTransport = new HttpTransportSE(ConstantWS.URL);
 
 		try {
-			//invole web service
+			//invoke web service
 			androidHTTPTransport.call(ConstantWS.SOAP_ACTION + ConstantWS.WS_TS_GET_PRODUCT_GHS, envelope);
 
 			if(envelope.bodyIn instanceof SoapFault) {

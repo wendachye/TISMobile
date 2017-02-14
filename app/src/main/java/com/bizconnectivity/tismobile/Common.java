@@ -1,15 +1,12 @@
 package com.bizconnectivity.tismobile;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.widget.Toast;
 
 import com.bizconnectivity.tismobile.database.models.JobDetail;
 
 import io.realm.Realm;
-
-import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 
 public class Common {
 

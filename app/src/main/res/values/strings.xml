@@ -44,6 +44,16 @@
     <string name="operator_id">OPERATOR ID</string>
     <string name="driver_id">DRIVER ID</string>
     <string name="work_instruction">WORK INSTRUCTION</string>
+    <string name="departure_title">DEPARTURE</string>
+    <string name="departure_message">Are you sure you want to departure?</string>
+    <string name="safety_checks_title">SAFETY CHECKS</string>
+    <string name="safety_checks_message">Is the wheel chocked?</string>
+    <string name="safety_checks_message2">Is the bonding wire connected?</string>
+    <string name="quit_title">QUIT APPLICATION</string>
+    <string name="quit_message">Are you sure you want to exit?</string>
+    <string name="pump_start_message">Are you sure you want to start pump?</string>
+    <string name="pump_stop_message">Are you sure you want to stop pump?</string>
+    <string name="scan_more_seal">SCAN MORE SEALS</string>
 
     <!-- footer button -->
     <string name="menu_settings">Settings</string>

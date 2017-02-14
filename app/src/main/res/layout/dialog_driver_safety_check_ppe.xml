@@ -76,7 +76,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="@dimen/dialog_textview_width"
+                    android:layout_width="@dimen/dialog_text_view_width"
                     android:layout_height="wrap_content"
                     android:text="@string/ghs_message"
                     android:textSize="@dimen/default_app_text" />
@@ -110,7 +110,7 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="@dimen/dialog_textview_width"
+                    android:layout_width="@dimen/dialog_text_view_width"
                     android:layout_height="wrap_content"
                     android:text="@string/ppe_message"
                     android:textSize="@dimen/default_app_text" />

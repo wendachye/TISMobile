@@ -157,7 +157,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_operator_id)
-    public void btnOperatorID() {
+    public void btnOperatorID(View view) {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_OPERATOR_ID).apply();
@@ -170,7 +170,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_driver_id)
-    public void btnDriverID() {
+    public void btnDriverID(View view) {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_DRIVER_ID).apply();
@@ -183,7 +183,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
     }
 
     @OnClick(R.id.button_work_instruction)
-    public void btnWorkInstruction() {
+    public void btnWorkInstruction(View view) {
 
         SharedPreferences.Editor editor = sharedPref.edit();
         editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_WORK_INSTRUCTION).apply();

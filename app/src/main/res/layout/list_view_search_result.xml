@@ -18,7 +18,7 @@
             android:layout_marginRight="@dimen/list_item_spacing"
             android:layout_weight="0.17"
             android:padding="@dimen/list_item_padding"
-            android:text="Order "
+            android:text="@string/order"
             android:textStyle=""
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
@@ -38,7 +38,7 @@
             android:layout_marginRight="@dimen/list_item_spacing"
             android:layout_weight="0.35"
             android:padding="@dimen/list_item_padding"
-            android:text="Customer"
+            android:text="@string/customer"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
 
@@ -57,7 +57,7 @@
             android:layout_marginRight="@dimen/list_item_spacing"
             android:layout_weight="0.33"
             android:padding="@dimen/list_item_padding"
-            android:text="Product"
+            android:text="@string/product"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
 
@@ -76,7 +76,7 @@
             android:layout_marginRight="@dimen/list_item_spacing"
             android:layout_weight="0.15"
             android:padding="@dimen/list_item_padding"
-            android:text="Tank No"
+            android:text="@string/tank_no"
             android:textColor="@color/colorBlack"
             android:textSize="@dimen/default_app_text" />
 

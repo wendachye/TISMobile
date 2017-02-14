@@ -127,7 +127,7 @@ public class SwitchJobActivity extends AppCompatActivity {
         //region expandable list view child onclick
         mExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
-            public boolean onChildClick(ExpandableListView parent, View view, int groupPostion, int childPosition, long id) {
+            public boolean onChildClick(ExpandableListView parent, View view, int groupPosition, int childPosition, long id) {
 
                 //retrieve job details
                 TextView jobID = (TextView) view.findViewById(R.id.text_job_id);

@@ -21,7 +21,7 @@
             android:gravity="center_horizontal"
             android:paddingBottom="@dimen/dialog_header_title_text_spacing"
             android:paddingTop="@dimen/dialog_header_title_text_spacing"
-            android:text="DEPARTURE"
+            android:text="@string/departure_title"
             android:textStyle="bold"
             android:textSize="@dimen/header_title_text"/>
     </LinearLayout>
@@ -41,7 +41,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="@dimen/dialog_header_content_spacing"
-            android:text="Are you sure you want to departure?"
+            android:text="@string/departure_message"
             android:textSize="@dimen/default_app_text"/>
 
         <LinearLayout
@@ -61,7 +61,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginBottom="@dimen/dialog_header_content_spacing"
                 android:layout_weight="1"
-                android:text="Cancel"
+                android:text="@android:string/cancel"
                 android:textSize="@dimen/default_app_text"/>
 
             <Button
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_weight="1"
-                android:text="OK"
+                android:text="@android:string/ok"
                 android:textSize="@dimen/default_app_text"/>
 
         </LinearLayout>

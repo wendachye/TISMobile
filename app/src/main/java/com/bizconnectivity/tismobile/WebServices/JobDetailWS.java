@@ -1,7 +1,5 @@
 package com.bizconnectivity.tismobile.webservices;
 
-import android.util.Log;
-
 import com.bizconnectivity.tismobile.database.models.JobDetail;
 
 import org.ksoap2.SoapEnvelope;

@@ -15,15 +15,15 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/tvCheckInTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:paddingBottom="@dimen/dialog_header_title_text_spacing"
             android:paddingTop="@dimen/dialog_header_title_text_spacing"
-            android:text="SAFETY CHECKS"
+            android:text="@string/safety_checks_title"
             android:textStyle="bold"
             android:textSize="@dimen/header_title_text" />
+
     </LinearLayout>
 
         <LinearLayout
@@ -33,7 +33,6 @@
             android:background="@drawable/dialog_content_bg">
 
             <ImageView
-                android:id="@+id/ivVehicleCheck"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="@dimen/dialog_content_left_right_spacing"
@@ -41,7 +40,6 @@
                 android:contentDescription="@string/safety_checks_image"/>
 
             <TextView
-                android:id="@+id/hDivider1"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/separator_width"
                 android:background="@color/colorBlack" />
@@ -54,20 +52,19 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tvWheelChocked"
-                    android:layout_width="@dimen/dialog_textview_width"
+                    android:layout_width="@dimen/dialog_text_view_width"
                     android:layout_height="wrap_content"
-                    android:text="Is the wheel chocked?"
+                    android:text="@string/safety_checks_message"
                     android:textSize="@dimen/default_app_text" />
 
                 <RadioButton
-                    android:id="@+id/rbtnWheelChocked"
+                    android:id="@+id/radio_wheel_chocked"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
+
             </LinearLayout>
 
             <TextView
-                android:id="@+id/hDivider2"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/separator_width"
                 android:background="@color/colorBlack" />
@@ -80,21 +77,19 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:id="@+id/tvBondingWire"
-                    android:layout_width="@dimen/dialog_textview_width"
+                    android:layout_width="@dimen/dialog_text_view_width"
                     android:layout_height="wrap_content"
-                    android:text="Is the bonding wire connected?"
+                    android:text="@string/safety_checks_message2"
                     android:textSize="@dimen/default_app_text" />
 
                 <RadioButton
-                    android:id="@+id/rbtnBondingWire"
+                    android:id="@+id/radio_bonding_wire"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
 
             </LinearLayout>
 
             <TextView
-                android:id="@+id/hDivider3"
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/separator_width"
                 android:background="@color/colorBlack" />
@@ -112,7 +107,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_weight="1"
-                    android:text="Cancel"
+                    android:text="@android:string/cancel"
                     android:textSize="@dimen/default_app_text" />
 
                 <Button
@@ -121,7 +116,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:layout_weight="1"
-                    android:text="OK"
+                    android:text="@android:string/ok"
                     android:textSize="@dimen/default_app_text" />
 
             </LinearLayout>

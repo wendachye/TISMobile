@@ -19,16 +19,17 @@ import com.bizconnectivity.tismobile.database.models.JobDetail;
 
 import java.util.List;
 
+import io.realm.Realm;
+
 import static com.bizconnectivity.tismobile.Constant.*;
 
 public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapter.ViewHolder>{
 
 	//region declaration
-	Context context;
+	private Context context;
 	private List<JobDetail> items;
 	private int itemLayout;
 	AdapterCallBack adapterCallBack;
-	JobDetail jobDetail;
 	//endregion
 
 	public SearchResultAdapter(Context context, List<JobDetail> items, int itemLayout, AdapterCallBack adapterCallBack) {
@@ -65,7 +66,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
 		TextView tvLoadingBayOrderId, tvLoadingBayCustomer, tvLoadingBayProduct, tvLoadingBayTankNo;
 
-		public ViewHolder(View itemView) {
+		ViewHolder(View itemView) {
 
 			super(itemView);
 
@@ -82,16 +83,10 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 
 			adapterCallBack.adapterOnClick(getAdapterPosition());
 
-			//region retrieve job details
+			//retrieve job details
 			String jobID = items.get(getAdapterPosition()).getJobID();
-
-//			jobDetail = new JobDetail();
-//			jobDetailDataSource = new JobDetailDataSource(context);
-//
-//			jobDetailDataSource.open();
-//			jobDetail = jobDetailDataSource.retrieveJobDetails(jobID);
-//			jobDetailDataSource.close();
-			//endregion
+			Realm realm = Realm.getDefaultInstance();
+			JobDetail jobDetail = realm.where(JobDetail.class).equalTo("jobID", jobID).findFirst();
 
 			//store shared preferences
 			storeJobDetailSharedPref(jobDetail);
@@ -124,7 +119,7 @@ public class SearchResultAdapter extends RecyclerView.Adapter<SearchResultAdapte
 		editor.apply();
 	}
 
-	public void statusNavigation(String jobStatus) {
+	private void statusNavigation(String jobStatus) {
 
 		switch (jobStatus) {
 
