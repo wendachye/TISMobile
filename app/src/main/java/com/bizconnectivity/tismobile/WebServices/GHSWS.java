@@ -59,7 +59,7 @@ public class GHSWS {
 		return ghsArrayList;
 	}
 
-	public static ArrayList<GHSDetail> getElementFromGHS (SoapObject response) {
+	private static ArrayList<GHSDetail> getElementFromGHS(SoapObject response) {
 
 		ArrayList<GHSDetail> ghsArrayList = new ArrayList<>();
 

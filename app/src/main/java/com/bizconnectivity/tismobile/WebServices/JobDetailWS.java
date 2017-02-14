@@ -71,7 +71,7 @@ public class JobDetailWS {
 		return jobDetailArrayList;
 	}
 
-	public static ArrayList<JobDetail> getElementFromJobDetail (SoapObject response) {
+	private static ArrayList<JobDetail> getElementFromJobDetail(SoapObject response) {
 
 		ArrayList<JobDetail> jobDetailArrayList = new ArrayList<>();
 
@@ -121,7 +121,6 @@ public class JobDetailWS {
 				}
 
 				if (!table.getProperty("LoadingBayNo").toString().equals("anyType{}")) {
-					Log.d("LOG", "aa" + table.getProperty("LoadingBayNo").toString());
 					jobDetail.setLoadingBayNo(table.getProperty("LoadingBayNo").toString());
 				} else {
 					jobDetail.setLoadingBayNo("");

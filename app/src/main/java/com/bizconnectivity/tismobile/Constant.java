@@ -75,6 +75,7 @@ public class Constant {
     public static String MSG_ORDER_ID_NOT_FOUND = "Order ID not found.";
     public static String MSG_CUSTOMER_NAME_NOT_FOUND = "Customer Name not found.";
     public static String ERR_MSG_CHECK_PPE = "Please check the Product PPE.";
+    public static String ERR_CONTACT_CUSTOMER_SERVICE = "ERROR, PLEASE CONTACT CUSTOMER SERVICE.";
 
     /*--------Text Messages--------*/
     public static String LOADING_BAY_NO_CHECK_IN = "Check In";

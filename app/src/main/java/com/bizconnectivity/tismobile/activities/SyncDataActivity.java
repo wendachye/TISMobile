@@ -202,7 +202,7 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 				PumpStopWS.invokeUpdatePumpStopWS(results.getJobID(), results.getPumpStopTime(), updatedBy);
 				DepartureWS.invokeAddDepartureWS(results.getJobID(), results.getRackOutTime(), updatedBy);
 
-				for (SealDetail seals : realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).findAll()) {
+				for (SealDetail seals : realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).equalTo("status", "Used").findAll()) {
 
 					AddSealWS.invokeAddSealWS(seals.getSealNo(), seals.getJobID(), "bottom", updatedBy);
 				}

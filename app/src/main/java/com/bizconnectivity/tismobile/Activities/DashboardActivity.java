@@ -67,8 +67,6 @@ public class DashboardActivity extends AppCompatActivity {
     ArrayList<JobDetail> childArrayList;
     ArrayList<JobList> jobListArray;
     JobList jobList;
-    JobDetail jobDetail;
-    LoadingBayDetail loadingBayDetail;
     PopupMenu popupMenu;
     Dialog exitDialog;
     CustomExpandableListAdapter customExpandableListAdapter;
@@ -146,11 +144,9 @@ public class DashboardActivity extends AppCompatActivity {
 
                 //retrieve job details
                 TextView jobID = (TextView) view.findViewById(R.id.text_job_id);
-                jobDetail = new JobDetail();
-                jobDetail = realm.where(JobDetail.class).equalTo("jobID", jobID.getText().toString()).findFirst();
 
                 //store shared preferences
-                storeJobDetailSharedPref(jobDetail);
+                storeJobDetailSharedPref(realm.where(JobDetail.class).equalTo("jobID", jobID.getText().toString()).findFirst());
 
                 //start job main activity
                 Intent intent = new Intent(getApplicationContext(), JobMainActivity.class);
@@ -279,9 +275,8 @@ public class DashboardActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-        // if button is clicked, close the custom dialog
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -297,7 +292,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                            loadingBayDetail = new LoadingBayDetail();
+                            LoadingBayDetail loadingBayDetail = realm.createObject(LoadingBayDetail.class);
                             loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 

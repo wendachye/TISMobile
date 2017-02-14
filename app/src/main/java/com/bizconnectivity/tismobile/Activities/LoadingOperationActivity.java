@@ -85,7 +85,6 @@ public class LoadingOperationActivity extends AppCompatActivity {
     ImageButton mImageButtonSettings;
 
     Realm realm;
-    LoadingBayDetail loadingBayDetail;
     PopupMenu popupMenu;
     Dialog exitDialog, batchControllerDialog, pumpStartDialog;
     SharedPreferences sharedPref;
@@ -277,26 +276,16 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                 if (!mEditTextLitre.getText().toString().isEmpty()) {
 
-                    //region update job status
+                    //update job status
                     String litre = mEditTextLitre.getText().toString();
                     String metric = mTextViewMetricTon.getText().toString();
 
-                    editor.putString(SHARED_PREF_BATCH_CONTROLLER_LITRE, litre).apply();
-                    editor.putString(SHARED_PREF_BATCH_CONTROLLER, metric).apply();
-                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_BATCH_CONTROLLER).apply();
+                    editor.putString(SHARED_PREF_BATCH_CONTROLLER_LITRE, litre);
+                    editor.putString(SHARED_PREF_BATCH_CONTROLLER, metric);
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_BATCH_CONTROLLER);
+                    editor.apply();
 
-                    realm.executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                            jobDetail.setJobStatus(STATUS_BATCH_CONTROLLER);
-
-                            realm.copyToRealmOrUpdate(jobDetail);
-                        }
-                    });
-                    //endregion
+                    updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_BATCH_CONTROLLER);
 
                     //set batch controller button
                     mButtonBatchController.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
@@ -358,6 +347,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                 if (isNetworkAvailable(getApplicationContext())) {
 
+                    //check with webservice
                     new pumpStartWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")).execute();
 
                     //close pump start dialog
@@ -370,7 +360,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                 } else {
 
-                    //region update job status
+                    //update job status
                     final Calendar calendar = Calendar.getInstance();
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(SHARED_PREF_PUMP_START_TIME, simpleDateFormat2.format(calendar.getTime()));
@@ -381,15 +371,13 @@ public class LoadingOperationActivity extends AppCompatActivity {
                         @Override
                         public void execute(Realm realm) {
 
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            JobDetail jobDetail = realm.where(JobDetail.class).equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).findFirst();
                             jobDetail.setJobStatus(STATUS_PUMP_START);
                             jobDetail.setPumpStartTime(simpleDateFormat2.format(calendar.getTime()));
 
                             realm.copyToRealmOrUpdate(jobDetail);
                         }
                     });
-                    //endregion
 
                     //close pump start dialog
                     pumpStartDialog.dismiss();
@@ -461,15 +449,13 @@ public class LoadingOperationActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
-                        JobDetail jobDetail = new JobDetail();
-                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                        JobDetail jobDetail = realm.where(JobDetail.class).equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).findFirst();
                         jobDetail.setJobStatus(STATUS_PUMP_START);
                         jobDetail.setPumpStartTime(simpleDateFormat2.format(calendar.getTime()));
 
                         realm.copyToRealmOrUpdate(jobDetail);
                     }
                 });
-
             }
         }
     }
@@ -497,25 +483,16 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                     if (isNetworkAvailable(this)) {
 
+                        //check with webservice
                         new loadingArmWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent).execute();
 
                     } else {
 
                         if (scanContent.equals(sharedPref.getString(SHARED_PREF_LOADING_ARM, ""))) {
 
+                            //update job status
                             editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_LOADING_ARM).apply();
-
-                            realm.executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm realm) {
-
-                                    JobDetail jobDetail = new JobDetail();
-                                    jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                                    jobDetail.setJobStatus(STATUS_SCAN_LOADING_ARM);
-
-                                    realm.copyToRealmOrUpdate(jobDetail);
-                                }
-                            });
+                            updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_LOADING_ARM);
 
                             //set loading arm button
                             mButtonScanLoadingArm.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
@@ -525,6 +502,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                         } else {
 
+                            //show error message
                             shortToast(this, ERR_MSG_INVALID_LOADING_ARM);
                         }
                     }
@@ -581,18 +559,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
                 //update job status
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_LOADING_ARM).apply();
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-
-                        JobDetail jobDetail = new JobDetail();
-                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                        jobDetail.setJobStatus(STATUS_SCAN_LOADING_ARM);
-
-                        realm.copyToRealmOrUpdate(jobDetail);
-                    }
-                });
+                updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_LOADING_ARM);
 
                 //set loading arm button
                 mButtonScanLoadingArm.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
@@ -690,9 +657,8 @@ public class LoadingOperationActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-        // if button is clicked, close the custom dialog
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -708,8 +674,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
 
                         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                            loadingBayDetail = new LoadingBayDetail();
-                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
                             realm.copyToRealmOrUpdate(loadingBayDetail);

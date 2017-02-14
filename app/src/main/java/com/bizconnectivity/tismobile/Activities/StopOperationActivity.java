@@ -26,7 +26,7 @@ import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
 import com.bizconnectivity.tismobile.database.models.PPEDetail;
 import com.bizconnectivity.tismobile.database.models.SealDetail;
 import com.bizconnectivity.tismobile.webservices.AddSealWS;
-import com.bizconnectivity.tismobile.webservices.CheckSealWSAsync;
+import com.bizconnectivity.tismobile.webservices.CheckSealWS;
 import com.bizconnectivity.tismobile.webservices.DepartureWS;
 import com.bizconnectivity.tismobile.webservices.PumpStopWS;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -84,7 +84,6 @@ public class StopOperationActivity extends AppCompatActivity {
     ImageButton mImageButtonSettings;
 
     Realm realm;
-    LoadingBayDetail loadingBayDetail;
     SharedPreferences sharedPref;
     PopupMenu popupMenu;
     Dialog exitDialog, pumpStopDialog, scanSealDialog, departureDialog;
@@ -168,7 +167,21 @@ public class StopOperationActivity extends AppCompatActivity {
     @OnClick(R.id.button_scan_seal)
     public void btnScanSeal() {
 
-        btnScanSealClicked();
+        if (sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "").isEmpty()) {
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL1).apply();
+
+            IntentIntegrator integrator = new IntentIntegrator(this);
+            integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
+            integrator.setPrompt(SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL);
+            integrator.setBeepEnabled(true);
+            integrator.initiateScan();
+
+        } else {
+
+            scanSealDialog();
+        }
     }
 
     @OnClick(R.id.button_departure)
@@ -194,12 +207,13 @@ public class StopOperationActivity extends AppCompatActivity {
 
                 if (isNetworkAvailable(getApplicationContext())) {
 
+                    //update webservice
                     new pumpStopWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")).execute();
 
                 } else {
 
-                    //region update job status
-                    Calendar calendar = Calendar.getInstance();
+                    //update local database
+                    final Calendar calendar = Calendar.getInstance();
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime()));
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PUMP_STOP);
@@ -209,8 +223,8 @@ public class StopOperationActivity extends AppCompatActivity {
                         @Override
                         public void execute(Realm realm) {
 
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            JobDetail jobDetail = realm.where(JobDetail.class).equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).findFirst();
+                            jobDetail.setPumpStopTime(simpleDateFormat2.format(calendar.getTime()));
                             jobDetail.setJobStatus(STATUS_PUMP_STOP);
 
                             realm.copyToRealmOrUpdate(jobDetail);
@@ -286,7 +300,7 @@ public class StopOperationActivity extends AppCompatActivity {
             if (response) {
 
                 //region update job status
-                Calendar calendar = Calendar.getInstance();
+                final Calendar calendar = Calendar.getInstance();
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString(SHARED_PREF_PUMP_STOP_TIME, simpleDateFormat2.format(calendar.getTime()));
                 editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PUMP_STOP);
@@ -296,8 +310,8 @@ public class StopOperationActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
-                        JobDetail jobDetail = new JobDetail();
-                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                        JobDetail jobDetail = realm.where(JobDetail.class).equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).findFirst();
+                        jobDetail.setPumpStopTime(simpleDateFormat2.format(calendar.getTime()));
                         jobDetail.setJobStatus(STATUS_PUMP_STOP);
 
                         realm.copyToRealmOrUpdate(jobDetail);
@@ -319,33 +333,15 @@ public class StopOperationActivity extends AppCompatActivity {
                 //close progress dialog
                 progressDialog.dismiss();
 
-                shortToast(getApplicationContext(), "ERROR, PLEASE CONTACT CUSTOMER SERVICE.");
+                //show error message
+                shortToast(getApplicationContext(), ERR_CONTACT_CUSTOMER_SERVICE);
             }
         }
     }
     //endregion
 
-    public void btnScanSealClicked() {
-
-        SharedPreferences.Editor editor = sharedPref.edit();
-
-        if (sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "").isEmpty()) {
-
-            editor.putString(SHARED_PREF_SCAN_VALUE, SCAN_VALUE_BOTTOM_SEAL1).apply();
-
-            IntentIntegrator integrator = new IntentIntegrator(this);
-            integrator.setDesiredBarcodeFormats(IntentIntegrator.ALL_CODE_TYPES);
-            integrator.setPrompt(SCAN_MSG_PROMPT_SCAN_BOTTOM_SEAL);
-            integrator.setBeepEnabled(true);
-            integrator.initiateScan();
-
-        } else {
-
-            scanSealDialog();
-        }
-    }
-
     //region Seal
+
     public void scanSealDialog() {
 
         if (scanSealDialog != null && scanSealDialog.isShowing()) return;
@@ -443,44 +439,31 @@ public class StopOperationActivity extends AppCompatActivity {
 
                 if (isNetworkAvailable(getApplicationContext())) {
 
+                    //update webservice
                     new addSealWSAsync(countSeal, jobID, sealPosition, updatedBy).execute();
 
                 } else {
 
-                    //region update seal used
-                    for (int i=0; i<countSeal.size(); i++) {
-
-                        final int finalI = i;
-                        realm.executeTransaction(new Realm.Transaction() {
-                            @Override
-                            public void execute(Realm realm) {
-
-                                SealDetail sealDetail = new SealDetail();
-                                sealDetail.setSealNo(countSeal.get(finalI));
-                                sealDetail.setStatus("Used");
-
-                                realm.copyToRealmOrUpdate(sealDetail);
-                            }
-                        });
-                    }
-                    //endregion
-
-                    //region update job status
-                    SharedPreferences.Editor editor = sharedPref.edit();
-                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
-
+                    //update local database
                     realm.executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
 
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                            jobDetail.setJobStatus(STATUS_SCAN_SEAL);
+                            for (int i = 0; i < countSeal.size(); i++) {
 
-                            realm.copyToRealmOrUpdate(jobDetail);
+                                SealDetail sealDetail = realm.where(SealDetail.class).equalTo("sealNo", countSeal.get(i)).findFirst();
+                                sealDetail.setStatus("Used");
+
+                                realm.copyToRealmOrUpdate(sealDetail);
+                            }
                         }
                     });
-                    //endregion
+
+
+                    //update job status
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
+                    updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_SEAL);
 
                     //close scan seal dialog
                     scanSealDialog.dismiss();
@@ -579,22 +562,10 @@ public class StopOperationActivity extends AppCompatActivity {
 
             if (response) {
 
-                //region set job status
+                //update job status
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-
-                        JobDetail jobDetail = new JobDetail();
-                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                        jobDetail.setJobStatus(STATUS_SCAN_SEAL);
-
-                        realm.copyToRealmOrUpdate(jobDetail);
-                    }
-                });
-                //endregion
+                updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_SEAL);
 
             } else {
 
@@ -603,6 +574,271 @@ public class StopOperationActivity extends AppCompatActivity {
             }
         }
     }
+
+    //region Barcode Scanner
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        IntentResult scanningIntentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+
+        if (scanningIntentResult != null) {
+
+            // Retrieve the content of the scan as strings value.
+            String scanContent = scanningIntentResult.getContents();
+
+            if (scanContent != null) {
+
+                String returnScanValue = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
+
+                if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL1)) {
+
+                    if (isNetworkAvailable(this)) {
+
+                        //check with webservice
+                        new checkSealWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent).execute();
+
+                    } else {
+
+                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
+                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
+
+                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+
+                            if (!scanContent.equals(seal1)) {
+
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString(SCAN_VALUE_BOTTOM_SEAL1, scanContent).apply();
+
+                            } else {
+
+                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
+                            }
+
+                            scanSealDialog();
+
+                        } else {
+
+                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
+                        }
+                    }
+
+                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL2)) {
+
+                    if (isNetworkAvailable(this)) {
+
+                        //check with webservice
+                        new checkSealWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent).execute();
+
+                    } else {
+
+                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
+                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
+
+                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+
+                            if (!scanContent.equals(seal1)) {
+
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString(SCAN_VALUE_BOTTOM_SEAL2, scanContent).apply();
+
+                            } else {
+
+                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
+                            }
+
+                            scanSealDialog();
+
+                        } else {
+
+                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
+                        }
+                    }
+
+                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL3)) {
+
+                    if (isNetworkAvailable(this)) {
+
+                        //check with webservice
+                        new checkSealWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent).execute();
+
+                    } else {
+
+                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
+                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
+
+                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+                            String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
+
+                            if (!scanContent.equals(seal1) && !scanContent.equals(seal2)) {
+
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString(SCAN_VALUE_BOTTOM_SEAL3, scanContent).apply();
+
+                            } else {
+
+                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
+                            }
+
+                            scanSealDialog();
+
+                        } else {
+
+                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
+                        }
+                    }
+
+                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL4)) {
+
+                    if (isNetworkAvailable(this)) {
+
+                        //check with webservice
+                        new checkSealWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent).execute();
+
+                    } else {
+
+                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
+                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
+
+                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+                            String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
+                            String seal3 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL3, "");
+
+                            if (!scanContent.equals(seal1) && !scanContent.equals(seal2) && !scanContent.equals(seal3)) {
+
+                                SharedPreferences.Editor editor = sharedPref.edit();
+                                editor.putString(SCAN_VALUE_BOTTOM_SEAL4, scanContent).apply();
+
+                            } else {
+
+                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
+                            }
+
+                            scanSealDialog();
+
+                        } else {
+
+                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
+                        }
+                    }
+
+                } else {
+
+                    shortToast(this, SCAN_MSG_INVALID_DATA_RECEIVED);
+                }
+
+            } else {
+
+                shortToast(this, SCAN_MSG_NO_DATA_RECEIVED);
+            }
+
+        } else {
+            // If scan data is not received (for example, if the user cancels the scan by pressing the back button),
+            // we can simply output a message.
+            shortToast(this, SCAN_MSG_CANCEL_SCANNING);
+        }
+    }
+
+    private class checkSealWSAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID, sealNo;
+        Boolean response;
+        ProgressDialog progressDialog;
+
+        private checkSealWSAsync(String jobID, String sealNo) {
+
+            this.jobID = jobID;
+            this.sealNo = sealNo;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(StopOperationActivity.this, "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            response = CheckSealWS.invokeCheckSeal(jobID, sealNo);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            SharedPreferences.Editor editor = sharedPref.edit();
+
+            if (response) {
+
+                String seal = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
+                String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
+                String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
+                String seal3 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL3, "");
+                String seal4 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL4, "");
+
+                if (seal.equals(SCAN_VALUE_BOTTOM_SEAL1)) {
+
+                    if (!sealNo.equals(seal1)) {
+
+                        editor.putString(SCAN_VALUE_BOTTOM_SEAL1, sealNo).apply();
+
+                    } else {
+
+                        shortToast(getApplicationContext(), ERR_MSG_CANNOT_ADD_SEAL);
+                    }
+
+                } else if (seal.equals(SCAN_VALUE_BOTTOM_SEAL2)) {
+
+                    if (!sealNo.equals(seal1) && !sealNo.equals(seal2)) {
+
+                        editor.putString(SCAN_VALUE_BOTTOM_SEAL2, sealNo).apply();
+
+                    } else {
+
+                        shortToast(getApplicationContext(), ERR_MSG_CANNOT_ADD_SEAL);
+                    }
+
+                } else if (seal.equals(SCAN_VALUE_BOTTOM_SEAL3)) {
+
+                    if (!sealNo.equals(seal1) && !sealNo.equals(seal2) && !sealNo.equals(seal3)) {
+
+                        editor.putString(SCAN_VALUE_BOTTOM_SEAL3, sealNo).apply();
+
+                    } else {
+
+                        shortToast(getApplicationContext(), ERR_MSG_CANNOT_ADD_SEAL);
+                    }
+
+                } else {
+
+                    if (!sealNo.equals(seal1) && !sealNo.equals(seal2) && !sealNo.equals(seal3) && !sealNo.equals(seal4)) {
+
+                        editor.putString(SCAN_VALUE_BOTTOM_SEAL4, sealNo).apply();
+
+                    } else {
+
+                        shortToast(getApplicationContext(), ERR_MSG_CANNOT_ADD_SEAL);
+                    }
+                }
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                scanSealDialog();
+
+            } else {
+
+                //close progress dialog
+                progressDialog.dismiss();
+
+                //show error message
+                shortToast(getApplicationContext(), ERR_MSG_INVALID_SEAL_NO);
+            }
+        }
+    }
+    //endregion
 
     //endregion
 
@@ -623,19 +859,19 @@ public class StopOperationActivity extends AppCompatActivity {
 
                 if (isNetworkAvailable(getApplicationContext())) {
 
+                    //update webservice
                     new departureWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")).execute();
 
                 } else {
 
-                    //update job rack out time
+                    //update local database
                     realm.executeTransaction(new Realm.Transaction() {
                         @Override
                         public void execute(Realm realm) {
 
                             Calendar calendar = Calendar.getInstance();
 
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
+                            JobDetail jobDetail = realm.where(JobDetail.class).equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).findFirst();
                             jobDetail.setRackOutTime(simpleDateFormat3.format(calendar.getTime()));
 
                             realm.copyToRealmOrUpdate(jobDetail);
@@ -795,169 +1031,6 @@ public class StopOperationActivity extends AppCompatActivity {
     }
     //endregion
 
-    //region Barcode Scanner
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        IntentResult scanningIntentResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-
-        if (scanningIntentResult != null) {
-
-            // Retrieve the content of the scan as strings value.
-            String scanContent = scanningIntentResult.getContents();
-
-            if (scanContent != null) {
-
-                String returnScanValue = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
-
-                if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL1)) {
-
-                    if (isNetworkAvailable(this)) {
-
-                        CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        task.execute();
-
-                    } else {
-
-                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
-                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
-
-                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
-
-                            if (!scanContent.equals(seal1)) {
-
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString(SCAN_VALUE_BOTTOM_SEAL1, scanContent).apply();
-
-                            } else {
-
-                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
-                            }
-
-                            scanSealDialog();
-
-                        } else {
-
-                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
-                        }
-                    }
-
-                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL2)) {
-
-                    if (isNetworkAvailable(this)) {
-
-                        CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        task.execute();
-
-                    } else {
-
-                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
-                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
-
-                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
-
-                            if (!scanContent.equals(seal1)) {
-
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString(SCAN_VALUE_BOTTOM_SEAL2, scanContent).apply();
-
-                            } else {
-
-                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
-                            }
-
-                            scanSealDialog();
-
-                        } else {
-
-                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
-                        }
-                    }
-
-                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL3)) {
-
-                    if (isNetworkAvailable(this)) {
-
-                        CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        task.execute();
-
-                    } else {
-
-                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
-                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
-
-                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
-                            String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
-
-                            if (!scanContent.equals(seal1) && !scanContent.equals(seal2)) {
-
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString(SCAN_VALUE_BOTTOM_SEAL3, scanContent).apply();
-
-                            } else {
-
-                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
-                            }
-
-                            scanSealDialog();
-
-                        } else {
-
-                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
-                        }
-                    }
-
-                } else if (returnScanValue.equals(SCAN_VALUE_BOTTOM_SEAL4)) {
-
-                    if (isNetworkAvailable(this)) {
-
-                        CheckSealWSAsync task = new CheckSealWSAsync(this, sharedPref.getString(SHARED_PREF_JOB_ID, ""), scanContent);
-                        task.execute();
-
-                    } else {
-
-                        if (realm.where(SealDetail.class).equalTo("sealNo", scanContent)
-                                .equalTo("jobID", sharedPref.getString(SHARED_PREF_JOB_ID, "")).count() > 0) {
-
-                            String seal1 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL1, "");
-                            String seal2 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL2, "");
-                            String seal3 = sharedPref.getString(SCAN_VALUE_BOTTOM_SEAL3, "");
-
-                            if (!scanContent.equals(seal1) && !scanContent.equals(seal2) && !scanContent.equals(seal3)) {
-
-                                SharedPreferences.Editor editor = sharedPref.edit();
-                                editor.putString(SCAN_VALUE_BOTTOM_SEAL4, scanContent).apply();
-
-                            } else {
-
-                                shortToast(this, ERR_MSG_CANNOT_ADD_SEAL);
-                            }
-
-                            scanSealDialog();
-
-                        } else {
-
-                            shortToast(this, ERR_MSG_INVALID_SEAL_NO);
-                        }
-                    }
-
-                } else {
-
-                    shortToast(this, SCAN_MSG_INVALID_DATA_RECEIVED);
-                }
-
-            } else {
-
-                shortToast(this, SCAN_MSG_NO_DATA_RECEIVED);
-            }
-
-        } else {
-            // If scan data is not received (for example, if the user cancels the scan by pressing the back button),
-            // we can simply output a message.
-            shortToast(this, SCAN_MSG_CANCEL_SCANNING);
-        }
-    }
-    //endregion
-
     //region Footer
     @OnClick(R.id.button_home)
     public void btnHome(View view) {
@@ -1051,8 +1124,7 @@ public class StopOperationActivity extends AppCompatActivity {
 
                         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                            loadingBayDetail = new LoadingBayDetail();
-                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
                             realm.copyToRealmOrUpdate(loadingBayDetail);

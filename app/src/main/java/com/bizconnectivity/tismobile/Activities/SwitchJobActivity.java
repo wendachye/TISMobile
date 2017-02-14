@@ -9,7 +9,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -63,7 +62,6 @@ public class SwitchJobActivity extends AppCompatActivity {
     ImageButton mImageButtonSettings;
 
     Realm realm;
-    LoadingBayDetail loadingBayDetail;
     JobList jobList;
     JobDetail jobDetail;
     ArrayList<JobList> jobListArray;
@@ -94,11 +92,6 @@ public class SwitchJobActivity extends AppCompatActivity {
         //header
         mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
-        JobDetail jobDetailsss = realm.where(JobDetail.class).notEqualTo("jobStatus", "Pending").findFirst();
-
-
-        Log.d("LOG", "aa" + jobDetailsss.getLoadingBayNo());
-
         //region retrieve loading bay and job details
         jobListArray = new ArrayList<>();
 
@@ -107,8 +100,8 @@ public class SwitchJobActivity extends AppCompatActivity {
             jobList = new JobList();
             childArrayList = new ArrayList<>();
 
-            for (JobDetail jobListResults : realm.where(JobDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo())
-                    .notEqualTo("jobStatus", "Pending").equalTo("rackOutTime", "").findAll()) {
+            for (JobDetail jobListResults : realm.where(JobDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).equalTo("rackOutTime", "")
+                    .notEqualTo("jobStatus", "Pending").findAll()) {
 
                 childArrayList.add(jobListResults);
             }
@@ -349,14 +342,12 @@ public class SwitchJobActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-        // if button is clicked, close the custom dialog
+        //region button confirm
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
 
                 //clear all shared preferences
                 SharedPreferences.Editor editor = sharedPref.edit();
@@ -369,8 +360,7 @@ public class SwitchJobActivity extends AppCompatActivity {
 
                         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                            loadingBayDetail = new LoadingBayDetail();
-                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
                             realm.copyToRealmOrUpdate(loadingBayDetail);
@@ -388,9 +378,9 @@ public class SwitchJobActivity extends AppCompatActivity {
                 startActivity(intentLogin);
             }
         });
+        //endregion
 
         Button btnCancel = (Button) exitDialog.findViewById(R.id.button_cancel);
-        // if button is clicked, close the custom dialog
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

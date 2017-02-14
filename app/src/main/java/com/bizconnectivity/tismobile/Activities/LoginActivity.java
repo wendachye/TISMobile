@@ -36,7 +36,6 @@ public class LoginActivity extends AppCompatActivity {
 	TextInputEditText mEditTextPassword;
 
 	Realm realm;
-	UserDetail userDetail;
 	SharedPreferences sharedPref;
 	View focusView;
 	String username, password;
@@ -110,7 +109,7 @@ public class LoginActivity extends AppCompatActivity {
 					editor.putString(SHARED_PREF_LOGIN_NAME, username).apply();
 
 					//navigate to dashboard activity
-					Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+					Intent intent = new Intent(this, DashboardActivity.class);
 					finish();
 					startActivity(intent);
 
@@ -129,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
 					editor.putString(SHARED_PREF_LOGIN_NAME, username).apply();
 
 					//navigate to dashboard activity
-					Intent intent = new Intent(getApplicationContext(), DashboardActivity.class);
+					Intent intent = new Intent(this, DashboardActivity.class);
 					finish();
 					startActivity(intent);
 
@@ -159,9 +158,9 @@ public class LoginActivity extends AppCompatActivity {
 
 		focusView = mEditTextUsername;
 		focusView.requestFocus();
-
 	}
 
+	//region offline check user details
 	private void checkUserLogin(String username, String password) {
 
 		String encryptedPassword = "";
@@ -175,12 +174,7 @@ public class LoginActivity extends AppCompatActivity {
 			e.printStackTrace();
 		}
 
-		if (realm.where(UserDetail.class).equalTo("username", username).equalTo("password", encryptedPassword).count() == 0) {
-
-			//prompt error message
-			shortToast(getApplicationContext(), ERR_MSG_LOGIN_INCORRECT);
-
-		} else {
+		if (realm.where(UserDetail.class).equalTo("username", username).equalTo("password", encryptedPassword).count() > 0) {
 
 			//save login username
 			SharedPreferences.Editor editor = sharedPref.edit();
@@ -190,9 +184,16 @@ public class LoginActivity extends AppCompatActivity {
 			Intent intent = new Intent(this, DashboardActivity.class);
 			finish();
 			startActivity(intent);
+
+		} else {
+
+			//prompt error message
+			shortToast(getApplicationContext(), ERR_MSG_LOGIN_INCORRECT);
 		}
 	}
+	//endregion
 
+	//region webservice check user details
 	private class loginAsync extends AsyncTask<String, Void, Void> {
 
 		ProgressDialog progressDialog;
@@ -221,11 +222,6 @@ public class LoginActivity extends AppCompatActivity {
 		}
 
 		@Override
-		protected void onProgressUpdate(Void... values) {
-
-		}
-
-		@Override
 		protected void onPostExecute(Void result) {
 
 			if (response) {
@@ -243,9 +239,19 @@ public class LoginActivity extends AppCompatActivity {
 						@Override
 						public void execute(Realm realm) {
 
-							userDetail = new UserDetail();
-							userDetail.setUsername(username);
-							userDetail.setPassword(encryptedPassword);
+							UserDetail userDetail;
+
+							if (realm.where(UserDetail.class).equalTo("username", username).count() > 0) {
+
+								userDetail = realm.where(UserDetail.class).equalTo("username", username).findFirst();
+								userDetail.setPassword(encryptedPassword);
+
+
+							} else {
+
+								userDetail = realm.createObject(UserDetail.class, username);
+								userDetail.setPassword(encryptedPassword);
+							}
 
 							realm.copyToRealmOrUpdate(userDetail);
 						}
@@ -274,6 +280,7 @@ public class LoginActivity extends AppCompatActivity {
 			}
 		}
 	}
+	//endregion
 
 	@Override
 	protected void onDestroy() {

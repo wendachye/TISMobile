@@ -64,7 +64,6 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 	ImageButton mImageButtonSettings;
 
 	Realm realm;
-	LoadingBayDetail loadingBayDetail;
 	ArrayList<JobDetail> jobDetailArrayList;
 	PopupMenu popupMenu;
 	Dialog exitDialog;
@@ -201,8 +200,7 @@ public class SearchResultActivity extends AppCompatActivity implements SearchRes
 
 						for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-							loadingBayDetail = new LoadingBayDetail();
-							loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+							LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
 							loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
 							realm.copyToRealmOrUpdate(loadingBayDetail);

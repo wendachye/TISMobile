@@ -26,6 +26,7 @@ public class JobDetail extends RealmObject {
 	public JobDetail() {
 
 		this.jobStatus = "Pending";
+		this.rackOutTime = "";
 	}
 
 	public String getJobID() {

@@ -20,7 +20,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
-import com.bizconnectivity.tismobile.database.models.JobDetail;
 import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
 import com.bizconnectivity.tismobile.webservices.DriverIDWS;
 import com.google.zxing.integration.android.IntentIntegrator;
@@ -77,7 +76,6 @@ public class ScanDetailsActivity extends AppCompatActivity {
     ImageButton mImageButtonSettings;
 
     Realm realm;
-    LoadingBayDetail loadingBayDetail;
     Dialog exitDialog;
     PopupMenu popupMenu;
     String jobStatus, operatorID, driverID;
@@ -212,26 +210,13 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                 String returnScanValue = sharedPref.getString(SHARED_PREF_SCAN_VALUE, "");
                 SharedPreferences.Editor editor = sharedPref.edit();
-                editor.remove(SHARED_PREF_SCAN_VALUE);
-                editor.apply();
+                editor.remove(SHARED_PREF_SCAN_VALUE).apply();
 
                 if (returnScanValue.equals(SCAN_VALUE_OPERATOR_ID)) {
 
-                    //region update job status
-                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_OPERATOR_ID).commit();
-
-                    realm.executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                            jobDetail.setJobStatus(STATUS_OPERATOR_ID);
-
-                            realm.copyToRealmOrUpdate(jobDetail);
-                        }
-                    });
-                    //endregion
+                    //update job status
+                    editor.putString(SHARED_PREF_JOB_STATUS, STATUS_OPERATOR_ID).apply();
+                    updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_OPERATOR_ID);
 
                     //set operator id button
                     mTextViewOperatorID.setText(scanContent);
@@ -250,21 +235,9 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                         if (scanContent.equals(sharedPref.getString(SHARED_PREF_DRIVER_ID, ""))) {
 
-                            //region update job status
+                            //update job status
                             editor.putString(SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).apply();
-
-                            realm.executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm realm) {
-
-                                    JobDetail jobDetail = new JobDetail();
-                                    jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                                    jobDetail.setJobStatus(STATUS_DRIVER_ID);
-
-                                    realm.copyToRealmOrUpdate(jobDetail);
-                                }
-                            });
-                            //endregion
+                            updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_DRIVER_ID);
 
                             //set driver id button
                             mButtonDriverID.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
@@ -283,21 +256,9 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                     if (scanContent.equals(sharedPref.getString(SHARED_PREF_JOB_ID, ""))) {
 
-                        //region update job status
+                        //update job status
                         editor.putString(SHARED_PREF_JOB_STATUS, STATUS_WORK_INSTRUCTION).apply();
-
-                        realm.executeTransaction(new Realm.Transaction() {
-                            @Override
-                            public void execute(Realm realm) {
-
-                                JobDetail jobDetail = new JobDetail();
-                                jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                                jobDetail.setJobStatus(STATUS_WORK_INSTRUCTION);
-                                 realm.copyToRealmOrUpdate(jobDetail);
-
-                            }
-                        });
-                        //endregion
+                        updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_WORK_INSTRUCTION);
 
                         //navigate to job main activity
                         Intent intent = new Intent(this, JobMainActivity.class);
@@ -359,22 +320,10 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
             if (response) {
 
-                //region update job status
+                //update job status
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString(SHARED_PREF_JOB_STATUS, STATUS_DRIVER_ID).apply();
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-
-                        JobDetail jobDetail = new JobDetail();
-                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                        jobDetail.setJobStatus(STATUS_DRIVER_ID);
-
-                        realm.copyToRealmOrUpdate(jobDetail);
-                    }
-                });
-                //endregion
+                updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_DRIVER_ID);
 
                 //set driver id button
                 mButtonDriverID.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
@@ -472,9 +421,8 @@ public class ScanDetailsActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-        // if button is clicked, close the custom dialog
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -490,8 +438,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
 
                         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                            loadingBayDetail = new LoadingBayDetail();
-                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
                             realm.copyToRealmOrUpdate(loadingBayDetail);

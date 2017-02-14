@@ -81,7 +81,6 @@ public class CheckInActivity extends AppCompatActivity {
 
     Realm realm;
     RealmResults<LoadingBayDetail> loadingBayDetailResults;
-    LoadingBayDetail loadingBayDetail;
     PopupMenu popupMenu;
     Dialog exitDialog;
     SharedPreferences sharedPref;
@@ -108,9 +107,7 @@ public class CheckInActivity extends AppCompatActivity {
         mTextViewHeader.setText(formatCheckInMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
         //region initial technician nric
-        technicianID = sharedPref.getString(SHARED_PREF_TECHNICIAN_ID, "");
-
-        if (!technicianID.isEmpty()) {
+        if (!sharedPref.getString(SHARED_PREF_TECHNICIAN_ID, "").isEmpty()) {
 
             mTextViewTechnicianNRIC.setText(technicianID);
             mButtonTechnicianNRIC.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
@@ -274,7 +271,6 @@ public class CheckInActivity extends AppCompatActivity {
     //region retrieve loading bay
     private class loadingBayAsync extends AsyncTask<String, Void, Void> {
 
-        LoadingBayDetail loadingBayDetail;
         ProgressDialog progressDialog;
         String rackNo;
         boolean response;
@@ -311,8 +307,8 @@ public class CheckInActivity extends AppCompatActivity {
                         @Override
                         public void execute(Realm realm) {
 
-                            loadingBayDetail = new LoadingBayDetail();
-                            loadingBayDetail.setLoadingBayNo(rackNo);
+                            //update loading bay
+                            LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", rackNo).findFirst();
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_IN);
 
                             realm.copyToRealmOrUpdate(loadingBayDetail);
@@ -321,6 +317,7 @@ public class CheckInActivity extends AppCompatActivity {
 
                 } else if (realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", rackNo).equalTo("status", LOADING_BAY_NO_CHECK_IN).count() > 0) {
 
+                    //same loading bay
                     shortToast(getApplicationContext(), ERR_MSG_TRUCK_BAY_ALREADY_CHECKED_IN);
 
                 } else {
@@ -329,8 +326,8 @@ public class CheckInActivity extends AppCompatActivity {
                         @Override
                         public void execute(Realm realm) {
 
-                            loadingBayDetail = new LoadingBayDetail();
-                            loadingBayDetail.setLoadingBayNo(rackNo);
+                            //insert loading bay
+                            LoadingBayDetail loadingBayDetail = realm.createObject(LoadingBayDetail.class, rackNo);
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_IN);
 
                             realm.copyToRealm(loadingBayDetail);
@@ -362,7 +359,6 @@ public class CheckInActivity extends AppCompatActivity {
 
         String rackNo;
         ArrayList<JobDetail> jobDetailArrayList;
-        JobDetail jobDetail;
 
         private  jobDetailsAsync(String rackNo) {
 
@@ -378,7 +374,7 @@ public class CheckInActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(final Void result) {
 
             for (final JobDetail results : jobDetailArrayList) {
 
@@ -386,17 +382,34 @@ public class CheckInActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
-                        jobDetail = new JobDetail();
-                        jobDetail.setJobID(results.getJobID());
-                        jobDetail.setCustomerName(results.getCustomerName());
-                        jobDetail.setProductName(results.getProductName());
-                        jobDetail.setTankNo(results.getTankNo());
-                        jobDetail.setLoadingBayNo(results.getLoadingBayNo());
-                        jobDetail.setLoadingArm(results.getLoadingArm());
-                        jobDetail.setSdsFilePath(results.getSdsFilePath());
-                        jobDetail.setOperatorID(results.getOperatorID());
-                        jobDetail.setDriverID(results.getDriverID());
-                        jobDetail.setJobDate(results.getJobDate());
+                        JobDetail jobDetail;
+
+                        if (realm.where(JobDetail.class).equalTo("jobID", results.getJobID()).count() > 0) {
+
+                            jobDetail = realm.where(JobDetail.class).equalTo("jobID", results.getJobID()).findFirst();
+                            jobDetail.setCustomerName(results.getCustomerName());
+                            jobDetail.setProductName(results.getProductName());
+                            jobDetail.setTankNo(results.getTankNo());
+                            jobDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            jobDetail.setLoadingArm(results.getLoadingArm());
+                            jobDetail.setSdsFilePath(results.getSdsFilePath());
+                            jobDetail.setOperatorID(results.getOperatorID());
+                            jobDetail.setDriverID(results.getDriverID());
+                            jobDetail.setJobDate(results.getJobDate());
+
+                        } else {
+
+                            jobDetail = realm.createObject(JobDetail.class, results.getJobID());
+                            jobDetail.setCustomerName(results.getCustomerName());
+                            jobDetail.setProductName(results.getProductName());
+                            jobDetail.setTankNo(results.getTankNo());
+                            jobDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            jobDetail.setLoadingArm(results.getLoadingArm());
+                            jobDetail.setSdsFilePath(results.getSdsFilePath());
+                            jobDetail.setOperatorID(results.getOperatorID());
+                            jobDetail.setDriverID(results.getDriverID());
+                            jobDetail.setJobDate(results.getJobDate());
+                        }
 
                         realm.copyToRealmOrUpdate(jobDetail);
                     }
@@ -414,9 +427,7 @@ public class CheckInActivity extends AppCompatActivity {
     private class PPEGHSAsync extends AsyncTask<String, Void, Void> {
 
         ArrayList<PPEDetail> ppeArrayList;
-        PPEDetail ppeDetail;
         ArrayList<GHSDetail> ghsArrayList;
-        GHSDetail ghsDetail;
         String jobID, productName, ppeName, ghsName;
 
         private PPEGHSAsync(String jobID, String productName) {
@@ -443,35 +454,27 @@ public class CheckInActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
-                        ppeDetail = new PPEDetail();
+                        PPEDetail ppeDetail;
                         ppeName = results.getPpeURL().substring(0, results.getPpeURL().indexOf("."));
 
-                        if (realm.where(PPEDetail.class).equalTo("jobID", jobID).equalTo("ppeName", ppeName).count() == 0) {
+                        realm.where(PPEDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
 
-                            if (realm.where(PPEDetail.class).max("ppeID") == null) {
+                        if (realm.where(PPEDetail.class).max("ppeID") == null) {
 
-                                ppeDetail.setPpeID(1);
-
-                            } else {
-
-                                ppeDetail.setPpeID(realm.where(PPEDetail.class).max("ppeID").intValue() + 1);
-                            }
-
+                            ppeDetail = realm.createObject(PPEDetail.class, 1);
                             ppeDetail.setPpeName(ppeName);
                             ppeDetail.setPpeURL(results.getPpeURL());
                             ppeDetail.setJobID(jobID);
-
-                            realm.copyToRealm(ppeDetail);
 
                         } else {
 
-                            ppeDetail.setPpeID(realm.where(PPEDetail.class).max("ppeID").intValue() + 1);
+                            ppeDetail = realm.createObject(PPEDetail.class, realm.where(PPEDetail.class).max("ppeID").intValue() + 1);
                             ppeDetail.setPpeName(ppeName);
                             ppeDetail.setPpeURL(results.getPpeURL());
                             ppeDetail.setJobID(jobID);
-
-                            realm.copyToRealmOrUpdate(ppeDetail);
                         }
+
+                        realm.copyToRealmOrUpdate(ppeDetail);
                     }
                 });
             }
@@ -482,35 +485,27 @@ public class CheckInActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
-                        ghsDetail = new GHSDetail();
+                        GHSDetail ghsDetail;
                         ghsName = results.getGhsURL().substring(0, results.getGhsURL().indexOf("."));
 
-                        if (realm.where(GHSDetail.class).equalTo("jobID", jobID).equalTo("ghsName", ghsName).count() == 0) {
+                        realm.where(GHSDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
 
-                            if (realm.where(GHSDetail.class).max("ghsID") == null) {
+                        if (realm.where(GHSDetail.class).max("ghsID") == null) {
 
-                                ghsDetail.setGhsID(1);
-
-                            } else {
-
-                                ghsDetail.setGhsID(realm.where(GHSDetail.class).max("ghsID").intValue() + 1);
-                            }
-
+                            ghsDetail = realm.createObject(GHSDetail.class, 1);
                             ghsDetail.setGhsName(ghsName);
                             ghsDetail.setGhsURL(results.getGhsURL());
                             ghsDetail.setJobID(jobID);
-
-                            realm.copyToRealm(ghsDetail);
 
                         } else {
 
-                            ghsDetail.setGhsID(realm.where(GHSDetail.class).max("ghsID").intValue() + 1);
+                            ghsDetail = realm.createObject(GHSDetail.class, realm.where(GHSDetail.class).max("ghsID").intValue() + 1);
                             ghsDetail.setGhsName(ghsName);
                             ghsDetail.setGhsURL(results.getGhsURL());
                             ghsDetail.setJobID(jobID);
-
-                            realm.copyToRealmOrUpdate(ghsDetail);
                         }
+
+                        realm.copyToRealmOrUpdate(ghsDetail);
                     }
                 });
             }
@@ -523,7 +518,6 @@ public class CheckInActivity extends AppCompatActivity {
 
         String jobID;
         ArrayList<SealDetail> sealNoArrayList;
-        SealDetail sealDetail;
 
         private sealNoAsync(String jobID) {
 
@@ -539,7 +533,7 @@ public class CheckInActivity extends AppCompatActivity {
         }
 
         @Override
-        protected void onPostExecute(Void result) {
+        protected void onPostExecute(final Void result) {
 
             for (final SealDetail results : sealNoArrayList) {
 
@@ -547,11 +541,13 @@ public class CheckInActivity extends AppCompatActivity {
                     @Override
                     public void execute(Realm realm) {
 
-                        sealDetail = new SealDetail();
-                        sealDetail.setSealNo(results.getSealNo());
-                        sealDetail.setJobID(jobID);
+                        if (realm.where(SealDetail.class).equalTo("sealNo", results.getSealNo()).equalTo("jobID", jobID).count() == 0) {
 
-                        realm.copyToRealmOrUpdate(sealDetail);
+                            SealDetail sealDetail = realm.createObject(SealDetail.class, results.getSealNo());
+                            sealDetail.setJobID(jobID);
+
+                            realm.copyToRealmOrUpdate(sealDetail);
+                        }
                     }
                 });
             }
@@ -634,9 +630,8 @@ public class CheckInActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-        // if button is clicked, close the custom dialog
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -652,8 +647,7 @@ public class CheckInActivity extends AppCompatActivity {
 
                         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                            loadingBayDetail = new LoadingBayDetail();
-                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
                             realm.copyToRealmOrUpdate(loadingBayDetail);

@@ -1,8 +1,15 @@
 package com.bizconnectivity.tismobile;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.widget.Toast;
+
+import com.bizconnectivity.tismobile.database.models.JobDetail;
+
+import io.realm.Realm;
+
+import static com.bizconnectivity.tismobile.Constant.SHARED_PREF_NAME;
 
 public class Common {
 
@@ -41,5 +48,20 @@ public class Common {
     public static void longToast(Context context, String message) {
 
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+    }
+
+    public static void updateJobStatus(final String jobID, final String status) {
+
+        Realm realm = Realm.getDefaultInstance();
+        realm.executeTransaction(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+
+                JobDetail jobDetail = realm.where(JobDetail.class).equalTo("jobID", jobID).findFirst();
+                jobDetail.setJobStatus(status);
+
+                realm.copyToRealmOrUpdate(jobDetail);
+            }
+        });
     }
 }

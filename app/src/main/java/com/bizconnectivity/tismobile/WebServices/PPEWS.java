@@ -60,7 +60,7 @@ public class PPEWS {
 		return ppeArrayList;
 	}
 
-	public static ArrayList<PPEDetail> getElementFromPPE(SoapObject response) {
+	private static ArrayList<PPEDetail> getElementFromPPE(SoapObject response) {
 
 		ArrayList<PPEDetail> ppeArrayList = new ArrayList<>();
 

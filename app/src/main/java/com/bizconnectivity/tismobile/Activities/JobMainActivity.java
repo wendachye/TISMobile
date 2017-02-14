@@ -26,7 +26,6 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
 import com.bizconnectivity.tismobile.database.models.GHSDetail;
-import com.bizconnectivity.tismobile.database.models.JobDetail;
 import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
 import com.bizconnectivity.tismobile.database.models.PPEDetail;
 import com.bizconnectivity.tismobile.webservices.GHSWS;
@@ -86,7 +85,6 @@ public class JobMainActivity extends AppCompatActivity {
     ImageButton mImageButtonSettings;
 
     Realm realm;
-    LoadingBayDetail loadingBayDetail;
     PopupMenu popupMenu;
     Dialog exitDialog, scanPPEDialog, safetyChecksDialog;
     SharedPreferences sharedPref;
@@ -193,6 +191,16 @@ public class JobMainActivity extends AppCompatActivity {
 
             } else {
 
+                //update job status
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PPE).apply();
+                updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
+
+                //set ppe button
+                mButtonPPE.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonPPE.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mButtonSDS.setEnabled(true);
+
                 //display alert dialog
                 alertDialog(NO_PPE, NO_PPE_MESSAGE);
             }
@@ -212,18 +220,7 @@ public class JobMainActivity extends AppCompatActivity {
             //update job status
             SharedPreferences.Editor editor = sharedPref.edit();
             editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SDS).apply();
-
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    JobDetail jobDetail = new JobDetail();
-                    jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                    jobDetail.setJobStatus(STATUS_SDS);
-
-                    realm.copyToRealmOrUpdate(jobDetail);
-                }
-            });
+            updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SDS);
 
             //set button sds
             mButtonSDS.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
@@ -245,7 +242,7 @@ public class JobMainActivity extends AppCompatActivity {
     @OnClick(R.id.button_safety_checks)
     public void btnSafetyChecks() {
 
-        safetyChecks();
+        safetyChecksDialog();
     }
 
     //region Product PPE
@@ -287,9 +284,20 @@ public class JobMainActivity extends AppCompatActivity {
                 //close progress dialog
                 progressDialog.dismiss();
 
+                //ppe dialog
                 ppeDialog(ppeArrayList, ghsArrayList);
 
             } else {
+
+                //update job status
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PPE).apply();
+                updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
+
+                //set ppe button
+                mButtonPPE.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonPPE.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mButtonSDS.setEnabled(true);
 
                 //close progress dialog
                 progressDialog.dismiss();
@@ -420,26 +428,16 @@ public class JobMainActivity extends AppCompatActivity {
 
                 if (mRadioButtonGHS.isChecked() && mRadioButtonPPE.isChecked()) {
 
-                    //region update job status
+                    //update job status
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PPE).apply();
+                    updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
 
-                    realm.executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                            jobDetail.setJobStatus(STATUS_PPE);
-
-                            realm.copyToRealmOrUpdate(jobDetail);
-                        }
-                    });
-                    //endregion
-
+                    //set ppe button
                     mButtonPPE.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
                     mButtonPPE.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
                     mButtonSDS.setEnabled(true);
 
+                    //close ppe dialog
                     scanPPEDialog.dismiss();
 
                 } else {
@@ -476,7 +474,6 @@ public class JobMainActivity extends AppCompatActivity {
     //region product ppe offline dialog
     private void productPpeOfflineDialog() {
 
-        //region initial dialog
         if (scanPPEDialog != null && scanPPEDialog.isShowing()) return;
 
         scanPPEDialog = new Dialog(this);
@@ -488,7 +485,6 @@ public class JobMainActivity extends AppCompatActivity {
         TextView mTextViewProductName = (TextView) scanPPEDialog.findViewById(R.id.text_product_name);
         final RadioButton mRadioButtonGHS = (RadioButton) scanPPEDialog.findViewById(R.id.radio_ghs);
         final RadioButton mRadioButtonPPE = (RadioButton) scanPPEDialog.findViewById(R.id.radio_ppe);
-        //endregion
 
         //set product name
         mTextViewProductName.setText(sharedPref.getString(SHARED_PREF_PRODUCT_NAME, ""));
@@ -736,30 +732,21 @@ public class JobMainActivity extends AppCompatActivity {
 
                 if (mRadioButtonGHS.isChecked() && mRadioButtonPPE.isChecked()) {
 
-                    //region update job status
+                    //update job status
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_PPE).apply();
+                    updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_PPE);
 
-                    realm.executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                            jobDetail.setJobStatus(STATUS_PPE);
-
-                            realm.copyToRealmOrUpdate(jobDetail);
-                        }
-                    });
-                    //endregion
-
+                    //set ppe button
                     mButtonPPE.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
                     mButtonPPE.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
                     mButtonSDS.setEnabled(true);
 
+                    //close ppe dialog
                     scanPPEDialog.dismiss();
 
                 } else {
 
+                    //show error message
                     shortToast(getApplicationContext(), ERR_MSG_CHECK_PPE);
                 }
             }
@@ -824,18 +811,7 @@ public class JobMainActivity extends AppCompatActivity {
                 //update job status
                 SharedPreferences.Editor editor = sharedPref.edit();
                 editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SDS).apply();
-
-                realm.executeTransaction(new Realm.Transaction() {
-                    @Override
-                    public void execute(Realm realm) {
-
-                        JobDetail jobDetail = new JobDetail();
-                        jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                        jobDetail.setJobStatus(STATUS_SDS);
-
-                        realm.copyToRealmOrUpdate(jobDetail);
-                    }
-                });
+                updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, "") , STATUS_SDS);
 
                 //set button sds
                 mButtonSDS.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
@@ -851,22 +827,28 @@ public class JobMainActivity extends AppCompatActivity {
 
             } else {
 
+                //update job status
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SDS).apply();
+                updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, "") , STATUS_SDS);
+
+                //set button sds
+                mButtonSDS.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonSDS.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mButtonScanDetails.setEnabled(true);
+
                 //close progress dialog
                 progressDialog.dismiss();
 
                 //display alert dialog
                 alertDialog(NO_SDS, NO_SDS_MESSAGE);
-
-                mButtonSDS.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
-                mButtonSDS.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
-                mButtonScanDetails.setEnabled(true);
             }
         }
     }
     //endregion
 
     //region Safety Checks
-    public void safetyChecks() {
+    public void safetyChecksDialog() {
 
         if (safetyChecksDialog != null && safetyChecksDialog.isShowing()) return;
 
@@ -900,21 +882,9 @@ public class JobMainActivity extends AppCompatActivity {
 
                 if (mRadioButtonWheelChoked.isChecked() && mRadioButtonBondingWire.isChecked()) {
 
-                    //region update job status
+                    //update job status
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SAFETY_CHECKS).apply();
-
-                    realm.executeTransaction(new Realm.Transaction() {
-                        @Override
-                        public void execute(Realm realm) {
-
-                            JobDetail jobDetail = new JobDetail();
-                            jobDetail.setJobID(sharedPref.getString(SHARED_PREF_JOB_ID, ""));
-                            jobDetail.setJobStatus(STATUS_SAFETY_CHECKS);
-
-                            realm.copyToRealmOrUpdate(jobDetail);
-                        }
-                    });
-                    //endregion
+                    updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SAFETY_CHECKS);
 
                     //close safety checks dialog
                     safetyChecksDialog.dismiss();
@@ -1043,9 +1013,8 @@ public class JobMainActivity extends AppCompatActivity {
         exitDialog = new Dialog(this);
         exitDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         exitDialog.setContentView(R.layout.dialog_exit_app);
-        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
 
-        // if button is clicked, close the custom dialog
+        Button btnConfirm = (Button) exitDialog.findViewById(R.id.button_confirm);
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1061,8 +1030,7 @@ public class JobMainActivity extends AppCompatActivity {
 
                         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                            loadingBayDetail = new LoadingBayDetail();
-                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
                             realm.copyToRealmOrUpdate(loadingBayDetail);
