@@ -304,7 +304,7 @@ public class ScanDetailsActivity extends AppCompatActivity {
         protected void onPreExecute() {
 
             //start progress dialog
-            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+            progressDialog = ProgressDialog.show(ScanDetailsActivity.this, "Please wait..", "Loading...", true);
         }
 
         @Override

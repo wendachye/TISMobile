@@ -24,7 +24,6 @@
             android:textSize="@dimen/default_app_text" />
 
         <TextView
-            android:id="@+id/separator1"
             android:layout_width="@dimen/separator_width"
             android:layout_height="match_parent"
             android:layout_gravity="center"
@@ -43,7 +42,6 @@
             android:textSize="@dimen/default_app_text" />
 
         <TextView
-            android:id="@+id/separator2"
             android:layout_width="@dimen/separator_width"
             android:layout_height="match_parent"
             android:layout_gravity="center"
@@ -62,7 +60,6 @@
             android:textSize="@dimen/default_app_text" />
 
         <TextView
-            android:id="@+id/separator3"
             android:layout_width="@dimen/separator_width"
             android:layout_height="match_parent"
             android:layout_gravity="center"

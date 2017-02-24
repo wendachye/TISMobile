@@ -34,19 +34,15 @@ import com.bizconnectivity.tismobile.webservices.DepartureWS;
 import com.bizconnectivity.tismobile.webservices.PumpStartWS;
 import com.bizconnectivity.tismobile.webservices.PumpStopWS;
 
-import java.util.ArrayList;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmResults;
 
 import static com.bizconnectivity.tismobile.Common.*;
 import static com.bizconnectivity.tismobile.Constant.*;
 
-public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapter.AdapterCallBack{
+public class SyncDataActivity extends AppCompatActivity{
 
 	//region declaration
 
@@ -73,12 +69,8 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 	ImageButton mImageButtonSettings;
 
 	Realm realm;
-	RealmResults<JobDetail> jobDetailRealmResults;
-	LoadingBayDetail loadingBayDetail;
-	ArrayList<JobDetail> jobDetailArrayList;
 	Dialog exitDialog;
 	PopupMenu popupMenu;
-	SyncDataAdapter adapter;
 	SharedPreferences sharedPref;
 	boolean isActivityStarted = false;
 
@@ -102,35 +94,10 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
         //header
 		mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
-		//retrieve unsync data
-		jobDetailRealmResults = realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll();
-		jobDetailArrayList = new ArrayList<>();
-
-		for (JobDetail results : jobDetailRealmResults) {
-
-			jobDetailArrayList.add(results);
-		}
-
 		//recycler view setup
 		mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-		adapter = new SyncDataAdapter(jobDetailArrayList, R.layout.list_view_search_result, this);
-		mRecyclerView.setAdapter(adapter);
-
-		//auto update unsync data
-		jobDetailRealmResults.addChangeListener(new RealmChangeListener<RealmResults<JobDetail>>() {
-			@Override
-			public void onChange(RealmResults<JobDetail> element) {
-
-				for (JobDetail results : jobDetailRealmResults) {
-
-					jobDetailArrayList.add(results);
-				}
-
-				mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-				adapter = new SyncDataAdapter(jobDetailArrayList, R.layout.list_view_search_result, SyncDataActivity.this);
-				mRecyclerView.setAdapter(adapter);
-			}
-		});
+		mRecyclerView.setAdapter(new SyncDataAdapter(this, realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll()));
+		mRecyclerView.setHasFixedSize(true);
 	}
 
 	//region Menu
@@ -150,11 +117,49 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 		//noinspection SimplifiableIfStatement
 		if (item.getItemId() == R.id.menu_refresh) {
 
-			if (jobDetailArrayList.size() > 0) {
+			if (realm.where(JobDetail.class).notEqualTo("rackOutTime", "").count() > 0) {
 
 				if (isNetworkAvailable(this)) {
 
-					new departureAsync(jobDetailArrayList, sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")).execute();
+					final String updatedBy = sharedPref.getString(SHARED_PREF_LOGIN_NAME, "");
+
+					realm.executeTransactionAsync(new Realm.Transaction() {
+						@Override
+						public void execute(Realm realm) {
+
+							for (JobDetail results : realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll()) {
+
+								new syncDataAsync(results.getJobID(), "PUMP_START", results.getPumpStartTime(), updatedBy).execute();
+								new syncDataAsync(results.getJobID(), "PUMP_STOP", results.getPumpStopTime(), updatedBy).execute();
+								new syncDataAsync(results.getJobID(), "DEPARTURE", results.getRackOutTime(), updatedBy).execute();
+
+								for (SealDetail seals : realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).equalTo("status", "Used").findAll()) {
+
+									new syncDataAsync(seals.getJobID(), "SEAL", seals.getSealNo(), updatedBy).execute();
+								}
+
+								realm.where(GHSDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
+								realm.where(PPEDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
+								realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
+							}
+
+							realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll().deleteAllFromRealm();
+						}
+					}, new Realm.Transaction.OnSuccess() {
+						@Override
+						public void onSuccess() {
+
+							//display success message
+							shortToast(getApplicationContext(), SUCCESS_SYNC);
+						}
+					}, new Realm.Transaction.OnError() {
+						@Override
+						public void onError(Throwable error) {
+
+							//display success message
+							shortToast(getApplicationContext(), FAIL_SYNC);
+						}
+					});
 
 				} else {
 
@@ -173,83 +178,45 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 	}
 	//endregion
 
-	//region Sync Data
-	private class departureAsync extends AsyncTask<String, Void, Void> {
+	private class syncDataAsync extends AsyncTask<String, Void, Void>{
 
+		String jobID;
+		String type;
+		String typeValue;
 		String updatedBy;
-		ArrayList<JobDetail> jobDetailArrayList ;
-		ProgressDialog progressDialog;
 
-		private departureAsync(ArrayList<JobDetail> jobDetailArrayList, String updatedBy) {
+		private syncDataAsync(String jobID, String type, String typeValue, String updatedBy) {
 
-			this.jobDetailArrayList = jobDetailArrayList;
+			this.jobID = jobID;
+			this.type = type;
+			this.typeValue = typeValue;
 			this.updatedBy = updatedBy;
-		}
-
-		@Override
-		protected void onPreExecute() {
-
-			//start progress dialog
-			progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
 		}
 
 		@Override
 		protected Void doInBackground(String... params) {
 
-			for (final JobDetail results : jobDetailArrayList) {
+			switch (type) {
 
-				PumpStartWS.invokeUpdatePumpStartWS(results.getJobID(), results.getPumpStartTime(), updatedBy);
-				PumpStopWS.invokeUpdatePumpStopWS(results.getJobID(), results.getPumpStopTime(), updatedBy);
-				DepartureWS.invokeAddDepartureWS(results.getJobID(), results.getRackOutTime(), updatedBy);
+				case "PUMP_START":
+					PumpStartWS.invokeUpdatePumpStartWS(jobID, typeValue, updatedBy);
+					break;
 
-				for (SealDetail seals : realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).equalTo("status", "Used").findAll()) {
+				case "PUMP_STOP":
+					PumpStopWS.invokeUpdatePumpStopWS(jobID, typeValue, updatedBy);
+					break;
 
-					AddSealWS.invokeAddSealWS(seals.getSealNo(), seals.getJobID(), "bottom", updatedBy);
-				}
+				case "DEPARTURE":
+					DepartureWS.invokeAddDepartureWS(jobID, typeValue, updatedBy);
+					break;
 
-				//delete job ghs & ppe from local database
-				realm.executeTransaction(new Realm.Transaction() {
-					@Override
-					public void execute(Realm realm) {
-
-						realm.where(GHSDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
-						realm.where(PPEDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
-						realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
-					}
-				});
+				case "SEAL":
+					AddSealWS.invokeAddSealWS(typeValue, jobID, "bottom", updatedBy);
+					break;
 			}
-
-			//delete all finished job from local database
-			realm.executeTransaction(new Realm.Transaction() {
-				@Override
-				public void execute(Realm realm) {
-
-					realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll().deleteAllFromRealm();
-				}
-			});
-
-			//delete all seal from local database
-			realm.executeTransaction(new Realm.Transaction() {
-				@Override
-				public void execute(Realm realm) {
-
-				}
-			});
-
 			return null;
 		}
-
-		@Override
-		protected void onPostExecute(Void result) {
-
-			//close progress dialog
-			progressDialog.dismiss();
-
-			//display success message
-			shortToast(getApplicationContext(), SUCCESS_SYNC);
-		}
 	}
-	//endregion
 
 	//region Footer
 	@OnClick(R.id.button_home)
@@ -344,7 +311,7 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 						for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-							loadingBayDetail = new LoadingBayDetail();
+							LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
 							loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
 							loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
@@ -387,9 +354,6 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 	//endregion
 
 	@Override
-	public void adapterOnClick(int adapterPosition) {}
-
-	@Override
 	public void onBackPressed() {
 
 		exitApplication();
@@ -411,6 +375,7 @@ public class SyncDataActivity extends AppCompatActivity implements SyncDataAdapt
 
 		super.onDestroy();
 
+		mRecyclerView.setAdapter(null);
 		realm.close();
 	}
 }

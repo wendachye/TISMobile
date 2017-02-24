@@ -7,70 +7,67 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.activities.SyncDataActivity;
 import com.bizconnectivity.tismobile.database.models.JobDetail;
 
-import java.util.List;
+import io.realm.OrderedRealmCollection;
+import io.realm.RealmRecyclerViewAdapter;
 
-public class SyncDataAdapter extends RecyclerView.Adapter<SyncDataAdapter.ViewHolder>{
+public class SyncDataAdapter extends RealmRecyclerViewAdapter<JobDetail, SyncDataAdapter.MyViewHolder> {
 
-	private List<JobDetail> items;
-	private int itemLayout;
-	AdapterCallBack adapterCallBack;
+	private final SyncDataActivity activity;
 
-	public SyncDataAdapter(List<JobDetail> items, int itemLayout, AdapterCallBack adapterCallBack) {
+	public SyncDataAdapter(SyncDataActivity activity, OrderedRealmCollection<JobDetail> data) {
 
-		this.items = items;
-		this.itemLayout =itemLayout;
-		this.adapterCallBack = adapterCallBack;
+		super(activity, data, true);
+
+		this.activity = activity;
 	}
 
 	@Override
-	public SyncDataAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public MyViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-		View view = LayoutInflater.from(parent.getContext()).inflate(itemLayout, parent, false);
+		View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_view_search_result, parent, false);
 
-		return new SyncDataAdapter.ViewHolder(view);
+		return new MyViewHolder(itemView);
 	}
 
 	@Override
-	public void onBindViewHolder(ViewHolder holder, int position) {
+	public void onBindViewHolder(MyViewHolder holder, int position) {
 
-		holder.tvLoadingBayOrderId.setText(items.get(position).getJobID());
-		holder.tvLoadingBayCustomer.setText(items.get(position).getCustomerName());
-		holder.tvLoadingBayProduct.setText(items.get(position).getProductName());
-		holder.tvLoadingBayTankNo.setText(items.get(position).getTankNo());
+		JobDetail jobDetail = getData().get(position);
+
+		holder.data = jobDetail;
+		holder.mTextViewJobID.setText(jobDetail.getJobID());
+		holder.mTextViewCustomerName.setText(jobDetail.getCustomerName());
+		holder.mTextViewProductName.setText(jobDetail.getProductName());
+		holder.mTextViewTankNo.setText(jobDetail.getTankNo());
 	}
 
-	@Override
-	public int getItemCount() {
+	class MyViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
 
-		return items.size();
-	}
+		public TextView mTextViewJobID;
+		public TextView mTextViewCustomerName;
+		public TextView mTextViewProductName;
+		public TextView mTextViewTankNo;
+		public JobDetail data;
 
-	class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-		TextView tvLoadingBayOrderId, tvLoadingBayCustomer, tvLoadingBayProduct, tvLoadingBayTankNo;
-
-		private ViewHolder(View itemView) {
+		public MyViewHolder(View itemView) {
 
 			super(itemView);
 
-			tvLoadingBayOrderId = (TextView) itemView.findViewById(R.id.text_job_id);
-			tvLoadingBayCustomer = (TextView) itemView.findViewById(R.id.text_customer_name);
-			tvLoadingBayProduct = (TextView) itemView.findViewById(R.id.text_product_name);
-			tvLoadingBayTankNo = (TextView) itemView.findViewById(R.id.text_tank_no);
+			mTextViewJobID = (TextView) itemView.findViewById(R.id.text_job_id);
+			mTextViewCustomerName = (TextView) itemView.findViewById(R.id.text_customer_name);
+			mTextViewProductName = (TextView) itemView.findViewById(R.id.text_product_name);
+			mTextViewTankNo = (TextView) itemView.findViewById(R.id.text_tank_no);
 
-			itemView.setOnClickListener(this);
+			itemView.setOnLongClickListener(this);
 		}
 
 		@Override
-		public void onClick(View v) {
+		public boolean onLongClick(View v) {
 
+			return true;
 		}
-	}
-
-	public interface AdapterCallBack {
-
-		void adapterOnClick(int adapterPosition);
 	}
 }

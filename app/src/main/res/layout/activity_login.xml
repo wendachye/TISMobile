@@ -83,6 +83,7 @@
                     android:text="@android:string/cancel"
                     android:layout_weight="1"
                     android:textSize="@dimen/default_app_text"
+                    android:textStyle="bold"
                     android:onClick="btnSignInCancel"/>
 
                 <Button
@@ -93,6 +94,7 @@
                     android:text="@string/action_sign_in_short"
                     android:layout_weight="1"
                     android:textSize="@dimen/default_app_text"
+                    android:textStyle="bold"
                     android:onClick="btnSignIn"/>
 
             </LinearLayout>

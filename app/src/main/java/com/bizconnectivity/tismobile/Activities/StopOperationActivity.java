@@ -210,6 +210,9 @@ public class StopOperationActivity extends AppCompatActivity {
                     //update webservice
                     new pumpStopWSAsync(sharedPref.getString(SHARED_PREF_JOB_ID, ""), sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")).execute();
 
+                    //close pump stop dialog
+                    pumpStopDialog.dismiss();
+
                 } else {
 
                     //update local database
@@ -282,7 +285,7 @@ public class StopOperationActivity extends AppCompatActivity {
         protected void onPreExecute() {
 
             //start progress dialog
-            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+            progressDialog = ProgressDialog.show(StopOperationActivity.this, "Please wait..", "Loading...", true);
         }
 
         @Override
@@ -442,6 +445,9 @@ public class StopOperationActivity extends AppCompatActivity {
                     //update webservice
                     new addSealWSAsync(countSeal, jobID, sealPosition, updatedBy).execute();
 
+                    //close seal dialog
+                    scanSealDialog.dismiss();
+
                 } else {
 
                     //update local database
@@ -459,11 +465,16 @@ public class StopOperationActivity extends AppCompatActivity {
                         }
                     });
 
-
                     //update job status
                     SharedPreferences.Editor editor = sharedPref.edit();
                     editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
                     updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_SEAL);
+
+                    //set button scan seal
+                    mButtonScanSeal.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                    mButtonScanSeal.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                    mButtonScanSeal.setEnabled(true);
+                    mButtonDeparture.setEnabled(true);
 
                     //close scan seal dialog
                     scanSealDialog.dismiss();
@@ -543,7 +554,7 @@ public class StopOperationActivity extends AppCompatActivity {
         protected void onPreExecute() {
 
             //start progress dialog
-            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+            progressDialog = ProgressDialog.show(StopOperationActivity.this, "Please wait..", "Loading...", true);
         }
 
         @Override
@@ -567,7 +578,19 @@ public class StopOperationActivity extends AppCompatActivity {
                 editor.putString(SHARED_PREF_JOB_STATUS, STATUS_SCAN_SEAL).apply();
                 updateJobStatus(sharedPref.getString(SHARED_PREF_JOB_ID, ""), STATUS_SCAN_SEAL);
 
+                //set button scan seal
+                mButtonScanSeal.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
+                mButtonScanSeal.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
+                mButtonScanSeal.setEnabled(true);
+                mButtonDeparture.setEnabled(true);
+
+                //close progress dialog
+                progressDialog.dismiss();
+
             } else {
+
+                //close progress dialog
+                progressDialog.dismiss();
 
                 //show error message
                 shortToast(getApplicationContext(), ERR_MSG_SEAL_CANNOT_ADD);
@@ -956,7 +979,7 @@ public class StopOperationActivity extends AppCompatActivity {
         protected void onPreExecute() {
 
             //start progress dialog
-            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+            progressDialog = ProgressDialog.show(StopOperationActivity.this, "Please wait..", "Loading...", true);
         }
 
         @Override

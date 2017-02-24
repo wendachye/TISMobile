@@ -290,7 +290,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
                     //set batch controller button
                     mButtonBatchController.setTextColor(ContextCompat.getColor(getApplicationContext(), R.color.colorWhite));
                     mButtonBatchController.setBackgroundColor(ContextCompat.getColor(getApplicationContext(), R.color.colorGreen));
-                    mTextViewBatchController.setText(batchController);
+                    mTextViewBatchController.setText(metric);
                     mButtonPumpStart.setEnabled(true);
 
                     //close batch controller dialog
@@ -540,7 +540,7 @@ public class LoadingOperationActivity extends AppCompatActivity {
         protected void onPreExecute() {
 
             //start progress dialog
-            progressDialog = ProgressDialog.show(getApplicationContext(), "Please wait..", "Loading...", true);
+            progressDialog = ProgressDialog.show(LoadingOperationActivity.this, "Please wait..", "Loading...", true);
         }
 
         @Override

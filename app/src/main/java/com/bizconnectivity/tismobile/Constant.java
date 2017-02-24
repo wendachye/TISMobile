@@ -92,7 +92,8 @@ public class Constant {
     public static String ERR_MSG_DEPARTURE = "Fail to departure, please try again.";
     public static String NO_DATA_SYNC = "No data to sync.";
     public static String NO_INTERNET = "No Internet Connection.";
-    public static String SUCCESS_SYNC = "Data has been synced.";
+    public static String SUCCESS_SYNC = "Data has been synced successfully.";
+    public static String FAIL_SYNC = "Something Wrong! Please contact customer service.";
 
     /*--------Barcode Scanner--------*/
     public static String SCAN_MSG_CANCEL_SCANNING = "Scanning is cancelled";
