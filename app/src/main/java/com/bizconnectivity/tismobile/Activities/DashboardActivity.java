@@ -1,12 +1,15 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.MenuItem;
@@ -20,9 +23,16 @@ import android.widget.TextView;
 
 import com.bizconnectivity.tismobile.adapters.CustomExpandableListAdapter;
 import com.bizconnectivity.tismobile.R;
+import com.bizconnectivity.tismobile.database.models.GHSDetail;
 import com.bizconnectivity.tismobile.database.models.JobDetail;
 import com.bizconnectivity.tismobile.database.models.JobList;
 import com.bizconnectivity.tismobile.database.models.LoadingBayDetail;
+import com.bizconnectivity.tismobile.database.models.PPEDetail;
+import com.bizconnectivity.tismobile.database.models.SealDetail;
+import com.bizconnectivity.tismobile.webservices.GHSWS;
+import com.bizconnectivity.tismobile.webservices.JobDetailWS;
+import com.bizconnectivity.tismobile.webservices.PPEWS;
+import com.bizconnectivity.tismobile.webservices.SealNoWS;
 
 import java.util.ArrayList;
 
@@ -50,6 +60,8 @@ public class DashboardActivity extends AppCompatActivity {
     TextView mTextViewDashboardTitle;
     @BindView(R.id.expandable_list_view)
     ExpandableListView mExpandableListView;
+    @BindView(R.id.swipe_refresh_layout)
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     //footer
     @BindView(R.id.footer_dashboard)
@@ -72,6 +84,7 @@ public class DashboardActivity extends AppCompatActivity {
     CustomExpandableListAdapter customExpandableListAdapter;
     SharedPreferences sharedPref;
     String trunkBayString;
+    ArrayList<String> rackNoArray;
     boolean isActivityStarted = false;
     //endregion
 
@@ -93,49 +106,35 @@ public class DashboardActivity extends AppCompatActivity {
         //region header
         mTextViewHeader.setText(formatWelcomeMsg(sharedPref.getString(SHARED_PREF_LOGIN_NAME, "")));
 
-        //region retrieve loading bay and job details
         trunkBayString = "";
-        jobListArray = new ArrayList<>();
+        rackNoArray = new ArrayList<>();
 
-        for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING)) {
+        if (isNetworkAvailable(getApplicationContext())) {
 
-            jobList = new JobList();
-            childArrayList = new ArrayList<>();
+            for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING)) {
 
-            if (trunkBayString.isEmpty()) {
+                if (trunkBayString.isEmpty()) {
 
-                trunkBayString = results.getLoadingBayNo();
+                    trunkBayString = results.getLoadingBayNo();
 
-            } else {
+                } else {
 
-                trunkBayString = loadingBayString(trunkBayString, results.getLoadingBayNo());
+                    trunkBayString = loadingBayString(trunkBayString, results.getLoadingBayNo());
+                }
+
+                rackNoArray.add(results.getLoadingBayNo());
             }
 
-            for (JobDetail jobListResults : realm.where(JobDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).equalTo("jobStatus", "Pending").findAll()) {
+            //set loading bay no
+            mTextViewDashboardTitle.setText(formatCheckedInTruckLoadingBay(trunkBayString));
 
-                childArrayList.add(jobListResults);
-            }
+            new jobDetailsAsync(rackNoArray).execute();
 
-            jobList.setLoadingBayNo(results.getLoadingBayNo());
-            jobList.setJobDetails(childArrayList);
+        } else {
 
-            jobListArray.add(jobList);
+            //display no internet message
+            shortToast(getApplicationContext(), NO_INTERNET);
         }
-        //endregion
-
-        mTextViewDashboardTitle.setText(formatCheckedInTruckLoadingBay(trunkBayString));
-        //endregion
-
-        //region expandable list view settings
-        customExpandableListAdapter = new CustomExpandableListAdapter(this, jobListArray);
-        mExpandableListView.setAdapter(customExpandableListAdapter);
-
-        //expand all the list view at the first time
-        for (int i=0; i<customExpandableListAdapter.getGroupCount(); i++ ) {
-
-            mExpandableListView.expandGroup(i);
-        }
-        //endregion
 
         //region expandable list view child onclick
         mExpandableListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
@@ -176,9 +175,311 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
         //endregion
+
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+
+                if (isNetworkAvailable(getApplicationContext())) {
+
+                    trunkBayString = "";
+                    rackNoArray = new ArrayList<>();
+
+                    for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAllSorted("loadingBayNo", Sort.ASCENDING)) {
+
+                        if (trunkBayString.isEmpty()) {
+
+                            trunkBayString = results.getLoadingBayNo();
+
+                        } else {
+
+                            trunkBayString = loadingBayString(trunkBayString, results.getLoadingBayNo());
+                        }
+
+                        rackNoArray.add(results.getLoadingBayNo());
+                    }
+
+                    //set loading bay no
+                    mTextViewDashboardTitle.setText(formatCheckedInTruckLoadingBay(trunkBayString));
+
+
+                    new jobDetailsAsync(rackNoArray).execute();
+
+                    mSwipeRefreshLayout.setRefreshing(false);
+
+                } else {
+
+                    //display no internet message
+                    shortToast(getApplicationContext(), NO_INTERNET);
+
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            }
+        });
     }
 
-    public void storeJobDetailSharedPref(JobDetail jobDetail) {
+    private class jobDetailsAsync extends AsyncTask<String, Void, Void> {
+
+        ArrayList<String> rackNoArray;
+        ArrayList<JobDetail> jobDetailArrayList;
+        ProgressDialog progressDialog;
+
+        private jobDetailsAsync(ArrayList<String> rackNoArray) {
+
+            this.rackNoArray = rackNoArray;
+        }
+
+        @Override
+        protected void onPreExecute() {
+
+            //start progress dialog
+            progressDialog = ProgressDialog.show(DashboardActivity.this, "Please wait..", "Loading...", true);
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            for(int i=0; i<rackNoArray.size(); i++) {
+
+                jobDetailArrayList = JobDetailWS.invokeRetrieveAllJobs(rackNoArray.get(i));
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(final Void result) {
+
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    realm.where(JobDetail.class).findAll().deleteAllFromRealm();
+                }
+            });
+
+            for (final JobDetail results : jobDetailArrayList) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        JobDetail jobDetail;
+
+                        if (realm.where(JobDetail.class).equalTo("jobID", results.getJobID()).count() > 0) {
+
+                            jobDetail = realm.where(JobDetail.class).equalTo("jobID", results.getJobID()).findFirst();
+                            jobDetail.setCustomerName(results.getCustomerName());
+                            jobDetail.setProductName(results.getProductName());
+                            jobDetail.setTankNo(results.getTankNo());
+                            jobDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            jobDetail.setLoadingArm(results.getLoadingArm());
+                            jobDetail.setSdsFilePath(results.getSdsFilePath());
+                            jobDetail.setOperatorID(results.getOperatorID());
+                            jobDetail.setDriverID(results.getDriverID());
+                            jobDetail.setJobDate(results.getJobDate());
+
+                        } else {
+
+                            jobDetail = realm.createObject(JobDetail.class, results.getJobID());
+                            jobDetail.setCustomerName(results.getCustomerName());
+                            jobDetail.setProductName(results.getProductName());
+                            jobDetail.setTankNo(results.getTankNo());
+                            jobDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            jobDetail.setLoadingArm(results.getLoadingArm());
+                            jobDetail.setSdsFilePath(results.getSdsFilePath());
+                            jobDetail.setOperatorID(results.getOperatorID());
+                            jobDetail.setDriverID(results.getDriverID());
+                            jobDetail.setJobDate(results.getJobDate());
+                        }
+
+                        realm.copyToRealmOrUpdate(jobDetail);
+                    }
+                });
+
+                new PPEGHSAsync(results.getJobID(), results.getProductName()).execute();
+
+                new sealNoAsync(results.getJobID()).execute();
+            }
+
+            //retrieve from local database
+            jobListArray = new ArrayList<>();
+            jobList = new JobList();
+            childArrayList = new ArrayList<>();
+
+            for(int i=0; i<rackNoArray.size(); i++) {
+
+                for (JobDetail jobListResults : realm.where(JobDetail.class).equalTo("loadingBayNo", rackNoArray.get(i)).equalTo("jobStatus", "Pending").equalTo("rackOutTime", "").findAll()) {
+
+                    childArrayList.add(jobListResults);
+                }
+
+                jobList.setLoadingBayNo(rackNoArray.get(i));
+                jobList.setJobDetails(childArrayList);
+                jobListArray.add(jobList);
+            }
+
+            //set custom adapter
+            customExpandableListAdapter = new CustomExpandableListAdapter(getApplicationContext(), jobListArray);
+            mExpandableListView.setAdapter(customExpandableListAdapter);
+
+            //expand all the list view at the first time
+            for (int i=0; i<customExpandableListAdapter.getGroupCount(); i++ ) {
+
+                mExpandableListView.expandGroup(i);
+            }
+
+            //close progress dialog
+            progressDialog.dismiss();
+        }
+    }
+
+    private class PPEGHSAsync extends AsyncTask<String, Void, Void> {
+
+        ArrayList<PPEDetail> ppeArrayList;
+        ArrayList<GHSDetail> ghsArrayList;
+        String jobID, productName, ppeName, ghsName;
+
+        private PPEGHSAsync(String jobID, String productName) {
+
+            this.jobID = jobID;
+            this.productName = productName;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            ppeArrayList = PPEWS.invokeRetrievePPEWS(productName);
+            ghsArrayList = GHSWS.invokeRetrieveGHSWS(productName);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result) {
+
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    realm.where(PPEDetail.class).findAll().deleteAllFromRealm();
+                    realm.where(GHSDetail.class).findAll().deleteAllFromRealm();
+                }
+            });
+
+            for (final PPEDetail results : ppeArrayList) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        PPEDetail ppeDetail;
+                        ppeName = results.getPpeURL().substring(0, results.getPpeURL().indexOf("."));
+
+                        realm.where(PPEDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
+
+                        if (realm.where(PPEDetail.class).max("ppeID") == null) {
+
+                            ppeDetail = realm.createObject(PPEDetail.class, 1);
+                            ppeDetail.setPpeName(ppeName);
+                            ppeDetail.setPpeURL(results.getPpeURL());
+                            ppeDetail.setJobID(jobID);
+
+                        } else {
+
+                            ppeDetail = realm.createObject(PPEDetail.class, realm.where(PPEDetail.class).max("ppeID").intValue() + 1);
+                            ppeDetail.setPpeName(ppeName);
+                            ppeDetail.setPpeURL(results.getPpeURL());
+                            ppeDetail.setJobID(jobID);
+                        }
+
+                        realm.copyToRealmOrUpdate(ppeDetail);
+                    }
+                });
+            }
+
+            for (final GHSDetail results : ghsArrayList) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        GHSDetail ghsDetail;
+                        ghsName = results.getGhsURL().substring(0, results.getGhsURL().indexOf("."));
+
+                        realm.where(GHSDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
+
+                        if (realm.where(GHSDetail.class).max("ghsID") == null) {
+
+                            ghsDetail = realm.createObject(GHSDetail.class, 1);
+                            ghsDetail.setGhsName(ghsName);
+                            ghsDetail.setGhsURL(results.getGhsURL());
+                            ghsDetail.setJobID(jobID);
+
+                        } else {
+
+                            ghsDetail = realm.createObject(GHSDetail.class, realm.where(GHSDetail.class).max("ghsID").intValue() + 1);
+                            ghsDetail.setGhsName(ghsName);
+                            ghsDetail.setGhsURL(results.getGhsURL());
+                            ghsDetail.setJobID(jobID);
+                        }
+
+                        realm.copyToRealmOrUpdate(ghsDetail);
+                    }
+                });
+            }
+        }
+    }
+
+    private class sealNoAsync extends AsyncTask<String, Void, Void> {
+
+        String jobID;
+        ArrayList<SealDetail> sealNoArrayList;
+
+        private sealNoAsync(String jobID) {
+
+            this.jobID = jobID;
+        }
+
+        @Override
+        protected Void doInBackground(String... params) {
+
+            sealNoArrayList = SealNoWS.invokeRetrieveSealNo(jobID);
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(final Void result) {
+
+            realm.executeTransaction(new Realm.Transaction() {
+                @Override
+                public void execute(Realm realm) {
+
+                    realm.where(SealDetail.class).findAll().deleteAllFromRealm();
+                }
+            });
+
+            for (final SealDetail results : sealNoArrayList) {
+
+                realm.executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+
+                        if (realm.where(SealDetail.class).equalTo("sealNo", results.getSealNo()).equalTo("jobID", jobID).count() == 0) {
+
+                            SealDetail sealDetail = realm.createObject(SealDetail.class, results.getSealNo());
+                            sealDetail.setJobID(jobID);
+
+                            realm.copyToRealmOrUpdate(sealDetail);
+                        }
+                    }
+                });
+            }
+        }
+    }
+
+    private void storeJobDetailSharedPref(JobDetail jobDetail) {
 
         SharedPreferences.Editor editor = sharedPref.edit();
 

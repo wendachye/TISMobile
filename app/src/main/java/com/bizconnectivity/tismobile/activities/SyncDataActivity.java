@@ -1,7 +1,6 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -144,6 +143,7 @@ public class SyncDataActivity extends AppCompatActivity{
 							}
 
 							realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll().deleteAllFromRealm();
+
 						}
 					}, new Realm.Transaction.OnSuccess() {
 						@Override
