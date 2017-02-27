@@ -128,7 +128,10 @@ public class DashboardActivity extends AppCompatActivity {
             //set loading bay no
             mTextViewDashboardTitle.setText(formatCheckedInTruckLoadingBay(trunkBayString));
 
-            new jobDetailsAsync(rackNoArray).execute();
+            if (rackNoArray.size() > 0) {
+
+                new jobDetailsAsync(rackNoArray).execute();
+            }
 
         } else {
 
@@ -176,6 +179,7 @@ public class DashboardActivity extends AppCompatActivity {
         });
         //endregion
 
+        //region swipe refresh layout
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -216,6 +220,7 @@ public class DashboardActivity extends AppCompatActivity {
                 }
             }
         });
+        //endregion
     }
 
     private class jobDetailsAsync extends AsyncTask<String, Void, Void> {
@@ -593,8 +598,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                         for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
-                            LoadingBayDetail loadingBayDetail = realm.createObject(LoadingBayDetail.class);
-                            loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
+                            LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
                             loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
                             realm.copyToRealmOrUpdate(loadingBayDetail);

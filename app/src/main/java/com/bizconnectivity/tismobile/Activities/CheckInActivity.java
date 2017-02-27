@@ -84,7 +84,7 @@ public class CheckInActivity extends AppCompatActivity {
     PopupMenu popupMenu;
     Dialog exitDialog;
     SharedPreferences sharedPref;
-    String technicianID, trunkBayString;
+    String trunkBayString;
     boolean isActivityStarted = false;
     //endregion
 
@@ -109,7 +109,7 @@ public class CheckInActivity extends AppCompatActivity {
         //region initial technician nric
         if (!sharedPref.getString(SHARED_PREF_TECHNICIAN_ID, "").isEmpty()) {
 
-            mTextViewTechnicianNRIC.setText(technicianID);
+            mTextViewTechnicianNRIC.setText(sharedPref.getString(SHARED_PREF_TECHNICIAN_ID, ""));
             mButtonTechnicianNRIC.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
             mButtonTechnicianNRIC.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
 
@@ -231,9 +231,11 @@ public class CheckInActivity extends AppCompatActivity {
 
                     editor.putString(SHARED_PREF_TECHNICIAN_ID, scanContent).apply();
 
-                    Intent intent = new Intent(this, CheckInActivity.class);
-                    isActivityStarted = true;
-                    startActivity(intent);
+                    mTextViewTechnicianNRIC.setText(scanContent);
+                    mButtonTechnicianNRIC.setTextColor(ContextCompat.getColor(this, R.color.colorWhite));
+                    mButtonTechnicianNRIC.setBackgroundColor(ContextCompat.getColor(this, R.color.colorGreen));
+
+                    mButtonLoadingBay.setEnabled(true);
 
                 } else if (returnScanValue.equals(SCAN_VALUE_TRUCK_LOADING_BAY)) {
 

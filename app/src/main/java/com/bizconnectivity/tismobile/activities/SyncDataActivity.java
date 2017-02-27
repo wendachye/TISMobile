@@ -1,6 +1,7 @@
 package com.bizconnectivity.tismobile.activities;
 
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -32,6 +33,8 @@ import com.bizconnectivity.tismobile.webservices.AddSealWS;
 import com.bizconnectivity.tismobile.webservices.DepartureWS;
 import com.bizconnectivity.tismobile.webservices.PumpStartWS;
 import com.bizconnectivity.tismobile.webservices.PumpStopWS;
+
+import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -72,7 +75,7 @@ public class SyncDataActivity extends AppCompatActivity{
 	PopupMenu popupMenu;
 	SharedPreferences sharedPref;
 	boolean isActivityStarted = false;
-
+	ProgressDialog progressDialog;
 	//endregion
 
 	@Override
@@ -120,44 +123,51 @@ public class SyncDataActivity extends AppCompatActivity{
 
 				if (isNetworkAvailable(this)) {
 
-					final String updatedBy = sharedPref.getString(SHARED_PREF_LOGIN_NAME, "");
+					//display progress dialog
+					progressDialog = ProgressDialog.show(SyncDataActivity.this, "Please wait..", "Loading...", true);
 
 					realm.executeTransactionAsync(new Realm.Transaction() {
 						@Override
 						public void execute(Realm realm) {
 
+							String updatedBy = sharedPref.getString(SHARED_PREF_LOGIN_NAME, "");
+
 							for (JobDetail results : realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll()) {
 
-								new syncDataAsync(results.getJobID(), "PUMP_START", results.getPumpStartTime(), updatedBy).execute();
-								new syncDataAsync(results.getJobID(), "PUMP_STOP", results.getPumpStopTime(), updatedBy).execute();
-								new syncDataAsync(results.getJobID(), "DEPARTURE", results.getRackOutTime(), updatedBy).execute();
+								PumpStartWS.invokeUpdatePumpStartWS(results.getJobID(), results.getPumpStartTime(), updatedBy);
+								PumpStopWS.invokeUpdatePumpStopWS(results.getJobID(), results.getPumpStopTime(), updatedBy);
+								DepartureWS.invokeAddDepartureWS(results.getJobID(), results.getRackOutTime(), updatedBy);
 
 								for (SealDetail seals : realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).equalTo("status", "Used").findAll()) {
 
-									new syncDataAsync(seals.getJobID(), "SEAL", seals.getSealNo(), updatedBy).execute();
+									AddSealWS.invokeAddSealWS(seals.getSealNo(), results.getJobID(), "bottom", updatedBy);
 								}
 
 								realm.where(GHSDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
 								realm.where(PPEDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
 								realm.where(SealDetail.class).equalTo("jobID", results.getJobID()).findAll().deleteAllFromRealm();
+								realm.where(JobDetail.class).equalTo("jobID", results.getJobID()).notEqualTo("rackOutTime", "").findAll().deleteAllFromRealm();
 							}
-
-							realm.where(JobDetail.class).notEqualTo("rackOutTime", "").findAll().deleteAllFromRealm();
-
 						}
 					}, new Realm.Transaction.OnSuccess() {
 						@Override
 						public void onSuccess() {
 
-							//display success message
-							shortToast(getApplicationContext(), SUCCESS_SYNC);
+							//close progress dialog
+							progressDialog.dismiss();
+
+							//show success message
+							longToast(getApplicationContext(), SUCCESS_SYNC);
 						}
 					}, new Realm.Transaction.OnError() {
 						@Override
 						public void onError(Throwable error) {
 
-							//display success message
-							shortToast(getApplicationContext(), FAIL_SYNC);
+							//close progress dialog
+							progressDialog.dismiss();
+
+							//show error message
+							longToast(getApplicationContext(), FAIL_SYNC);
 						}
 					});
 
@@ -177,46 +187,6 @@ public class SyncDataActivity extends AppCompatActivity{
 		return super.onOptionsItemSelected(item);
 	}
 	//endregion
-
-	private class syncDataAsync extends AsyncTask<String, Void, Void>{
-
-		String jobID;
-		String type;
-		String typeValue;
-		String updatedBy;
-
-		private syncDataAsync(String jobID, String type, String typeValue, String updatedBy) {
-
-			this.jobID = jobID;
-			this.type = type;
-			this.typeValue = typeValue;
-			this.updatedBy = updatedBy;
-		}
-
-		@Override
-		protected Void doInBackground(String... params) {
-
-			switch (type) {
-
-				case "PUMP_START":
-					PumpStartWS.invokeUpdatePumpStartWS(jobID, typeValue, updatedBy);
-					break;
-
-				case "PUMP_STOP":
-					PumpStopWS.invokeUpdatePumpStopWS(jobID, typeValue, updatedBy);
-					break;
-
-				case "DEPARTURE":
-					DepartureWS.invokeAddDepartureWS(jobID, typeValue, updatedBy);
-					break;
-
-				case "SEAL":
-					AddSealWS.invokeAddSealWS(typeValue, jobID, "bottom", updatedBy);
-					break;
-			}
-			return null;
-		}
-	}
 
 	//region Footer
 	@OnClick(R.id.button_home)
@@ -312,7 +282,6 @@ public class SyncDataActivity extends AppCompatActivity{
 						for (LoadingBayDetail results : realm.where(LoadingBayDetail.class).equalTo("status", LOADING_BAY_NO_CHECK_IN).findAll()) {
 
 							LoadingBayDetail loadingBayDetail = realm.where(LoadingBayDetail.class).equalTo("loadingBayNo", results.getLoadingBayNo()).findFirst();
-							loadingBayDetail.setLoadingBayNo(results.getLoadingBayNo());
 							loadingBayDetail.setStatus(LOADING_BAY_NO_CHECK_OUT);
 
 							realm.copyToRealmOrUpdate(loadingBayDetail);
