@@ -206,8 +206,10 @@ public class DashboardActivity extends AppCompatActivity {
                     //set loading bay no
                     mTextViewDashboardTitle.setText(formatCheckedInTruckLoadingBay(trunkBayString));
 
+                    if (rackNoArray.size() > 0) {
 
-                    new jobDetailsAsync(rackNoArray).execute();
+                        new jobDetailsAsync(rackNoArray).execute();
+                    }
 
                     mSwipeRefreshLayout.setRefreshing(false);
 
@@ -255,14 +257,6 @@ public class DashboardActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final Void result) {
 
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    realm.where(JobDetail.class).findAll().deleteAllFromRealm();
-                }
-            });
-
             for (final JobDetail results : jobDetailArrayList) {
 
                 realm.executeTransaction(new Realm.Transaction() {
@@ -299,11 +293,18 @@ public class DashboardActivity extends AppCompatActivity {
                         }
 
                         realm.copyToRealmOrUpdate(jobDetail);
+
+                        //remove all ppe & ghs & seal details
+                        realm.where(PPEDetail.class).findAll().deleteAllFromRealm();
+                        realm.where(GHSDetail.class).findAll().deleteAllFromRealm();
+                        realm.where(SealDetail.class).findAll().deleteAllFromRealm();
                     }
                 });
 
+                //retrieve ppe & ghs details
                 new PPEGHSAsync(results.getJobID(), results.getProductName()).execute();
 
+                //retrieve seal details
                 new sealNoAsync(results.getJobID()).execute();
             }
 
@@ -363,15 +364,6 @@ public class DashboardActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void result) {
 
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    realm.where(PPEDetail.class).findAll().deleteAllFromRealm();
-                    realm.where(GHSDetail.class).findAll().deleteAllFromRealm();
-                }
-            });
-
             for (final PPEDetail results : ppeArrayList) {
 
                 realm.executeTransaction(new Realm.Transaction() {
@@ -380,8 +372,6 @@ public class DashboardActivity extends AppCompatActivity {
 
                         PPEDetail ppeDetail;
                         ppeName = results.getPpeURL().substring(0, results.getPpeURL().indexOf("."));
-
-                        realm.where(PPEDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
 
                         if (realm.where(PPEDetail.class).max("ppeID") == null) {
 
@@ -411,8 +401,6 @@ public class DashboardActivity extends AppCompatActivity {
 
                         GHSDetail ghsDetail;
                         ghsName = results.getGhsURL().substring(0, results.getGhsURL().indexOf("."));
-
-                        realm.where(GHSDetail.class).equalTo("jobID", jobID).findAll().deleteAllFromRealm();
 
                         if (realm.where(GHSDetail.class).max("ghsID") == null) {
 
@@ -457,14 +445,6 @@ public class DashboardActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(final Void result) {
 
-            realm.executeTransaction(new Realm.Transaction() {
-                @Override
-                public void execute(Realm realm) {
-
-                    realm.where(SealDetail.class).findAll().deleteAllFromRealm();
-                }
-            });
-
             for (final SealDetail results : sealNoArrayList) {
 
                 realm.executeTransaction(new Realm.Transaction() {
@@ -473,7 +453,8 @@ public class DashboardActivity extends AppCompatActivity {
 
                         if (realm.where(SealDetail.class).equalTo("sealNo", results.getSealNo()).equalTo("jobID", jobID).count() == 0) {
 
-                            SealDetail sealDetail = realm.createObject(SealDetail.class, results.getSealNo());
+                            SealDetail sealDetail;
+                            sealDetail = realm.createObject(SealDetail.class, results.getSealNo());
                             sealDetail.setJobID(jobID);
 
                             realm.copyToRealmOrUpdate(sealDetail);

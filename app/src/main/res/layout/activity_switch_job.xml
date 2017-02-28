@@ -92,6 +92,11 @@
 
         </LinearLayout>
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/separator_width"
+            android:background="@color/colorBlack" />
+
         <ExpandableListView
             android:id="@+id/expandable_list_view"
             android:layout_width="match_parent"

@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.ColorDrawable;
-import android.os.AsyncTask;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -33,8 +32,6 @@ import com.bizconnectivity.tismobile.webservices.AddSealWS;
 import com.bizconnectivity.tismobile.webservices.DepartureWS;
 import com.bizconnectivity.tismobile.webservices.PumpStartWS;
 import com.bizconnectivity.tismobile.webservices.PumpStopWS;
-
-import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
